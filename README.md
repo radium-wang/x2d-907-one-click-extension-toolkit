@@ -42,6 +42,10 @@ Earlier X2D installations, menu behavior and restoration have device/user eviden
 
 This is an independent project, not an official Hasselblad product. Eye recognition is not included. Other camera generations and firmware versions are unsupported.
 
+## Support development
+
+If this toolkit helps you, you can [support its development via PayPal](https://paypal.me/RadiumWang). Donations are voluntary. Thank you for supporting ongoing development and maintenance!
+
 ---
 
 ## 中文说明
@@ -85,3 +89,7 @@ X2D 的耍起功能在第 **12** 格；907 默认第 **11** 格，勾选彩蛋�
 本库只收录应用源码、测试和软件截图，不包含原厂固件、提取的编译 QML、运行库、生成的相机载荷或桌面安装压缩包。桌面安装包见 [GitHub Releases](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/latest)。更新需要应用目录可写；如提示权限不足，请将完整 App 移到自己的可写目录后重试。Mac 使用临时签名、未经公证；Windows 启动器未经代码签名。构建输入见 [构建说明](docs/BUILD.md)。
 
 本项目为独立研究工具，非哈苏官方软件。目前不含眼部识别；不适配其他代机型或固件。
+
+### 支持开发
+
+如果这个工具对你有帮助，欢迎通过 [PayPal 自愿赞助](https://paypal.me/RadiumWang)，支持后续开发与维护。感谢支持！
