@@ -1,4 +1,4 @@
-耍起功能 0.3.3 · Windows x64 实验版
+x2d/907一键扩展功能-工具包 0.4.0 · Windows x64 实验版
 
 语言选择
 窗口右上角可选择“中文”或“English”，默认中文，选择会保存到本机，重新启动仍沿用。
@@ -83,11 +83,14 @@ Android：https://developer.android.com/tools/releases/platform-tools
 
 907 防抖彩蛋（可选）
 点击“已连接”并成功识别 907X / CFV 100C 后，“添加防抖功能（907 彩蛋）”勾选框才会可用，默认不勾选。
-勾选后点击安装：第 11 格为防抖样式彩蛋，第 12 格为耍起功能。取消选择后重新安装则恢复 907 的 11 格扩展布局。
-彩蛋只显示“你被骗了，这里啥也没有 / You’ve been fooled. There’s nothing here.”，不操作防抖硬件。
 一键恢复原状也会撤回彩蛋入口。此项已通过离线菜单与路由检查，907 实机验证尚未完成。
 
-Optional 907 IBIS joke
+Optional 907 IBIS Easter egg
 The default-off checkbox becomes available only after Connected verifies a 907X / CFV 100C.
-Select it before Install to add a joke at tile 11 and move Shuaqi to tile 12. The page contains bilingual joke text only, with no stabilization control.
 Restore removes it as well. Device verification on the 907 is pending.
+
+软件更新 / App updates
+点击“检查更新”；发现新版后，点击“下载并安装更新”。校验通过后 App 会退出、安装并重新打开；上一版保留在应用旁的更新备份目录。
+Click Check for Updates, then Download and Install Update. The verified app update installs after exit and relaunches; the previous app is retained beside the installation.
+相机操作期间不能更新。更新只替换电脑端 App，相机扩展需再点击“已连接 → 一键安装”更新。
+Updates are disabled during camera operations. To update the camera extension afterward, use Connected → Install.

@@ -1,6 +1,8 @@
-# Hasselblad Focus Toolkit
+# X2D/907 One-Click Extension Toolkit
 
-**Shuaqi (耍起功能)** is an experimental macOS and Windows utility for the first-generation **X2D 100C** and **907X & CFV 100C**, targeting stock firmware **4.2.0**.
+**X2D/907 One-Click Extension Toolkit (x2d/907一键扩展功能-工具包)** is an experimental macOS and Windows utility for the first-generation **X2D 100C** and **907X & CFV 100C**, targeting stock firmware **4.2.0**.
+
+Camera menu name remains **耍起功能**.
 
 [中文说明](#中文说明) · [Build and test](docs/BUILD.md) · [Validation](docs/VALIDATION.md)
 
@@ -9,8 +11,9 @@
 - **AF-C continuous autofocus:** adds a camera-side availability switch. The stock AF-S / MF layout returns when disabled.
 - **Focus speed buff:** faster focus scans, with stock speed restored when disabled.
 - **Install / Restore original:** checks the camera and package, saves the original startup configuration, then restarts and verifies the result.
+- **Check for Updates:** fetches the latest stable GitHub Release for your platform, verifies its SHA-256 digest, then installs and relaunches the app. Camera operations and app updates cannot run together. The previous app is retained beside the installation. Updates change the desktop app; updating an installed camera extension still requires **Connected → Install**.
 - **Chinese / English:** switch the desktop interface and logs; the preference survives app restarts.
-- **Optional 907 joke:** after a verified 907 connection, “Add IBIS menu (907 joke)” becomes available. 
+- **907 IBIS Easter egg:** an optional Easter egg available after a verified 907 connection.
 
 **Do not remove the lens while the focus buff is enabled. Disable it before changing lenses.**
 
@@ -19,23 +22,23 @@
 1. Extract the complete application package. macOS requires 13 or later (Apple silicon / Intel); Windows requires 64-bit Windows 10 / 11.
 2. Turn on the camera and connect a USB data cable. Tap **Skip** if shown on the camera. A camera-side **Mass storage** selection can also retain the factory connection.
 3. Click **Connected**. Install and Restore remain disabled until connection and firmware checks pass. Windows requests administrator access and attempts to prepare the supported camera factory interface automatically; the ADB interface is separate.
-4. Optionally select the 907 joke, then click **Install**. Keep the camera powered and connected through restart and verification.
+4. Optionally select the 907 Easter egg, then click **Install**. Keep the camera powered and connected through restart and verification.
 5. Disconnect only when the app reports completion. Open **耍起功能** at the end of the camera menu, enable its master switch, then choose AF-C or the focus buff.
 6. To remove the extension, reconnect, click **Connected**, then **Restore original**. This reverses this application's changes; it is not a complete firmware recovery tool.
 
-X2D uses tile **12**. The 907 uses tile **11** normally, or **12** with the optional joke installed. Changing that installation choice requires another installation; recognized older packages are restored before upgrade.
+X2D uses tile **12**. The 907 uses tile **11** normally, or **12** with the optional Easter egg installed. Changing that installation choice requires another installation; recognized older packages are restored before upgrade.
 
-The repository contains application source, tests and screenshots. Vendor firmware, extracted compiled QML, runtime libraries, generated camera payloads and desktop installation archives are excluded. Prebuilt packages are delivered separately; no GitHub release assets are published by this source push. The Mac build uses an ad-hoc signature and is not notarized; the Windows launcher is unsigned.
+The repository contains application source, tests and screenshots. Vendor firmware, extracted compiled QML, runtime libraries, generated camera payloads and desktop installation archives are excluded. Desktop packages are available from [GitHub Releases](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/latest). Updates require a writable application folder; if needed, move the complete app to a folder you own. The Mac build uses an ad-hoc signature and is not notarized; the Windows launcher is unsigned.
 
 ## Screenshot — English
 
-Actual macOS 0.3.3 window in the disconnected state. The 907 checkbox is intentionally disabled until identification succeeds.
+Actual macOS 0.4.0 window in the disconnected state. The 907 checkbox is intentionally disabled until identification succeeds.
 
-<img src="docs/images/app-en.jpg" alt="Shuaqi 0.3.3 English macOS interface" width="580">
+<img src="docs/images/app-en.jpg" alt="X2D/907 One-Click Extension Toolkit 0.4.0 English macOS interface" width="580">
 
 ## Verification status
 
-Earlier X2D installations, menu behavior and restoration have device/user evidence. The current 0.3.3 changes passed offline connection, transaction, localization and menu tests. The 907 joke, 907 menu adaptation, AF-S retention across power cycles and automatic Windows driver preparation still require device validation. A desktop test is not a camera test. See [the evidence boundaries](docs/VALIDATION.md).
+Earlier X2D installations, menu behavior and restoration have device/user evidence. The current 0.4.0 changes passed offline connection, transaction, localization and menu tests. The 907 Easter egg, 907 menu adaptation, AF-S retention across power cycles and automatic Windows driver preparation still require device validation. A desktop test is not a camera test. See [the evidence boundaries](docs/VALIDATION.md).
 
 This is an independent project, not an official Hasselblad product. Eye recognition is not included. Other camera generations and firmware versions are unsupported.
 
@@ -43,15 +46,18 @@ This is an independent project, not an official Hasselblad product. Eye recognit
 
 ## 中文说明
 
-**耍起功能 / Shuaqi** 是面向第一代 **X2D 100C** 和 **907X & CFV 100C** 的实验性 Mac / Windows 工具，仅适配经过校验的原厂 **4.2.0** 固件。
+**x2d/907一键扩展功能-工具包** 是面向第一代 **X2D 100C** 和 **907X & CFV 100C** 的实验性 Mac / Windows 工具，仅适配经过校验的原厂 **4.2.0** 固件。
+
+相机内的功能菜单继续使用“耍起功能”名称。
 
 ### 当前功能
 
 - **AF-C 连续自动对焦**：在相机上控制连续对焦入口；关闭后恢复原厂 AF-S / 手动对焦布局。
 - **对焦加速 buff**：加快对焦扫描，关闭后恢复原厂速度。
 - **一键安装 / 一键恢复原状**：检查连接与文件，保存原厂启动配置，并在重启后校验结果。
+- **检查更新**：从 GitHub Release 获取对应系统的稳定版，校验 SHA-256 后安装并重新打开；保留上一版 App，更新与相机操作互斥。更新只替换电脑端软件；相机上的扩展需再点击 **已连接 → 一键安装** 更新。
 - **中英文切换**：桌面界面、操作提示和日志随语言切换，重启 App 后保留选择。
-- **907 防抖彩蛋**：成功识别 907 后，“添加防抖功能（907 彩蛋）”勾选框才可用。勾选后安装，第 11 格加入防抖样式入口，第 12 格放耍起功能。
+- **907 防抖彩蛋**：识别到 907 后可选择添加彩蛋。
 
 **开启对焦 buff 后切勿取下镜头。更换镜头前，请先关闭对焦加速 buff。**
 
@@ -68,14 +74,14 @@ X2D 的耍起功能在第 **12** 格；907 默认第 **11** 格，勾选彩蛋�
 
 ### 软件截图 — 中文
 
-这是 macOS 0.3.3 的实际界面截图，当前未连接相机，因此 907 勾选项和写入按钮处于禁用状态。
+这是 macOS 0.4.0 的实际界面截图，当前未连接相机，因此 907 勾选项和写入按钮处于禁用状态。
 
-<img src="docs/images/app-zh.jpg" alt="耍起功能 0.3.3 中文 macOS 界面" width="580">
+<img src="docs/images/app-zh.jpg" alt="x2d/907一键扩展功能-工具包 0.4.0 中文 macOS 界面" width="580">
 
 ### 验证与源码范围
 
-早期 X2D 安装、菜单和恢复已有实机或用户反馈；0.3.3 的连接门槛、事务、翻译和菜单路由已通过离线检查。**907 彩蛋、907 菜单适配、关机后保留 AF-S，以及 Windows 自动驱动准备仍待实机验证。** 具体范围见 [验证说明](docs/VALIDATION.md)。
+早期 X2D 安装、菜单和恢复已有实机或用户反馈；0.4.0 的连接门槛、事务、翻译和菜单路由已通过离线检查。**907 彩蛋、907 菜单适配、关机后保留 AF-S，以及 Windows 自动驱动准备仍待实机验证。** 具体范围见 [验证说明](docs/VALIDATION.md)。
 
-本库只收录应用源码、测试和软件截图，不包含原厂固件、提取的编译 QML、运行库、生成的相机载荷或桌面安装压缩包。安装包另行交付，本次源码推送未发布 GitHub Release 附件。Mac 使用临时签名、未经公证；Windows 启动器未经代码签名。构建输入见 [构建说明](docs/BUILD.md)。
+本库只收录应用源码、测试和软件截图，不包含原厂固件、提取的编译 QML、运行库、生成的相机载荷或桌面安装压缩包。桌面安装包见 [GitHub Releases](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/latest)。更新需要应用目录可写；如提示权限不足，请将完整 App 移到自己的可写目录后重试。Mac 使用临时签名、未经公证；Windows 启动器未经代码签名。构建输入见 [构建说明](docs/BUILD.md)。
 
 本项目为独立研究工具，非哈苏官方软件。目前不含眼部识别；不适配其他代机型或固件。
