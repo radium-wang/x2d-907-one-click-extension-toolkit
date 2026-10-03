@@ -187,9 +187,13 @@ def main():
             env = os.environ.copy()
             env.pop('X2D_PAYLOAD_DIR', None)
             env.update(PYTHONUTF8='1', PYTHONIOENCODING='utf-8', PYTHONNOUSERSITE='1')
-            child = subprocess.Popen([str(D / 'runtime/python.exe'), '-X', 'utf8', '-B', '-u',
-                                      str(D / 'x2d_play_software.py'), action] + (['--prank-ibis'] if prank else []),
-                                     cwd=str(D), env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            args = [str(D / 'runtime/python.exe'), '-X', 'utf8', '-B', '-u',
+                    str(D / 'x2d_play_software.py'), action]
+            if action == 'install' and language.language == 'en':
+                args += ['--language', 'en']
+            if prank:
+                args.append('--prank-ibis')
+            child = subprocess.Popen(args, cwd=str(D), env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                      text=True, encoding='utf-8', errors='replace', creationflags=0x08000000)
             for line in child.stdout:
                 if not line.startswith('X2D_EVENT '): continue

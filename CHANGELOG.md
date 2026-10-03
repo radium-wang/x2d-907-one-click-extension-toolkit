@@ -4,9 +4,13 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 
 ## Unreleased
 
+### Added
+
+- Install Chinese or English camera menu labels from the app language. The camera QML stays literal text; Install selects the matching hashed files. Changing language requires another install.
+
 ### Documentation
 
-- Describe the optional 907 feature as **IBIS entry (Easter egg)** without revealing its contents. Camera-side content is unchanged.
+- Describe the optional 907 feature as **IBIS entry (Easter egg)** without revealing its contents. The optional entry label follows the installed language, page text is not quoted here.
 - Add this changelog and links from the README. Future releases will record changes here.
 - Add a PayPal support link to the repository Sponsor button and the English/Chinese README.
 
@@ -56,9 +60,13 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 
 ## 尚未发布
 
+### 新增
+
+- 安装时按 App 语言写入中文或英文相机菜单文案。相机端 QML 仍为字面字符串；安装选择对应哈希文件。更换语言需重新安装。
+
 ### 文档
 
-- 907 选项统一称为 **防抖入口（彩蛋）**，说明不再透露彩蛋内容；相机里的内容保持原样。
+- 907 选项统一称为 **防抖入口（彩蛋）**，说明不再透露彩蛋内容；入口名称随安装语言变化，此处不引用页面原文。
 - 新增本更新日志及 README 入口，后续版本在此记录改动。
 - 在仓库赞助按钮及中英文 README 中加入 PayPal 赞助链接。
 

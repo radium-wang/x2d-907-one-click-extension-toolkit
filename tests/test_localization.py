@@ -4,12 +4,14 @@ import ast,json,re,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 from localization import CATALOG, Localizer, translate
+from camera_ui_strings import LABELS, PRANK_BODY_EN, PRANK_BODY_ZH, english_qml
 import windows_app
 import x2d_play_software as backend
 import windows_factory_usb as factory
 import windows_connection as driver
 D=Path(__file__).resolve().parents[1]/'src'
 CHINESE=re.compile('[\u3400-\u9fff]')
+CAMERA_SOURCES=('Bootstrap.qml','PlayMenuModel.qml','PlayPage.qml','AfcMenuController.qml','PrankIbisPage.qml')
 
 class LanguageTests(unittest.TestCase):
     def assert_english(self,text): self.assertFalse(CHINESE.search(text),text)
@@ -77,10 +79,54 @@ class LanguageTests(unittest.TestCase):
             session.consume(dict(type='error',message='未检测到相机'));session.finish(1)
             lang.select('zh');self.assertFalse(session.start('install'))
 
+    def test_camera_menu_labels_replace_only_quoted_visible_strings(self):
+        sources={name:(D/name).read_text(encoding='utf-8') for name in CAMERA_SOURCES}
+        joined=''.join(sources.values())
+        expected={chinese:1 for chinese,_ in LABELS}
+        expected['耍起功能']=4
+        for chinese,count in expected.items():
+            self.assertEqual(joined.count(f'"{chinese}"'),count,chinese)
+        english={name:english_qml(text) for name,text in sources.items()}
+        for name,text in english.items():
+            with self.subTest(file=name):
+                for chinese,label in LABELS:
+                    self.assertNotIn(f'"{chinese}"',text)
+                    if f'"{chinese}"' in sources[name]:
+                        self.assertIn(f'"{label}"',text)
+                for sentence in ('耍起功能已关闭','对焦加速 buff 控制器尚未就绪','对焦加速 buff 条件未满足，暂不可用',
+                                 '请先切换到 AF-S 或 MF，再关闭耍起功能'):
+                    if f'"{sentence}"' in sources[name]:
+                        self.assertIn(f'"{sentence}"',text)
+        self.assertEqual(english['AfcMenuController.qml'].count('"AF-C"'),1)
+        self.assertIn('"IBIS"',english['PlayMenuModel.qml'])
+        self.assertIn(f'"{PRANK_BODY_EN}"',english['PrankIbisPage.qml'])
+        self.assertNotIn('你被骗了',english['PrankIbisPage.qml'])
+        self.assertIn(f'"{PRANK_BODY_ZH}"',sources['PrankIbisPage.qml'])
+        self.assertIn('"耍起功能"',sources['PlayPage.qml'])
+
+    def test_camera_ui_language_overlay_keeps_targets_and_rejects_mixed_hashes(self):
+        chinese=[dict(source='X2dPlayPage.qml',target='/system/etc/X2dPlayPage.qml',sha256='aa',bytes=1),
+                 dict(source='libx2d_native_menu.so',target='/system/lib64/libx2d_native_menu.so',sha256='bb',bytes=2)]
+        english=[dict(source='X2dPlayPage.en.qml',target='/system/etc/X2dPlayPage.qml',sha256='cc',bytes=3)]
+        package=dict(format=3,guiSha256=backend.STOCK_GUI,files=chinese,uiLanguages=dict(en=english))
+        self.assertIs(backend.apply_ui_language(package,'zh'),package)
+        selected=backend.apply_ui_language(package,'en')
+        self.assertEqual(selected['files'][0],english[0])
+        self.assertEqual(selected['files'][1],chinese[1])
+        self.assertEqual([entry['target'] for entry in selected['files']],[entry['target'] for entry in chinese])
+        self.assertTrue(backend.same_release_files(chinese,package))
+        self.assertTrue(backend.same_release_files(selected['files'],package))
+        mixed=[dict(english[0],sha256='dead'),chinese[1]]
+        self.assertFalse(backend.same_release_files(mixed,package))
+        with self.assertRaises(RuntimeError): backend.apply_ui_language(package,'fr')
+
     @requires_payloads
     def test_translation_never_changes_camera_payload_hashes(self):
         before=backend.prepare()['files']
         for text in ('正在安装菜单和功能服务','正在恢复原厂启动配置'): translate(text,'en')
         self.assertEqual(before,backend.prepare()['files'])
+        english=backend.apply_ui_language(backend.prepare(),'en')['files']
+        self.assertNotEqual(before,english)
+        self.assertEqual([entry['target'] for entry in before],[entry['target'] for entry in english])
 
 if __name__=='__main__':unittest.main()
