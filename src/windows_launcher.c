@@ -33,6 +33,6 @@ void mainCRTStartup(void) {
  if (!CreateProcessW(executable,command,0,0,0,0x08000000,0,directory,&startup,&process)) goto fail;
  CloseHandle(process.thread); CloseHandle(process.process); ExitProcess(0);
 fail:
- MessageBoxW(0,L"应用未能启动，请解压完整安装包后再打开，勿单独移动 EXE 文件。\nApp could not start. Extract the complete package; do not move the EXE by itself.",L"耍起功能 / Shuaqi",0x10);
+ MessageBoxW(0,L"应用未能启动，请解压完整安装包后再打开，勿单独移动 EXE 文件。\nApp could not start. Extract the complete package; do not move the EXE by itself.",L"x2d/907一键扩展功能-工具包 / X2D/907 One-Click Extension Toolkit",0x10);
  ExitProcess(1);
 }

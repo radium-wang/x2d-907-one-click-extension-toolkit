@@ -4,7 +4,7 @@ import argparse, json, os, plistlib, shutil, subprocess, re
 from pathlib import Path
 D = Path(__file__).resolve().parent
 PAYLOAD = Path(os.environ.get('X2D_PAYLOAD_DIR', str(D/'native-package')))
-VERSION = '0.3.3'
+VERSION = '0.4.0'
 ARCHES = {'arm64', 'x86_64'}
 MINIMUM = (13, 0)
 
@@ -42,7 +42,7 @@ def resolve_dependency(dep, origin, framework):
 
 def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
     out = D/'outputs/mac-app'; out.mkdir(parents=True, exist_ok=True)
-    app = out/'X2D耍起功能.app'
+    app = out/'x2d-907一键扩展功能-工具包.app'
     if app.exists(): shutil.rmtree(app)
     c=app/'Contents'; r=c/'Resources'; m=c/'MacOS'
     r.mkdir(parents=True); m.mkdir()
@@ -64,6 +64,7 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
         shutil.copy2(transport/name,r/name)
     shutil.copy2(D/'x2d_play_software.py',r/'x2d_play_software.py')
     shutil.copy2(D/'translations.json',r/'translations.json')
+    shutil.copy2(D/'app_updates.py',r/'app_updates.py')
     native=r/'native-package'; native.mkdir()
     manifest=json.loads((PAYLOAD/'speed-bundle.json').read_text())
     for source in {f['source'] for f in manifest['files']} | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json'}:
@@ -116,10 +117,10 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
     run('lipo','-create',*slices,'-output',m/'X2DPlay')
     binaries.append(m/'X2DPlay')
     (c/'Info.plist').write_bytes(plistlib.dumps({
-        'CFBundleName':'X2D耍起功能','CFBundleDisplayName':'X2D耍起功能',
+        'CFBundleName':'x2d/907一键扩展功能-工具包','CFBundleDisplayName':'x2d/907一键扩展功能-工具包',
         'CFBundleIdentifier':'local.x2d.play','CFBundleExecutable':'X2DPlay',
         'CFBundlePackageType':'APPL','CFBundleShortVersionString':VERSION,
-        'CFBundleVersion':'15','LSMinimumSystemVersion':'.'.join(map(str,minimum)),
+        'CFBundleVersion':'17','LSMinimumSystemVersion':'.'.join(map(str,minimum)),
         'NSHighResolutionCapable':True,'NSHumanReadableCopyright':'Local experimental X2D / 907X 100C 4.2.0 tool'}))
     licenses=r/'licenses'; licenses.mkdir()
     shutil.copy2(next(pyusb.parent.glob('pyusb-*.dist-info/LICENSE')),licenses/'PyUSB.txt')
@@ -156,7 +157,7 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
             if app.resolve() not in target.parents or not target.is_file(): raise RuntimeError('Missing bundled dependency: '+dep)
         audit.append(dict(path=str(binary.relative_to(app)),architectures=run('lipo','-archs',binary).split(),minimumVersions=versions,dependencies=dependencies(binary)))
     (out/'macOS-compatibility-audit.json').write_text(json.dumps(dict(version=VERSION,minimumMacOS='13.0',binaries=audit),indent=2)+'\n')
-    zipfile=out/('耍起功能-macOS-Universal-'+VERSION+'.zip')
+    zipfile=out/('x2d-907一键扩展功能-工具包-macOS-Universal-'+VERSION+'.zip')
     readme=out/'使用说明-macOS.txt'
     shutil.copy2(D/'MAC-READ-ME.txt',readme)
     if zipfile.exists(): zipfile.unlink()

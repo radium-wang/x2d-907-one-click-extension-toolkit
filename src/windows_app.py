@@ -6,7 +6,7 @@ from pathlib import Path
 from localization import Localizer, translate
 
 D = Path(__file__).resolve().parent
-VERSION = '0.3.3'
+VERSION = '0.4.0'
 
 
 class Session:
@@ -112,7 +112,7 @@ def main():
         f = createfont(-scale(size), 0, 0, 0, 600 if bold else 400,
                        0, 0, 0, 1, 0, 0, 5, 0, 'Microsoft YaHei UI')
         fonts.append(f); return f
-    normal, small, strong, titlefont = font(14), font(12), font(14, True), font(28, True)
+    normal, small, strong, titlefont = font(14), font(12), font(14, True), font(22, True)
     session = Session()
     events = queue.Queue()
     controls = {}
@@ -120,14 +120,17 @@ def main():
     logfile = Path(os.environ.get('LOCALAPPDATA', str(D))) / 'X2DPlay' / 'latest.log'
     logfile.parent.mkdir(parents=True, exist_ok=True)
     EVENT_MESSAGE = 0x8001
+    update_state = dict(busy=False, version='')
 
     def buttons():
+        busy = session.busy or update_state['busy']
+        enable(controls['updatebutton'], not busy)
         eligible = session.verified and session.model == '907X & CFV 100C'
-        enable(controls['prank'], eligible and not session.busy)
+        enable(controls['prank'], eligible and not busy)
         if not eligible: send(controls['prank'], 0x00F1, 0, 0)  # BM_SETCHECK
-        enable(controls['statusbutton'], not session.busy)
+        enable(controls['statusbutton'], not busy)
         for key in ('installbutton', 'restorebutton'):
-            enable(controls[key], not session.busy and session.verified)
+            enable(controls[key], not busy and session.verified)
 
     def render_logs():
         translated_lines = [language.text(line) for line in loglines]
@@ -202,6 +205,7 @@ def main():
             events.put(('done', code)); post(hwnd, EVENT_MESSAGE, 0, 0)
 
     def start(action):
+        if update_state['busy']: return
         if not session.start(action): return
         buttons()
         settext(controls['state'], {'status': '正在检查相机…', 'install': '准备安装…', 'restore': '准备恢复…'}[action])
@@ -210,11 +214,40 @@ def main():
         if prank: log('已选择 907 防抖彩蛋：第 11 格为彩蛋，第 12 格为耍起功能。')
         threading.Thread(target=worker, args=(action, prank), daemon=True).start()
 
+    def update_worker(wanted):
+        try:
+            env = os.environ.copy()
+            env.pop('X2D_PAYLOAD_DIR', None)
+            env.update(PYTHONUTF8='1', PYTHONIOENCODING='utf-8', PYTHONNOUSERSITE='1')
+            args = [str(D / 'runtime/python.exe'), '-B', '-u', str(D / 'app_updates.py'),
+                    'install' if wanted else 'check', '--current', VERSION, '--platform', 'win',
+                    '--target', str(D), '--parent', str(os.getpid())]
+            if wanted: args += ['--wanted', wanted]
+            child = subprocess.Popen(args, env=env, cwd=str(D), stdout=subprocess.PIPE,
+                                     stderr=subprocess.DEVNULL, text=True, encoding='utf-8', creationflags=0x08000000)
+            received = False
+            for line in child.stdout:
+                if not line.startswith('TOOLKIT_UPDATE '): continue
+                event = json.loads(line[15:])
+                received |= event.get('type') in ('available', 'current', 'error', 'restart')
+                events.put(('update', event)); post(hwnd, EVENT_MESSAGE, 0, 0)
+            code = child.wait()
+            if not received: raise RuntimeError('update process ended without result')
+        except Exception:
+            events.put(('update', dict(type='error', message='软件更新未完成，请检查网络连接或重新下载完整安装包；当前应用仍保留')))
+        finally:
+            events.put(('update_done', None)); post(hwnd, EVENT_MESSAGE, 0, 0)
+
+    def start_update():
+        if session.busy or update_state['busy']: return
+        update_state['busy'] = True; buttons()
+        threading.Thread(target=update_worker, args=(update_state['version'],), daemon=True).start()
+
     @PROC
     def procedure(window, msg, wp, lp):
         try:
             if msg == 0x0010:  # WM_CLOSE
-                if session.busy:
+                if session.busy or update_state['busy']:
                     messagebox(window, language.text('相机操作尚未完成，请保持连接并等待完成后退出。'), language.text('操作进行中'), 0x40)
                 else: destroy(window)
                 return 0
@@ -224,6 +257,7 @@ def main():
                 if (wp & 0xFFFF) == 104 and (wp >> 16) == 1:  # CBN_SELCHANGE
                     change_language(); return 0
                 if (wp >> 16) == 0:
+                    if (wp & 0xFFFF) == 106: start_update(); return 0
                     action = {101: 'status', 102: 'install', 103: 'restore'}.get(wp & 0xFFFF)
                     if action: start(action); return 0
             if msg == EVENT_MESSAGE:
@@ -231,6 +265,21 @@ def main():
                     try: kind, value = events.get_nowait()
                     except queue.Empty: break
                     if kind == 'event': consume(value)
+                    elif kind == 'update':
+                        text = value.get('message', '')
+                        log(text); settext(controls['detail'], text)
+                        send(controls['progress'], 0x0402, int(value.get('percent', 0)), 0)
+                        if value['type'] == 'available':
+                            update_state['version'] = value['version']
+                            settext(controls['state'], '发现软件新版本：' + value['version'])
+                        elif value['type'] in ('current', 'error'):
+                            update_state['version'] = ''
+                            settext(controls['state'], '软件更新未完成' if value['type'] == 'error' else text)
+                        elif value['type'] == 'restart':
+                            destroy(window); return 0
+                        settext(controls['updatebutton'], '下载并安装更新' if update_state['version'] else '检查更新')
+                    elif kind == 'update_done':
+                        update_state['busy'] = False; buttons()
                     else:
                         if not session.finish(value) and not session.error_received:
                             text = '操作尚未确认完成，请保持连接并重新检查状态。'
@@ -253,14 +302,14 @@ def main():
     if not register(C.byref(wc)): raise C.WinError(C.get_last_error())
     init = InitCommon(C.sizeof(InitCommon), 0x20)
     initcommon(C.byref(init))
-    width, height = scale(620), scale(786)
+    width, height = scale(620), scale(822)
     screenwidth = api(user, 'GetSystemMetrics', C.c_int, C.c_int)(0)
     screenheight = user.GetSystemMetrics(1)
-    hwnd = create(0, wc.name, language.text('耍起功能 · ') + VERSION, 0x00CA0000,
+    hwnd = create(0, wc.name, language.text('x2d/907一键扩展功能-工具包 · ') + VERSION, 0x00CA0000,
                   max(0, (screenwidth-width)//2), max(0, (screenheight-height)//2),
                   width, height, None, None, instance, None)
     if not hwnd: raise C.WinError(C.get_last_error())
-    localized_sources[hwnd] = '耍起功能 · ' + VERSION
+    localized_sources[hwnd] = 'x2d/907一键扩展功能-工具包 · ' + VERSION
 
     def control(key, classname, text, x, y, w, h, extra=0, identity=0, textfont=None, ex=0):
         handle = create(ex, classname, language.text(text), 0x50000000 | extra,
@@ -271,7 +320,7 @@ def main():
         send(handle, 0x0030, textfont or normal, 1)
         return handle
 
-    control('title', 'STATIC', '耍起功能', 28, 24, 370, 42, textfont=titlefont)
+    control('title', 'STATIC', 'x2d/907一键扩展功能-工具包', 28, 24, 370, 42, textfont=titlefont)
     control('language', 'COMBOBOX', '', 430, 28, 146, 120, extra=0x10003, identity=104)
     for name in ('中文', 'English'):
         send(controls['language'], 0x0143, 0, C.cast(C.c_wchar_p(name), C.c_void_p).value)
@@ -289,10 +338,13 @@ def main():
     control('statusbutton', 'BUTTON', '已连接', 28, 420, 120, 38, extra=0x10000, identity=101)
     control('installbutton', 'BUTTON', '一键安装', 161, 420, 165, 38, extra=0x10000, identity=102)
     control('restorebutton', 'BUTTON', '一键恢复原状', 339, 420, 237, 38, extra=0x10000, identity=103)
-    control('warning', 'STATIC', '开启对焦 buff 后切勿取下镜头。\r\n更换镜头前，请先关闭对焦加速 buff。', 28, 476, 548, 46, textfont=strong)
-    control('note', 'STATIC', '安装会自动备份原厂配置，并重启校验。恢复会撤回本应用的菜单与功能。\r\n请等待操作完成再拔线；首次连接会自动准备相机工厂接口驱动。', 28, 535, 548, 46, textfont=small)
-    control('logs', 'EDIT', '', 28, 593, 548, 138, extra=0x00200844, textfont=small, ex=0x200)
-    log('耍起功能 Windows 版本：' + VERSION)
+    control('updatebutton', 'BUTTON', '检查更新', 28, 465, 200, 28, extra=0x10000, identity=106)
+    control('warning', 'STATIC', '开启对焦 buff 后切勿取下镜头。\r\n更换镜头前，请先关闭对焦加速 buff。', 28, 510, 548, 46, textfont=strong)
+    control('note', 'STATIC', '安装会自动备份原厂配置，并重启校验。恢复会撤回本应用的菜单与功能。\r\n请等待操作完成再拔线；首次连接会自动准备相机工厂接口驱动。', 28, 569, 548, 46, textfont=small)
+    control('logs', 'EDIT', '', 28, 627, 548, 138, extra=0x00200844, textfont=small, ex=0x200)
+    log('工具包 Windows 版本：' + VERSION)
+    from app_updates import notice
+    log(notice(D))
     log('请将相机开机并连接数据线，点击“已连接”；程序会自动准备驱动并检查相机状态。')
     log('若相机提示连接方式，可选择“大容量存储”。')
     buttons()
@@ -312,5 +364,5 @@ if __name__ == '__main__':
     except Exception:
         if os.name == 'nt':
             language = Localizer(Path(os.environ.get('LOCALAPPDATA', str(D))) / 'X2DPlay' / 'language.json')
-            C.windll.user32.MessageBoxW(None, language.text('应用未能启动，请重新解压完整 Windows 安装包。'), language.text('耍起功能'), 0x10)
+            C.windll.user32.MessageBoxW(None, language.text('应用未能启动，请重新解压完整 Windows 安装包。'), language.text('x2d/907一键扩展功能-工具包'), 0x10)
         raise

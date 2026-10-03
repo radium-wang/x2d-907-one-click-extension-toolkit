@@ -1,4 +1,4 @@
-耍起功能 0.3.3 · macOS 通用实验版
+x2d/907一键扩展功能-工具包 0.4.0 · macOS 通用实验版
 
 语言选择
 窗口右上角可选择“中文”或“English”，默认中文，选择会保存到本机，重新启动仍沿用。
@@ -11,7 +11,7 @@ Buttons, feature descriptions, status, errors, instructions and existing logs fo
 Language selection does not change feature settings or USB drivers.
 
 English quick start
-1. Extract the ZIP and open X2D耍起功能.app. No Python or Homebrew installation is required.
+1. Extract the ZIP and open x2d-907一键扩展功能-工具包.app. No Python or Homebrew installation is required.
 2. Turn on one supported camera, connect it to your Mac and click Connected.
 3. Once checks pass, click Install or Restore original. Keep the camera powered and connected until completion is confirmed. Tap Skip on the camera if prompted.
 4. Open Shuaqi at the end of the camera's main menu. Turn on its master switch, then AF-C or the focus speed buff.
@@ -28,7 +28,7 @@ X2D 已有实机安装、重启常驻与恢复验收。
 907X 用户已反馈连接及服务安装通过，但原版未出现菜单入口。本版按其 10 项原厂菜单修正入口追加，实际菜单仍待用户确认；仅在 907X 机身搭配自动对焦 XCD 镜头时测试。
 不适用于 X2D II、907X 50C 或其他固件。
 
-完整解压“耍起功能-macOS-Universal-0.3.3.zip”，打开其中的“X2D耍起功能.app”。
+完整解压“x2d-907一键扩展功能-工具包-macOS-Universal-0.4.0.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
 请使用新解压的应用，避免继续打开旧版副本。
 运行库已自带，不需要安装 Python 或 Homebrew。
 0.2.7 在日志中按操作阶段显示连接、按钮操作、相机“跳过”和完成后拔线提示。
@@ -64,11 +64,14 @@ X2D 已有实机安装、重启常驻与恢复验收。
 
 907 防抖彩蛋（可选）
 点击“已连接”并成功识别 907X / CFV 100C 后，“添加防抖功能（907 彩蛋）”勾选框才会可用，默认不勾选。
-勾选后点击安装：第 11 格为防抖样式彩蛋，第 12 格为耍起功能。取消选择后重新安装则恢复 907 的 11 格扩展布局。
-彩蛋只显示“你被骗了，这里啥也没有 / You’ve been fooled. There’s nothing here.”，不操作防抖硬件。
 一键恢复原状也会撤回彩蛋入口。此项已通过离线菜单与路由检查，907 实机验证尚未完成。
 
-Optional 907 IBIS joke
+Optional 907 IBIS Easter egg
 The default-off checkbox becomes available only after Connected verifies a 907X / CFV 100C.
-Select it before Install to add a joke at tile 11 and move Shuaqi to tile 12. The page contains bilingual joke text only, with no stabilization control.
 Restore removes it as well. Device verification on the 907 is pending.
+
+软件更新 / App updates
+点击“检查更新”；发现新版后，点击“下载并安装更新”。校验通过后 App 会退出、安装并重新打开；上一版保留在应用旁的更新备份目录。
+Click Check for Updates, then Download and Install Update. The verified app update installs after exit and relaunches; the previous app is retained beside the installation.
+相机操作期间不能更新。更新只替换电脑端 App，相机扩展需再点击“已连接 → 一键安装”更新。
+Updates are disabled during camera operations. To update the camera extension afterward, use Connected → Install.

@@ -10,7 +10,7 @@ Commands below run from the repository root. Python 3.9+ and `requirements-dev.t
 - `src/transport/collect_x2d_af_usb.py`: factory USB protocol implementation.
 - `src/windows_factory_usb.py`: native Windows factory interface transport.
 - `src/windows_connection.py`, `windows_driver_*`: constrained factory WinUSB preparation.
-- `src/*.qml`: stock-style extension, optional joke and camera-side controllers.
+- `src/*.qml`: stock-style extension, optional Easter egg and camera-side controllers.
 - `src/native_menu_preload.c`, `speed-buff-server.c`, shell sources: guarded runtime components.
 - `tests/`: offline regressions, API substitutes and transaction failure cases.
 

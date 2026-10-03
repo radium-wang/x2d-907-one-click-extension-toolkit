@@ -21,6 +21,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let languageChoice = NSPopUpButton(frame: .zero, pullsDown: false)
     var quitItem: NSMenuItem!
     var appVersion = ""
+    let updateButton = NSButton(title: "检查更新", target: nil, action: nil)
+    var updateVersion = ""
+    var updateBusy = false
+    var updateRestarting = false
+    var updateTask: Process?
 
     func translated(_ text: String) -> String {
         if language != "en" { return text.replacingOccurrences(of: "Windows", with: "系统") }
@@ -47,11 +52,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         for (field, source) in localizedFields.values { field.stringValue = translated(source) }
         for (image, source) in localizedImages { image.setAccessibilityLabel(translated(source)) }
         prankCheckbox.title = translated("添加防抖功能（907 彩蛋）")
+        updateButton.title = translated(updateVersion.isEmpty ? "检查更新" : "下载并安装更新")
         refresh.title = translated("已连接")
         install.title = translated("一键安装")
         restore.title = translated("一键恢复原状")
-        quitItem.title = translated("退出 X2D 耍起功能")
-        window.title = translated("耍起功能 · ") + appVersion
+        quitItem.title = translated("退出 x2d/907一键扩展功能-工具包")
+        window.title = translated("x2d/907一键扩展功能-工具包 · ") + appVersion
         languageChoice.selectItem(at: language == "en" ? 1 : 0)
         renderLog()
     }
@@ -79,16 +85,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let mainMenu = NSMenu()
         let applicationItem = NSMenuItem()
         let applicationMenu = NSMenu()
-        quitItem = NSMenuItem(title: "退出 X2D 耍起功能", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        quitItem = NSMenuItem(title: "退出 x2d/907一键扩展功能-工具包", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         applicationMenu.addItem(quitItem)
         applicationItem.submenu = applicationMenu
         mainMenu.addItem(applicationItem)
         NSApp.mainMenu = mainMenu
-        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 580, height: 724),
+        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 580, height: 754),
                           styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "未知"
         appVersion = version
-        window.title = "耍起功能 · " + version
+        window.title = "x2d/907一键扩展功能-工具包 · " + version
         window.delegate = self
         window.center()
         let root = NSStackView()
@@ -102,8 +108,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             root.leadingAnchor.constraint(equalTo: window.contentView!.leadingAnchor),
             root.trailingAnchor.constraint(equalTo: window.contentView!.trailingAnchor)
         ])
-        let heading = NSTextField(labelWithString: "耍起功能")
-        heading.font = .systemFont(ofSize: 28, weight: .semibold)
+        let heading = NSTextField(labelWithString: "x2d/907一键扩展功能-工具包")
+        heading.font = .systemFont(ofSize: 22, weight: .semibold)
         localize(heading)
         languageChoice.addItems(withTitles: ["中文", "English"])
         languageChoice.target = self
@@ -159,6 +165,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         install.action = #selector(installClicked); restore.action = #selector(restoreClicked); refresh.action = #selector(refreshClicked)
         refresh.keyEquivalent = "\r"
         root.addArrangedSubview(buttons)
+        updateButton.bezelStyle = .rounded
+        updateButton.target = self; updateButton.action = #selector(updateClicked)
+        root.addArrangedSubview(updateButton)
         let warning = NSTextField(wrappingLabelWithString: "开启对焦 buff 后切勿取下镜头。\n更换镜头前，请先关闭对焦加速 buff。")
         localize(warning)
         warning.font = .systemFont(ofSize: 13, weight: .semibold)
@@ -189,6 +198,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         } else {
             setBusy(false)
             appendLog("应用版本：" + version)
+            appendUpdateNotice()
             appendLog("请将相机开机，并通过 USB 数据线连接 Mac。")
             appendLog("如相机屏幕出现“跳过”按钮，请点击“跳过”，并保持数据线连接。")
             appendLog("连接好后，请点击 App 中的“已连接”；检查通过后即可操作。")
@@ -218,7 +228,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @objc func restoreClicked() { run("restore") }
     @objc func refreshClicked() { run("status") }
 
-    func setBusy(_ value: Bool) {
+    func setBusy(_ cameraBusy: Bool) {
+        let value = cameraBusy || updateBusy
+        updateButton.isEnabled = !value
         prankCheckbox.isEnabled = !value && connectionVerified && detectedModel == "907X & CFV 100C"
         install.isEnabled = !value && connectionVerified; restore.isEnabled = !value && connectionVerified; refresh.isEnabled = !value
     }
@@ -285,7 +297,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         } // Only structured Chinese messages enter the visible log.
     }
     func run(_ action: String) {
-        guard task == nil, let resources = Bundle.main.resourceURL else { return }
+        guard task == nil, !updateBusy, let resources = Bundle.main.resourceURL else { return }
         if action != "status" && !connectionVerified {
             setLocalized(detail, "请先点击“已连接”，检查相机连接与状态。")
             appendLog("请先点击“已连接”，检查相机连接与状态。")
@@ -348,12 +360,103 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         do { try worker.run() }
         catch { task = nil; connectionVerified = false; setBusy(false); setLocalized(status, "无法启动应用运行时"); setLocalized(detail, "应用运行环境无法启动，请重新解压完整安装包。"); appendLog("应用运行环境无法启动，请重新解压完整安装包。") }
     }
+    func appendUpdateNotice() {
+        let fm = FileManager.default
+        let target = Bundle.main.bundleURL.resolvingSymlinksInPath()
+        guard let folders = try? fm.contentsOfDirectory(at: target.deletingLastPathComponent(), includingPropertiesForKeys: [.contentModificationDateKey]) else { return }
+        let sorted = folders.filter { $0.lastPathComponent.hasPrefix(".toolkit-update-") }.sorted {
+            let a = (try? $0.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
+            let b = (try? $1.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
+            return a > b
+        }
+        for folder in sorted {
+            if fm.fileExists(atPath: folder.appendingPathComponent("notified").path) { continue }
+            guard let planData = try? Data(contentsOf: folder.appendingPathComponent("plan.json")),
+                  let plan = (try? JSONSerialization.jsonObject(with: planData)) as? [String: Any],
+                  plan["target"] as? String == target.path,
+                  let resultData = try? Data(contentsOf: folder.appendingPathComponent("result.json")),
+                  let result = (try? JSONSerialization.jsonObject(with: resultData)) as? [String: Any],
+                  let success = result["success"] as? Bool else { continue }
+            if !fm.createFile(atPath: folder.appendingPathComponent("notified").path, contents: Data()) { continue }
+            appendLog(success ? "软件更新安装完成，上一版已保留在应用旁的更新备份目录"
+                              : "软件更新未能安装，已保留或恢复上一版；请关闭占用软件的程序后重试")
+            break
+        }
+    }
+    @objc func updateClicked() {
+        guard task == nil, !updateBusy, let resources = Bundle.main.resourceURL else { return }
+        updateBusy = true; setBusy(false)
+        let worker = Process()
+        worker.executableURL = resources.appendingPathComponent("runtime/bin/python3.13")
+        worker.arguments = ["-B", "-u", resources.appendingPathComponent("app_updates.py").path,
+                            updateVersion.isEmpty ? "check" : "install", "--current", appVersion,
+                            "--platform", "mac", "--target", Bundle.main.bundleURL.path,
+                            "--parent", String(ProcessInfo.processInfo.processIdentifier)]
+        if !updateVersion.isEmpty { worker.arguments! += ["--wanted", updateVersion] }
+        var env = ProcessInfo.processInfo.environment
+        env.removeValue(forKey: "X2D_PAYLOAD_DIR")
+        env["PYTHONHOME"] = resources.appendingPathComponent("runtime").path
+        env["PYTHONPATH"] = resources.path; env["PYTHONNOUSERSITE"] = "1"
+        worker.environment = env
+        let pipe = Pipe(); worker.standardOutput = pipe; worker.standardError = FileHandle.nullDevice
+        var buffer = ""
+        var gotResult = false
+        func consumeUpdate(_ line: String) {
+            guard line.hasPrefix("TOOLKIT_UPDATE "),
+                  let data = String(line.dropFirst(15)).data(using: .utf8),
+                  let event = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else { return }
+            let kind = event["type"] as? String ?? ""
+            let message = event["message"] as? String ?? ""
+            self.appendLog(message); self.setLocalized(self.detail, message)
+            self.progress.doubleValue = event["percent"] as? Double ?? 0
+            if kind == "available" {
+                self.updateVersion = event["version"] as? String ?? ""
+                self.setLocalized(self.status, "发现软件新版本：" + self.updateVersion)
+                gotResult = true
+            } else if kind == "current" {
+                self.updateVersion = ""; self.setLocalized(self.status, message); gotResult = true
+            } else if kind == "error" {
+                self.updateVersion = ""; self.setLocalized(self.status, "软件更新未完成"); gotResult = true
+            } else if kind == "restart" {
+                gotResult = true; self.updateRestarting = true; NSApp.terminate(nil)
+            }
+            self.renderLanguage()
+        }
+        pipe.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            if data.isEmpty { handle.readabilityHandler = nil; return }
+            DispatchQueue.main.async {
+                buffer += String(decoding: data, as: UTF8.self)
+                while let range = buffer.range(of: "\n") {
+                    consumeUpdate(String(buffer[..<range.lowerBound]))
+                    buffer.removeSubrange(buffer.startIndex..<range.upperBound)
+                }
+            }
+        }
+        worker.terminationHandler = { _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                if !buffer.isEmpty { consumeUpdate(buffer); buffer = "" }
+                if !gotResult {
+                    let message = "软件更新未完成，请检查网络连接或重新下载完整安装包；当前应用仍保留"
+                    self.appendLog(message); self.setLocalized(self.detail, message)
+                }
+                self.updateTask = nil; self.updateBusy = false; self.setBusy(false)
+            }
+        }
+        updateTask = worker
+        do { try worker.run() }
+        catch {
+            updateTask = nil; updateBusy = false; setBusy(false)
+            appendLog("应用运行环境无法启动，请重新解压完整安装包。")
+        }
+    }
     func windowShouldClose(_ sender: NSWindow) -> Bool {
-        if task != nil { setLocalized(detail, "相机操作尚未结束，请等待完成后关闭应用。"); return false }
+        if task != nil || updateBusy { setLocalized(detail, "操作尚未结束，请等待完成后关闭应用。"); return false }
         return true
     }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        if task != nil { setLocalized(detail, "相机操作尚未结束，请等待完成后退出应用。"); return .terminateCancel }
+        if updateRestarting { return .terminateNow }
+        if task != nil || updateBusy { setLocalized(detail, "操作尚未结束，请等待完成后退出应用。"); return .terminateCancel }
         return .terminateNow
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }

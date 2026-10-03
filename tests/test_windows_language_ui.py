@@ -43,6 +43,31 @@ class WindowAPI:
         return 1
 
 class WindowsLanguageUITests(unittest.TestCase):
+    def test_update_blocks_camera_writes_duplicate_update_and_window_close(self):
+        class UpdateAPI(WindowAPI):
+            def call(self,name,*args):
+                if name=='GetMessageW':
+                    self.session.verified=True
+                    self.proc(101,0x0111,106,0)
+                    self.proc(101,0x0111,102,0)
+                    self.proc(101,0x0111,103,0)
+                    self.proc(101,0x0111,106,0)
+                    self.proc(101,0x0010,0,0)
+                    assert not self.session.busy and self.session.action==''
+                    for h,item in self.controls.items():
+                        if item['id'] in (101,102,103,106):assert not self.enabled[h]
+                    return 0
+                if name=='DestroyWindow':raise AssertionError('active update must prevent close')
+                return super().call(name,*args)
+        api=UpdateAPI()
+        class Session(app.Session):
+            def __init__(self):super().__init__();api.session=self
+        with tempfile.TemporaryDirectory() as folder:
+            with patch.object(app,'os',SimpleNamespace(name='nt',environ={'LOCALAPPDATA':folder})),patch.object(app.C,'WinDLL',side_effect=lambda *a,**k:api,create=True),patch.object(app.C,'WINFUNCTYPE',C.CFUNCTYPE,create=True),patch.object(app,'Session',Session),patch.object(app.threading,'Thread') as thread,patch.object(app.subprocess,'Popen') as worker:
+                app.main()
+                self.assertEqual(thread.call_count,1)
+                worker.assert_not_called()
+
     def test_real_selection_callback_refreshes_all_controls_logs_and_preferences(self):
         api=WindowAPI()
         class Session(app.Session):
@@ -52,10 +77,11 @@ class WindowsLanguageUITests(unittest.TestCase):
                 app.main()
                 worker.assert_not_called()
             initial,english=api.snapshots
-            self.assertTrue(any(x['text']=='耍起功能' for x in initial.values()))
-            self.assertTrue(any(x['text']=='Shuaqi' for x in english.values()))
+            self.assertTrue(any(x['text']=='x2d/907一键扩展功能-工具包' for x in initial.values()))
+            self.assertTrue(any(x['text']=='X2D/907 One-Click Extension Toolkit' for x in english.values()))
             for item in english.values(): self.assertFalse(re.search('[\u3400-\u9fff]',item['text']),item)
             labels={item['id']:item['text'] for item in english.values() if item['id']}
+            self.assertEqual(labels[106],'Check for Updates');
             self.assertEqual(labels[101],'Connected');self.assertEqual(labels[102],'Install');self.assertEqual(labels[103],'Restore original')
             for handle,item in english.items():
                 if item['id'] in (102,103): self.assertFalse(api.enabled[handle])

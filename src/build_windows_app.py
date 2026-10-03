@@ -16,7 +16,7 @@ def build(inputs, pyusb, llvm):
     out = D / 'outputs/windows-app'
     out.mkdir(parents=True, exist_ok=True)
     builddir = out / 'launcher-build'; builddir.mkdir(exist_ok=True)
-    root = out / '耍起功能-Windows-x64'
+    root = out / 'x2d-907一键扩展功能-工具包-Windows-x64'
     if root.exists(): shutil.rmtree(root)
     root.mkdir()
     runtime = root / 'runtime'; runtime.mkdir()
@@ -26,7 +26,7 @@ def build(inputs, pyusb, llvm):
         assert all('/' not in n and '\\' not in n and n not in ('..', '.') for n in z.namelist())
         z.extractall(runtime)
     (runtime / 'python313._pth').write_text('python313.zip\n.\n..\n', encoding='ascii')
-    for name in ('windows_app.py', 'x2d_play_software.py', 'windows_factory_usb.py', 'windows_connection.py', 'localization.py', 'translations.json'):
+    for name in ('app_updates.py', 'windows_app.py', 'x2d_play_software.py', 'windows_factory_usb.py', 'windows_connection.py', 'localization.py', 'translations.json'):
         shutil.copy2(D / name, root / name)
     transport = D / 'transport'
     for name in ('collect_x2d_af_usb.py',):
@@ -71,7 +71,7 @@ def build(inputs, pyusb, llvm):
     obj = builddir / 'launcher.obj'
     run(llvm / 'clang', '--target=x86_64-pc-windows-msvc', '-Oz', '-ffreestanding',
         '-fno-stack-protector', '-fno-builtin', '-c', D / 'windows_launcher.c', '-o', obj)
-    executable = root / '耍起功能.exe'
+    executable = root / 'x2d-907一键扩展功能-工具包.exe'
     run(linker, obj, builddir / 'kernel32.lib', builddir / 'user32.lib',
         '/out:'+str(executable), '/entry:mainCRTStartup', '/subsystem:windows,6.02',
         '/manifest:embed', '/manifestuac:level="requireAdministrator" uiAccess="false"',
@@ -101,7 +101,7 @@ def build(inputs, pyusb, llvm):
         adb=adbversion,driverPreparation='camera Interface 3 only; libwdi 1.5.1 modified native WinUSB; Windows test pending',verification='cross-build and offline checks; Windows device test pending',
         binaries=audits),ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     shutil.copy2(D / 'WINDOWS-READ-ME.txt', root / '使用说明.txt')
-    archive = out / ('耍起功能-Windows-x64-'+VERSION+'.zip')
+    archive = out / ('x2d-907一键扩展功能-工具包-Windows-x64-'+VERSION+'.zip')
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
         for path in sorted(root.rglob('*')):
             if path.is_file(): z.write(path, path.relative_to(out).as_posix())
