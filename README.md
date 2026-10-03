@@ -13,7 +13,7 @@ Camera menu name remains **耍起功能**.
 - **Install / Restore original:** checks the camera and package, saves the original startup configuration, then restarts and verifies the result.
 - **Check for Updates:** fetches the latest stable GitHub Release for your platform, verifies its SHA-256 digest, then installs and relaunches the app. Camera operations and app updates cannot run together. The previous app is retained beside the installation. Updates change the desktop app; updating an installed camera extension still requires **Connected → Install**.
 - **Chinese / English:** switch the desktop interface and logs; the preference survives app restarts.
-- **907 IBIS Easter egg:** an optional Easter egg available after a verified 907 connection.
+- **907 IBIS entry (Easter egg):** available after a verified 907 connection.
 
 **Do not remove the lens while the focus buff is enabled. Disable it before changing lenses.**
 
@@ -22,7 +22,7 @@ Camera menu name remains **耍起功能**.
 1. Extract the complete application package. macOS requires 13 or later (Apple silicon / Intel); Windows requires 64-bit Windows 10 / 11.
 2. Turn on the camera and connect a USB data cable. Tap **Skip** if shown on the camera. A camera-side **Mass storage** selection can also retain the factory connection.
 3. Click **Connected**. Install and Restore remain disabled until connection and firmware checks pass. Windows requests administrator access and attempts to prepare the supported camera factory interface automatically; the ADB interface is separate.
-4. Optionally select the 907 Easter egg, then click **Install**. Keep the camera powered and connected through restart and verification.
+4. Optionally select the 907 IBIS entry (Easter egg), then click **Install**. Keep the camera powered and connected through restart and verification.
 5. Disconnect only when the app reports completion. Open **耍起功能** at the end of the camera menu, enable its master switch, then choose AF-C or the focus buff.
 6. To remove the extension, reconnect, click **Connected**, then **Restore original**. This reverses this application's changes; it is not a complete firmware recovery tool.
 
@@ -57,7 +57,7 @@ This is an independent project, not an official Hasselblad product. Eye recognit
 - **一键安装 / 一键恢复原状**：检查连接与文件，保存原厂启动配置，并在重启后校验结果。
 - **检查更新**：从 GitHub Release 获取对应系统的稳定版，校验 SHA-256 后安装并重新打开；保留上一版 App，更新与相机操作互斥。更新只替换电脑端软件；相机上的扩展需再点击 **已连接 → 一键安装** 更新。
 - **中英文切换**：桌面界面、操作提示和日志随语言切换，重启 App 后保留选择。
-- **907 防抖彩蛋**：识别到 907 后可选择添加彩蛋。
+- **907 防抖入口（彩蛋）**：识别到 907 后可选择添加。
 
 **开启对焦 buff 后切勿取下镜头。更换镜头前，请先关闭对焦加速 buff。**
 
@@ -66,7 +66,7 @@ This is an independent project, not an official Hasselblad product. Eye recognit
 1. 完整解压软件。Mac 支持 macOS 13 及以上、Apple 芯片与 Intel；Windows 支持 64 位 Windows 10 / 11。
 2. 开机并插入 USB 数据线；相机出现“跳过”时点击“跳过”。在相机屏幕选择“大容量存储”也可能保留工厂通信连接。
 3. 点击 **已连接**。检查通过后才启用安装和恢复按钮。Windows 会请求管理员权限，并尝试自动准备支持的相机工厂接口驱动；ADB 是另一个独立接口。
-4. 907 用户可选勾防抖彩蛋，然后点击 **一键安装**。重启及校验期间保持供电和连接。
+4. 907 用户可选勾防抖入口（彩蛋），然后点击 **一键安装**。重启及校验期间保持供电和连接。
 5. App 提示完成后才拔线。在相机主菜单末尾进入 **耍起功能**，先开启主开关，再选择 AF-C 或对焦加速 buff。
 6. 需要撤回时重新连接，点击 **已连接 → 一键恢复原状**。恢复仅撤回本软件的改动，不是整机固件救援。
 
