@@ -10,7 +10,7 @@
 - **Focus speed buff:** faster focus scans, with stock speed restored when disabled.
 - **Install / Restore original:** checks the camera and package, saves the original startup configuration, then restarts and verifies the result.
 - **Chinese / English:** switch the desktop interface and logs; the preference survives app restarts.
-- **Optional 907 joke:** after a verified 907 connection, “Add IBIS menu (907 joke)” becomes available. Selecting it before installation adds an IBIS-looking tile at position 11 and moves Shuaqi to position 12. The tile opens a bilingual joke page; it does **not** add stabilization hardware or control stabilization.
+- **Optional 907 joke:** after a verified 907 connection, “Add IBIS menu (907 joke)” becomes available. 
 
 **Do not remove the lens while the focus buff is enabled. Disable it before changing lenses.**
 
@@ -51,7 +51,7 @@ This is an independent project, not an official Hasselblad product. Eye recognit
 - **对焦加速 buff**：加快对焦扫描，关闭后恢复原厂速度。
 - **一键安装 / 一键恢复原状**：检查连接与文件，保存原厂启动配置，并在重启后校验结果。
 - **中英文切换**：桌面界面、操作提示和日志随语言切换，重启 App 后保留选择。
-- **907 防抖彩蛋**：成功识别 907 后，“添加防抖功能（907 彩蛋）”勾选框才可用。勾选后安装，第 11 格加入防抖样式入口，第 12 格放耍起功能。点进彩蛋显示：**“你被骗了，这里啥也没有 / You’ve been fooled. There’s nothing here.”**。该入口只显示彩蛋，不操作防抖硬件。
+- **907 防抖彩蛋**：成功识别 907 后，“添加防抖功能（907 彩蛋）”勾选框才可用。勾选后安装，第 11 格加入防抖样式入口，第 12 格放耍起功能。
 
 **开启对焦 buff 后切勿取下镜头。更换镜头前，请先关闭对焦加速 buff。**
 
