@@ -1,0 +1,9 @@
+# Third-party notices
+
+This source repository contains the project's own application implementation and tests, released under the root MIT license. Vendor firmware, extracted QML units, Qt binaries and desktop runtime dependencies are not vendored here. Stock camera resource URLs refer to resources already present on the camera; they are not copies of those resources.
+
+The project acknowledges protocol research from [WeiCheng97/Hasselblad-X2d-series-5g-unlock](https://github.com/WeiCheng97/Hasselblad-X2d-series-5g-unlock) and the AF-C research notes from [Konamill-bot/x2d-cim-notes](https://github.com/Konamill-bot/x2d-cim-notes). These are references; their repositories are not copied here. This is not an endorsement by those authors.
+
+Desktop package builders use Python 3.13.15 (PSF), PyUSB 1.3.1 (BSD), libusb 1.0.30 (LGPL-2.1-or-later), Android platform-tools (its supplied NOTICE), and modified libwdi 1.5.1 (its COPYING / COPYING-LGPL terms). The Windows driver builder pins upstream libwdi source SHA-256 `a695e93db0977dfdc5c6a99a4ea91b22f9027547d0177b2a0f3075078643c929`. It includes the modified source archive and license texts when packaging; no libwdi source or binaries are stored in this Git tree. Third-party licenses are not replaced by the project's MIT license.
+
+Offline QML checks use Qt / PySide 6.4.1 in a local test environment; neither is redistributed in this source repository or required by the shipped native desktop interfaces. Review the applicable Qt licenses when building a separate test environment.

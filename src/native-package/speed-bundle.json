@@ -1,0 +1,128 @@
+{
+  "format": 3,
+  "model": "X2D 100C",
+  "firmware": "4.2.0",
+  "guiSha256": "16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0",
+  "files": [
+    {
+      "source": "libx2d_native_menu.so",
+      "target": "/system/lib64/libx2d_native_menu.so",
+      "bytes": 212544,
+      "sha256": "5dd1dd0e454b57269d349dae1455aac6bcf9b927eb889df5d7e5839120179e6c"
+    },
+    {
+      "source": "X2dNativeMenuBootstrap.qml",
+      "target": "/system/etc/X2dNativeMenuBootstrap.qml",
+      "bytes": 7895,
+      "sha256": "6310e848c6efaddce5c7c2466e1343023933215d0e27841ccf657e6aa8e45095"
+    },
+    {
+      "source": "X2dNativeMenuModel.qml",
+      "target": "/system/etc/X2dNativeMenuModel.qml",
+      "bytes": 5436,
+      "sha256": "afd1213efe60abd0cd123113553c76c4d86de00cb38ff6f87884713904a3f866"
+    },
+    {
+      "source": "X2dNativeMenuRoute.qml",
+      "target": "/system/etc/X2dNativeMenuRoute.qml",
+      "bytes": 2177,
+      "sha256": "d8d9015e02000fed518d62f504c26c3fbb402816444108fdb938ebc0cd409f04"
+    },
+    {
+      "source": "X2dNativeMenuHost.qml",
+      "target": "/system/etc/X2dNativeMenuHost.qml",
+      "bytes": 1542,
+      "sha256": "7e75e91cc66ef906d83a8ff60aecc393c0f57cca46b8fdc682cd7f97b5fc29c9"
+    },
+    {
+      "source": "X2dPrankIbisPage.qml",
+      "target": "/system/etc/X2dPrankIbisPage.qml",
+      "bytes": 1250,
+      "sha256": "fdea5bc01e6117f38e3f5f4d0f6a02494c6493ca43b84619562a113cd0a27a43"
+    },
+    {
+      "source": "X2dPlayPage.qml",
+      "target": "/system/etc/X2dPlayPage.qml",
+      "bytes": 8348,
+      "sha256": "178ec42614d20c0e8ac93ae75daa6022897572a234c282e194fed1276c512c0d"
+    },
+    {
+      "source": "X2dAfcMenuController.qml",
+      "target": "/system/etc/X2dAfcMenuController.qml",
+      "bytes": 5117,
+      "sha256": "ad65e440325bce59898fd844880c503174fb44ede9c38a0b7410a7699ad8fc16"
+    },
+    {
+      "source": "X2dSpeedBuffController.qml",
+      "target": "/system/etc/X2dSpeedBuffController.qml",
+      "bytes": 3067,
+      "sha256": "398f552a238d6f04001aac33dbcaf23553271be7acbb315be4d10ab48f6e49d5"
+    },
+    {
+      "source": "ic_main_menu_play.svg",
+      "target": "/system/etc/X2dPlayIcon.svg",
+      "bytes": 789,
+      "sha256": "5842614688303878e152a9e51ed0eff400d5ec563714d030de6ccb34378785ec"
+    },
+    {
+      "source": "libx2d_speed_server.so",
+      "target": "/system/lib64/libx2d_speed_server.so",
+      "sha256": "ca597d9b888a4c5f649b3a1220c171aa53495710d891062eef61e2938b697eb4",
+      "bytes": 7104
+    },
+    {
+      "source": "speed-worker",
+      "target": "/system/etc/x2d-speed-buff/worker",
+      "sha256": "bf5f1cdde3dc20fe6391841ac7c0856cec194508600e365b6f5f95a9cee760b2",
+      "bytes": 5099
+    },
+    {
+      "source": "speed-backend",
+      "target": "/system/etc/x2d-speed-buff/backend",
+      "sha256": "c77f1beef2a8d5e0e0b3dfdecda236670dd210e9eb629008fd3d77eb1614e3e0",
+      "bytes": 2191
+    },
+    {
+      "source": "speed-transaction",
+      "target": "/system/etc/x2d-speed-buff/transaction",
+      "sha256": "e4d93486254237e1e78987071325a2b7f4532b1d84e7aa8bc7a138ee39e86f29",
+      "bytes": 2909
+    },
+    {
+      "source": "speed-original",
+      "target": "/system/etc/x2d-speed-buff/original",
+      "sha256": "c8b5407c615b60c05078bc7ba9ada8cf53c905bac17faa59561f948feac0d430",
+      "bytes": 1068
+    },
+    {
+      "source": "speed-candidate",
+      "target": "/system/etc/x2d-speed-buff/candidate",
+      "sha256": "4eb555dc16ad54bdcfecd244b63bfea7ee691ce67b8274a1244644392ba15e13",
+      "bytes": 1068
+    }
+  ],
+  "entryIndex": 11,
+  "multipliers": [
+    3,
+    3,
+    2
+  ],
+  "lensRestriction": false,
+  "serviceExecutable": "/system/bin/camera-gui",
+  "features": [
+    "afc",
+    "speed-buff"
+  ],
+  "entryIndexesByModel": {
+    "X2D 100C": 11,
+    "907X & CFV 100C": 10
+  },
+  "compatibleModels": [
+    "X2D 100C",
+    "907X & CFV 100C"
+  ],
+  "validation": {
+    "X2D 100C": "prior-menu-and-buff-device-tested; startup-focus-mode-fix-awaiting-device-test",
+    "907X & CFV 100C": "USB-and-service-installation-user-reported; ten-item-menu-fix-awaiting-device-test"
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "format": 3,
+  "model": "X2D 100C",
+  "firmware": "4.2.0",
+  "guiSha256": "16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0",
+  "files": [
+    {
+      "source": "libx2d_native_menu.so",
+      "target": "/system/lib64/libx2d_native_menu.so",
+      "bytes": 212544,
+      "sha256": "5dd1dd0e454b57269d349dae1455aac6bcf9b927eb889df5d7e5839120179e6c"
+    },
+    {
+      "source": "X2dNativeMenuBootstrap.qml",
+      "target": "/system/etc/X2dNativeMenuBootstrap.qml",
+      "bytes": 6374,
+      "sha256": "0f8c2c79443267651666a7b26527014e58639c527590d4c4ad109a673188dfd7"
+    },
+    {
+      "source": "X2dNativeMenuModel.qml",
+      "target": "/system/etc/X2dNativeMenuModel.qml",
+      "bytes": 3458,
+      "sha256": "c6692642d95dd07449c6aa77a2e45e23da11b12415b4e10c12a0464724566edc"
+    },
+    {
+      "source": "X2dNativeMenuRoute.qml",
+      "target": "/system/etc/X2dNativeMenuRoute.qml",
+      "bytes": 1442,
+      "sha256": "7779679d6cbee6a747d8409330b8248b2ed630ea440087bdb197161876b3d110"
+    },
+    {
+      "source": "X2dNativeMenuHost.qml",
+      "target": "/system/etc/X2dNativeMenuHost.qml",
+      "bytes": 1542,
+      "sha256": "7e75e91cc66ef906d83a8ff60aecc393c0f57cca46b8fdc682cd7f97b5fc29c9"
+    },
+    {
+      "source": "X2dPlayPage.qml",
+      "target": "/system/etc/X2dPlayPage.qml",
+      "bytes": 8348,
+      "sha256": "178ec42614d20c0e8ac93ae75daa6022897572a234c282e194fed1276c512c0d"
+    },
+    {
+      "source": "X2dAfcMenuController.qml",
+      "target": "/system/etc/X2dAfcMenuController.qml",
+      "bytes": 5117,
+      "sha256": "ad65e440325bce59898fd844880c503174fb44ede9c38a0b7410a7699ad8fc16"
+    },
+    {
+      "source": "X2dSpeedBuffController.qml",
+      "target": "/system/etc/X2dSpeedBuffController.qml",
+      "bytes": 2979,
+      "sha256": "f6fdf4216579bb42441d07def8f1b108450e6889883a31cd90192d852fbf9e4c"
+    },
+    {
+      "source": "ic_main_menu_play.svg",
+      "target": "/system/etc/X2dPlayIcon.svg",
+      "bytes": 789,
+      "sha256": "5842614688303878e152a9e51ed0eff400d5ec563714d030de6ccb34378785ec"
+    },
+    {
+      "source": "libx2d_speed_server.so",
+      "target": "/system/lib64/libx2d_speed_server.so",
+      "sha256": "e80c88b6183015b1f9288ba50b4969951f6f5f49c1a14155621138f2465e5e79",
+      "bytes": 6440
+    },
+    {
+      "source": "speed-worker",
+      "target": "/system/etc/x2d-speed-buff/worker",
+      "sha256": "4d59bd6ac51dff35db5dc8831a97daa55dd7153d8b22d95527bbec8351107088",
+      "bytes": 4988
+    },
+    {
+      "source": "speed-backend",
+      "target": "/system/etc/x2d-speed-buff/backend",
+      "sha256": "c77f1beef2a8d5e0e0b3dfdecda236670dd210e9eb629008fd3d77eb1614e3e0",
+      "bytes": 2191
+    },
+    {
+      "source": "speed-transaction",
+      "target": "/system/etc/x2d-speed-buff/transaction",
+      "sha256": "e4d93486254237e1e78987071325a2b7f4532b1d84e7aa8bc7a138ee39e86f29",
+      "bytes": 2909
+    },
+    {
+      "source": "speed-original",
+      "target": "/system/etc/x2d-speed-buff/original",
+      "sha256": "c8b5407c615b60c05078bc7ba9ada8cf53c905bac17faa59561f948feac0d430",
+      "bytes": 1068
+    },
+    {
+      "source": "speed-candidate",
+      "target": "/system/etc/x2d-speed-buff/candidate",
+      "sha256": "4eb555dc16ad54bdcfecd244b63bfea7ee691ce67b8274a1244644392ba15e13",
+      "bytes": 1068
+    }
+  ],
+  "entryIndex": 11,
+  "multipliers": [
+    3,
+    3,
+    2
+  ],
+  "lensRestriction": false,
+  "serviceExecutable": "/system/bin/camera-gui",
+  "features": [
+    "afc",
+    "speed-buff"
+  ],
+  "compatibleModels": [
+    "X2D 100C",
+    "907X & CFV 100C"
+  ],
+  "validation": {
+    "X2D 100C": "prior-menu-and-buff-device-tested; startup-focus-mode-fix-awaiting-device-test",
+    "907X & CFV 100C": "shared-firmware-candidate-awaiting-device-test"
+  }
+}

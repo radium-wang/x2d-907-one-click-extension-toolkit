@@ -1,0 +1,74 @@
+耍起功能 0.3.3 · macOS 通用实验版
+
+语言选择
+窗口右上角可选择“中文”或“English”，默认中文，选择会保存到本机，重新启动仍沿用。
+切换覆盖 App 按钮、功能说明、状态、错误、操作提示及当前已有日志；保存的日志也使用当前语言。
+语言切换不更改功能开关、安装状态或 USB 驱动。
+
+Language
+Choose 中文 or English at the top right. The app remembers your choice after restart.
+Buttons, feature descriptions, status, errors, instructions and existing logs follow the selected language.
+Language selection does not change feature settings or USB drivers.
+
+English quick start
+1. Extract the ZIP and open X2D耍起功能.app. No Python or Homebrew installation is required.
+2. Turn on one supported camera, connect it to your Mac and click Connected.
+3. Once checks pass, click Install or Restore original. Keep the camera powered and connected until completion is confirmed. Tap Skip on the camera if prompted.
+4. Open Shuaqi at the end of the camera's main menu. Turn on its master switch, then AF-C or the focus speed buff.
+5. Do not remove the lens while the focus buff is on. Turn it off before changing lenses.
+macOS 13+ on Apple silicon / Intel; original X2D 100C / 907X & CFV 100C firmware 4.2.0 only.
+This local experimental app uses ad-hoc signing and is not Apple-notarized. The 907X menu update still awaits device verification.
+
+
+适用：Apple silicon / Intel Mac，macOS 13 或更新版本。
+运行库沿用 0.2.4 的兼容方案：更换兼容较早系统的内置运行库，修复旧版在 Sonoma 14 和 macOS 26 上无法启动的问题。
+部署版本、双架构、内置依赖及本机启动已检查；14.3.1 / 26.6.2 尚待用户实机确认。
+第一代 X2D 100C / 907X & CFV 100C，原厂固件 4.2.0。
+X2D 已有实机安装、重启常驻与恢复验收。
+907X 用户已反馈连接及服务安装通过，但原版未出现菜单入口。本版按其 10 项原厂菜单修正入口追加，实际菜单仍待用户确认；仅在 907X 机身搭配自动对焦 XCD 镜头时测试。
+不适用于 X2D II、907X 50C 或其他固件。
+
+完整解压“耍起功能-macOS-Universal-0.3.3.zip”，打开其中的“X2D耍起功能.app”。
+请使用新解压的应用，避免继续打开旧版副本。
+运行库已自带，不需要安装 Python 或 Homebrew。
+0.2.7 在日志中按操作阶段显示连接、按钮操作、相机“跳过”和完成后拔线提示。
+如相机屏幕出现“跳过”按钮，请点击“跳过”，并保持连接直到 App 报告完成。
+本地实验版仅有 ad-hoc 签名，尚无 Developer ID 签名或 Apple 公证。
+
+0.3.1 修正 907X 的 10 项主菜单适配（默认第 11 项；X2D 默认第 12 项），安装完成前增加菜单实际挂接校验。
+保留此前开机模式修正：AF-C 功能开启后，在拍摄界面选择 AF-S 或 MF，开机服务不再覆盖原厂模式选择。
+菜单入口和 buff 状态仍可开机加载。此修正及已知旧版升级仍待实机复测。
+
+1. 相机开机并连接 USB，只连接一台相机。
+2. 点击“已连接”，检查通过后启用安装和恢复按钮。
+3. 点击“一键安装”，等待自动备份、安装及重启校验完成。
+4. 相机主菜单末尾进入“耍起功能”；先开启总开关，再分别开启 AF-C 和 buff。
+5. 点击“一键恢复原状”，等待撤回功能并重启校验完成。
+
+开启对焦 buff 后切勿取下镜头。
+更换镜头前，请先关闭对焦加速 buff。
+等软件报告完成后再拔 USB 线；操作期间保持相机供电。
+
+连接失败或固件不匹配时，按钮保持禁用。
+已知旧版直接点击“一键安装”即可升级：程序先恢复原状并重启校验，再安装新版并再次重启。
+升级会关闭原功能开关，完成后请重新开启所需功能；不要在中间恢复完成时拔线。
+未知版本仍需先使用对应版本恢复，程序拒绝强行覆盖。
+日志为中文，保存于 ~/Library/Application Support/X2DPlay/latest.log。
+
+907X 实机验收：安装后检查主菜单末尾入口与三行开关，AF-C 关闭时两按钮、开启时三按钮。
+分别检查总开关、AF-C 和 buff，再重启检查开启状态保持。
+保持镜头安装，测试结束后使用一键恢复，并确认原厂菜单和对焦两按钮布局恢复。
+如果菜单未出现或功能异常，关闭功能、执行恢复，并记录软件的中文提示。
+
+第三方组件许可位于 App 内 Contents/Resources/licenses。
+
+907 防抖彩蛋（可选）
+点击“已连接”并成功识别 907X / CFV 100C 后，“添加防抖功能（907 彩蛋）”勾选框才会可用，默认不勾选。
+勾选后点击安装：第 11 格为防抖样式彩蛋，第 12 格为耍起功能。取消选择后重新安装则恢复 907 的 11 格扩展布局。
+彩蛋只显示“你被骗了，这里啥也没有 / You’ve been fooled. There’s nothing here.”，不操作防抖硬件。
+一键恢复原状也会撤回彩蛋入口。此项已通过离线菜单与路由检查，907 实机验证尚未完成。
+
+Optional 907 IBIS joke
+The default-off checkbox becomes available only after Connected verifies a 907X / CFV 100C.
+Select it before Install to add a joke at tile 11 and move Shuaqi to tile 12. The page contains bilingual joke text only, with no stabilization control.
+Restore removes it as well. Device verification on the 907 is pending.

@@ -1,0 +1,27 @@
+; Camera-specific WinUSB INF: Windows 10/11 x64, system WinUSB.sys.
+; Uses Microsoft's documented universal INF pattern, no coinstallers.
+[Version]
+Signature = "$Windows NT$"
+Class = USBDevice
+ClassGuid = {88bae032-5a81-49f0-bc3d-a4ff138216d6}
+Provider = %VendorName%
+CatalogFile = #CAT_FILENAME#
+DriverVer = #DRIVER_DATE#, #DRIVER_VERSION#
+PnpLockdown = 1
+[Manufacturer]
+%VendorName% = Camera,NTamd64.10.0
+[Camera.NTamd64.10.0]
+%DeviceName% = USB_Install, USB\#DEVICE_HARDWARE_ID#
+[USB_Install]
+Include = winusb.inf
+Needs = WINUSB.NT
+[USB_Install.Services]
+Include = winusb.inf
+Needs = WINUSB.NT.Services
+[USB_Install.HW]
+AddReg = AddDeviceInterfaceGUID
+[AddDeviceInterfaceGUID]
+HKR,,DeviceInterfaceGUIDs,0x10000,"#DEVICE_INTERFACE_GUID#"
+[Strings]
+DeviceName = "#DEVICE_DESCRIPTION#"
+VendorName = "#DEVICE_MANUFACTURER#"

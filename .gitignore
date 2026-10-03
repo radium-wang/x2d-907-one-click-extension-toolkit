@@ -1,0 +1,13 @@
+**/__pycache__/
+**/outputs/
+**/.stock-host/
+*.pyc
+.DS_Store
+*.zip
+*.so
+*.dll
+*.dylib
+*.exe
+*.bin
+*.tar.gz
+.venv*/
