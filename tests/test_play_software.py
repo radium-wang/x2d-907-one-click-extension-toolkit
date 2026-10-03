@@ -147,7 +147,7 @@ class SoftwareTests(unittest.TestCase):
              patch.object(app,'restore') as restore,patch.object(app,'install') as install:
             calls.attach_mock(restore,'restore');calls.attach_mock(install,'install')
             entry()
-            self.assertEqual(calls.mock_calls,[unittest.mock.call.restore(True,report_result=False),unittest.mock.call.install(True,False)])
+            self.assertEqual(calls.mock_calls,[unittest.mock.call.restore(True,report_result=False),unittest.mock.call.install(True,False,'zh')])
             self.assertFalse(any(call.args[0]=='result' for call in events.call_args_list))
 
     @requires_payloads

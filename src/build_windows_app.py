@@ -57,7 +57,8 @@ def build(inputs, pyusb, llvm):
         shutil.copy2(inputs / 'camera-winusb/source/libwdi-1.5.1' / name,licenses / ('libwdi-'+name+'.txt'))
     native = root / 'native-package'; native.mkdir()
     manifest = json.loads((PAYLOAD/'speed-bundle.json').read_text())
-    for source in {f['source'] for f in manifest['files']} | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json'}:
+    english={f['source'] for f in (manifest.get('uiLanguages') or {}).get('en') or []}
+    for source in {f['source'] for f in manifest['files']} | english | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json'}:
         shutil.copy2(PAYLOAD / source, native / source)
     shutil.copytree(PAYLOAD/'previous-payloads',native / 'previous-payloads')
     # Generate import libraries with lld-link. Stub DLLs are build artifacts only.

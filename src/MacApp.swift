@@ -314,6 +314,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let worker = Process()
         worker.executableURL = resources.appendingPathComponent("runtime/bin/python3.13")
         worker.arguments = ["-B", "-u", resources.appendingPathComponent("x2d_play_software.py").path, action]
+        if action == "install" && language == "en" {
+            worker.arguments! += ["--language", "en"]
+        }
         if action == "install" && detectedModel == "907X & CFV 100C" && prankCheckbox.state == .on {
             worker.arguments!.append("--prank-ibis")
             appendLog("已选择 907 防抖彩蛋：第 11 格为彩蛋，第 12 格为耍起功能。")
