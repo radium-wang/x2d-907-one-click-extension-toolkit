@@ -254,13 +254,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 if detectedModel != "907X & CFV 100C" { prankCheckbox.state = .off }
                 connectionVerified = object["connected"] as? Bool == true && object["firmware"] as? String == "4.2.0"
                 setLocalized(status, message)
-                setLocalized(detail, (object["installed"] as? Bool == true)
+                setLocalized(detail, object["menuPending"] as? Bool == true ? (object["hint"] as? String ?? "") : (object["installed"] as? Bool == true)
                     ? "主菜单末尾进入耍起功能。总开关控制 AF-C 与对焦加速 buff。"
                     : "相机处于原厂状态，可以安装耍起功能。")
                 progress.doubleValue = 0
                 receivedResult = true
                 if connectionVerified {
-                    pendingUserHint = object["recovery"] as? Bool == true
+                    pendingUserHint = object["menuPending"] as? Bool == true ? (object["hint"] as? String ?? "") : object["recovery"] as? Bool == true
                         ? "相机检查完成。请点击“一键恢复原状”，完成上次操作的恢复。"
                         : object["installed"] as? Bool == true
                             ? "相机检查完成，耍起功能已安装。可在相机主菜单末尾使用功能；如需撤回，请点击“一键恢复原状”。"

@@ -13,7 +13,7 @@ import app_updates as u
 
 class Updates(unittest.TestCase):
     def release(self, new='0.4.1', platform='win'):
-        name=u.BASE+'-'+('Windows-x64' if platform=='win' else 'macOS-Universal')+'-'+new+'.zip'
+        name=u.ARCHIVE_BASE+'-'+('Windows-x64' if platform=='win' else 'macOS-Universal')+'-'+new+'.zip'
         return dict(tag_name='v'+new,draft=False,prerelease=False,assets=[dict(name=name,
             size=123, digest='sha256:'+'a'*64,
             browser_download_url='https://github.com/'+u.REPO+'/releases/download/v'+new+'/'+name)])
@@ -45,7 +45,7 @@ class Updates(unittest.TestCase):
             with self.assertRaises(u.UpdateError):u.latest('0.4.0','win',self.opener(release))
         info=u.latest('0.4.0','mac',self.opener(self.release(platform='mac')))
         self.assertIn('macOS-Universal',info['url'])
-        self.assertIn('%',info['url'])
+        self.assertTrue(info['name'].isascii())
 
     def test_partial_tampered_and_oversized_downloads_never_stage(self):
         with tempfile.TemporaryDirectory() as folder:

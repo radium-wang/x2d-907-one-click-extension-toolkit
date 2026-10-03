@@ -32,13 +32,13 @@ The repository contains application source, tests and screenshots. Vendor firmwa
 
 ## Screenshot — English
 
-Actual macOS 0.4.0 window in the disconnected state. The 907 checkbox is intentionally disabled until identification succeeds.
+Actual macOS 0.4.1 window in the disconnected state. The 907 checkbox is intentionally disabled until identification succeeds.
 
-<img src="docs/images/app-en.jpg" alt="X2D/907 One-Click Extension Toolkit 0.4.0 English macOS interface" width="580">
+<img src="docs/images/app-en.jpg" alt="X2D/907 One-Click Extension Toolkit 0.4.1 English macOS interface" width="580">
 
 ## Verification status
 
-Earlier X2D installations, menu behavior and restoration have device/user evidence. The current 0.4.0 changes passed offline connection, transaction, localization and menu tests. The 907 Easter egg, 907 menu adaptation, AF-S retention across power cycles and automatic Windows driver preparation still require device validation. A desktop test is not a camera test. See [the evidence boundaries](docs/VALIDATION.md).
+Earlier X2D installations, menu behavior and restoration have device/user evidence. The current 0.4.1 changes passed offline connection, transaction, localization and menu tests. The 907 Easter egg, 907 menu adaptation, AF-S retention across power cycles and automatic Windows driver preparation still require device validation. A desktop test is not a camera test. See [the evidence boundaries](docs/VALIDATION.md).
 
 This is an independent project, not an official Hasselblad product. Eye recognition is not included. Other camera generations and firmware versions are unsupported.
 
@@ -74,13 +74,13 @@ X2D 的耍起功能在第 **12** 格；907 默认第 **11** 格，勾选彩蛋�
 
 ### 软件截图 — 中文
 
-这是 macOS 0.4.0 的实际界面截图，当前未连接相机，因此 907 勾选项和写入按钮处于禁用状态。
+这是 macOS 0.4.0 的实际界面截图，展示当前版本沿用的界面布局，当前未连接相机，因此 907 勾选项和写入按钮处于禁用状态。
 
 <img src="docs/images/app-zh.jpg" alt="x2d/907一键扩展功能-工具包 0.4.0 中文 macOS 界面" width="580">
 
 ### 验证与源码范围
 
-早期 X2D 安装、菜单和恢复已有实机或用户反馈；0.4.0 的连接门槛、事务、翻译和菜单路由已通过离线检查。**907 彩蛋、907 菜单适配、关机后保留 AF-S，以及 Windows 自动驱动准备仍待实机验证。** 具体范围见 [验证说明](docs/VALIDATION.md)。
+早期 X2D 安装、菜单和恢复已有实机或用户反馈；0.4.1 的连接门槛、事务、翻译和菜单路由已通过离线检查。**907 彩蛋、907 菜单适配、关机后保留 AF-S，以及 Windows 自动驱动准备仍待实机验证。** 具体范围见 [验证说明](docs/VALIDATION.md)。
 
 本库只收录应用源码、测试和软件截图，不包含原厂固件、提取的编译 QML、运行库、生成的相机载荷或桌面安装压缩包。桌面安装包见 [GitHub Releases](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/latest)。更新需要应用目录可写；如提示权限不足，请将完整 App 移到自己的可写目录后重试。Mac 使用临时签名、未经公证；Windows 启动器未经代码签名。构建输入见 [构建说明](docs/BUILD.md)。
 

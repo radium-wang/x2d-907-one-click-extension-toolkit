@@ -57,7 +57,7 @@ def build(inputs, pyusb, llvm):
         shutil.copy2(inputs / 'camera-winusb/source/libwdi-1.5.1' / name,licenses / ('libwdi-'+name+'.txt'))
     native = root / 'native-package'; native.mkdir()
     manifest = json.loads((PAYLOAD/'speed-bundle.json').read_text())
-    for source in {f['source'] for f in manifest['files']} | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json'}:
+    for source in {f['source'] for f in manifest['files']} | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json'}:
         shutil.copy2(PAYLOAD / source, native / source)
     shutil.copytree(PAYLOAD/'previous-payloads',native / 'previous-payloads')
     # Generate import libraries with lld-link. Stub DLLs are build artifacts only.
@@ -101,7 +101,7 @@ def build(inputs, pyusb, llvm):
         adb=adbversion,driverPreparation='camera Interface 3 only; libwdi 1.5.1 modified native WinUSB; Windows test pending',verification='cross-build and offline checks; Windows device test pending',
         binaries=audits),ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     shutil.copy2(D / 'WINDOWS-READ-ME.txt', root / '使用说明.txt')
-    archive = out / ('x2d-907一键扩展功能-工具包-Windows-x64-'+VERSION+'.zip')
+    archive = out / ('x2d-907-extension-toolkit-Windows-x64-'+VERSION+'.zip')
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
         for path in sorted(root.rglob('*')):
             if path.is_file(): z.write(path, path.relative_to(out).as_posix())

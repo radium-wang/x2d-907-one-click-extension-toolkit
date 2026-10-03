@@ -1,4 +1,4 @@
-x2d/907一键扩展功能-工具包 0.4.0 · macOS 通用实验版
+x2d/907一键扩展功能-工具包 0.4.1 · macOS 通用实验版
 
 语言选择
 窗口右上角可选择“中文”或“English”，默认中文，选择会保存到本机，重新启动仍沿用。
@@ -28,7 +28,7 @@ X2D 已有实机安装、重启常驻与恢复验收。
 907X 用户已反馈连接及服务安装通过，但原版未出现菜单入口。本版按其 10 项原厂菜单修正入口追加，实际菜单仍待用户确认；仅在 907X 机身搭配自动对焦 XCD 镜头时测试。
 不适用于 X2D II、907X 50C 或其他固件。
 
-完整解压“x2d-907一键扩展功能-工具包-macOS-Universal-0.4.0.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
+完整解压“x2d-907-extension-toolkit-macOS-Universal-0.4.1.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
 请使用新解压的应用，避免继续打开旧版副本。
 运行库已自带，不需要安装 Python 或 Homebrew。
 0.2.7 在日志中按操作阶段显示连接、按钮操作、相机“跳过”和完成后拔线提示。
@@ -75,3 +75,6 @@ Restore removes it as well. Device verification on the 907 is pending.
 Click Check for Updates, then Download and Install Update. The verified app update installs after exit and relaunches; the previous app is retained beside the installation.
 相机操作期间不能更新。更新只替换电脑端 App，相机扩展需再点击“已连接 → 一键安装”更新。
 Updates are disabled during camera operations. To update the camera extension afterward, use Connected → Install.
+
+0.4.1 修正菜单回执刷新。若提示文件已安装但菜单回执待刷新，请在相机点击“跳过”并打开主菜单，再点击 App 的“已连接”。0.3.3 可直接安装升级；恢复与重启期间保持连接。
+Version 0.4.1 refreshes menu receipts after service restarts. If files are installed but the receipt is pending, tap Skip and open the camera main menu, then click Connected again. Known 0.3.3 installs can be upgraded; stay connected during restoration and reboot.

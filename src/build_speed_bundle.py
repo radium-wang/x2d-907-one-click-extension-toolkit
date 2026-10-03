@@ -3,7 +3,7 @@ from pathlib import Path
 import hashlib,json,tarfile,subprocess,os,shutil,io
 from elftools.elf.elffile import ELFFile
 D=Path(__file__).resolve().parent
-O=D/'native-package'
+O=Path(os.environ.get('X2D_PAYLOAD_DIR', str(D/'native-package')))
 sha=lambda b:hashlib.sha256(b).hexdigest()
 # Rebuild the service from source so boot behavior is never a stale binary.
 compiler=os.environ.get('X2D_CC') or shutil.which('clang')

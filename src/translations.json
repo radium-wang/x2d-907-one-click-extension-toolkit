@@ -312,5 +312,8 @@
   "操作尚未结束，请等待完成后关闭应用。": "An operation is still running; wait before closing the app.",
   "操作尚未结束，请等待完成后退出应用。": "An operation is still running; wait before quitting the app.",
   "软件更新安装完成，上一版已保留在应用旁的更新备份目录": "App update installed; the previous version is saved in the update backup folder beside the app",
-  "软件更新未能安装，已保留或恢复上一版；请关闭占用软件的程序后重试": "App update could not be installed; the previous version was kept or restored. Close programs using its files and retry"
+  "软件更新未能安装，已保留或恢复上一版；请关闭占用软件的程序后重试": "App update could not be installed; the previous version was kept or restored. Close programs using its files and retry",
+  "已知 0.3.3 清单校验失败，请重新解压安装包": "Known 0.3.3 manifest verification failed; extract the full package again",
+  "功能文件已安装，菜单回执待刷新": "Feature files installed; waiting for a fresh menu receipt",
+  "请在相机点击“跳过”并打开主菜单，再点击“已连接”重试；仍未通过时可恢复原状。": "Tap Skip on the camera and open its main menu, then click Connected again. If verification still fails, use Restore original."
 }

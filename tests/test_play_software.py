@@ -49,7 +49,7 @@ class SoftwareTests(unittest.TestCase):
             read.assert_not_called()
 
     def restore_case(self,phase='INSTALLED',ledger=None,rc=None,active=False,previous=False,partial=None):
-        m=json.loads((app.O/'previous-bundle.json').read_bytes()) if previous else app.prepare()
+        m=json.loads((app.O/(previous if isinstance(previous,str) else 'previous-bundle.json')).read_bytes()) if previous else app.prepare()
         targets=[f['target'] for f in m['files']]
         ledger=targets if ledger is None else ledger
         uploads={}
@@ -71,6 +71,19 @@ class SoftwareTests(unittest.TestCase):
                 app.restore()
                 reboot.assert_called_once_with(False)
         return uploads['restore'].decode()
+
+    @requires_payloads
+    def test_033_normal_and_partial_restore_keep_exact_old_hashes(self):
+        old=json.loads((app.O/'previous-bundle-0.3.3.json').read_bytes())
+        script=self.restore_case(previous='previous-bundle-0.3.3.json')
+        for entry in old['files']:self.assertIn('hashok '+entry['target']+' '+entry['sha256'],script)
+        for entry in old['files']:
+            if entry['source'] not in ('X2dNativeMenuBootstrap.qml','libx2d_speed_server.so','libx2d_native_menu.so'):continue
+            raw=(app.O/'previous-payloads'/entry['sha256']).read_bytes()
+            self.assertEqual(app.sha(raw),entry['sha256'])
+            part=raw[:min(5000,len(raw)//2)]
+            script=self.restore_case('PREPARED',[entry['target']],RAW,previous='previous-bundle-0.3.3.json',partial={entry['target']:part})
+            self.assertIn('hashok '+entry['target']+' '+app.sha(part),script)
 
     @requires_payloads
     def test_normal_restore_verifies_and_removes_all_known_files(self):

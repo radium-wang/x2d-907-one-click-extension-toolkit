@@ -18,7 +18,7 @@ from inspect_menu_resources import load_gui, GUI_SHA
 from firmware_image import system_file
 from elftools.elf.elffile import ELFFile
 
-O=D/'native-package'
+O=Path(os.environ.get('X2D_PAYLOAD_DIR', str(D/'native-package')))
 O.mkdir(exist_ok=True)
 b=load_gui()
 symbol=next(s for s in b.symbols if s.name.endswith('32_app_qml_mainmenu_MainScreen_qml7qmlDataE'))
@@ -49,7 +49,7 @@ env['ZIG_LOCAL_CACHE_DIR']=str(D.parent/'.zig-cache')
 env['ZIG_GLOBAL_CACHE_DIR']=str(D.parent/'.zig-global')
 target=O/'libx2d_native_menu.so'
 if os.environ.get('X2D_CC'):
-    compiler=[os.environ['X2D_CC']]
+    compiler=[os.environ['X2D_CC'], '-fuse-ld=lld']
 elif shutil.which('zig'):
     compiler=[shutil.which('zig'),'cc']
 elif shutil.which('clang') and shutil.which('ld.lld'):

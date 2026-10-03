@@ -6,6 +6,34 @@ from unittest.mock import patch
 import x2d_play_software as app
 
 class MenuReadyTests(unittest.TestCase):
+    def test_status_missing_receipt_is_recoverable_not_verified_install(self):
+        with patch.object(app,'verify_target'),patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'read_bytes',return_value=b'INSTALLED'),patch.object(app,'backend',return_value={'ready':True}),patch.object(app,'shell',side_effect=['YES','MENU_PENDING']),patch.object(app,'event') as event:
+            app.status()
+            self.assertTrue(event.call_args.kwargs['menuPending'])
+            self.assertTrue(event.call_args.kwargs['recovery'])
+            self.assertTrue(event.call_args.kwargs['connected'])
+            self.assertIn('主菜单',event.call_args.kwargs['hint'])
+
+    def test_status_ready_receipt_keeps_normal_install_state(self):
+        with patch.object(app,'verify_target'),patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'read_bytes',return_value=b'INSTALLED'),patch.object(app,'backend',return_value={'ready':True}),patch.object(app,'shell',side_effect=['YES','MENU_ENTRY_READY_12']),patch.object(app,'event') as event:
+            app.status()
+            self.assertTrue(event.call_args.kwargs['installed'])
+            self.assertFalse(event.call_args.kwargs.get('menuPending',False))
+
+    def test_status_unready_service_keeps_restore_available(self):
+        with patch.object(app,'verify_target'),patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'read_bytes',return_value=b'INSTALLED'),patch.object(app,'backend',return_value={'ready':False}),patch.object(app,'shell',return_value='YES'),patch.object(app,'event') as event:
+            app.status()
+            self.assertTrue(event.call_args.kwargs['recovery'])
+            self.assertTrue(event.call_args.kwargs['connected'])
+
+    @requires_payloads
+    def test_known_033_manifest_is_verified_for_upgrade_and_restore(self):
+        raw=(app.O/'previous-bundle-0.3.3.json').read_bytes()
+        self.assertEqual(app.sha(raw),app.PREVIOUS_033_SHA)
+        self.assertTrue(app.recognized_bundle(json.loads(raw)))
+        changed=json.loads(raw);changed['files'][0]['sha256']='0'*64
+        self.assertFalse(app.recognized_bundle(changed))
+
     @requires_payloads
     def test_existing_install_missing_entry_never_reports_success(self):
         for marker in ('MENU_PENDING','MENU_ENTRY_READY_10',''):
