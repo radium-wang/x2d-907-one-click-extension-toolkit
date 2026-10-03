@@ -4,7 +4,7 @@
 
 Camera menu name remains **耍起功能**.
 
-[中文说明](#中文说明) · [Build and test](docs/BUILD.md) · [Validation](docs/VALIDATION.md)
+[中文说明](#中文说明) · [Changelog / 更新日志](CHANGELOG.md) · [Build and test](docs/BUILD.md) · [Validation](docs/VALIDATION.md)
 
 ## Features
 
