@@ -1,4 +1,4 @@
-x2d/907一键扩展功能-工具包 0.4.0 · Windows x64 实验版
+x2d/907一键扩展功能-工具包 0.4.1 · Windows x64 实验版
 
 语言选择
 窗口右上角可选择“中文”或“English”，默认中文，选择会保存到本机，重新启动仍沿用。
@@ -94,3 +94,6 @@ Restore removes it as well. Device verification on the 907 is pending.
 Click Check for Updates, then Download and Install Update. The verified app update installs after exit and relaunches; the previous app is retained beside the installation.
 相机操作期间不能更新。更新只替换电脑端 App，相机扩展需再点击“已连接 → 一键安装”更新。
 Updates are disabled during camera operations. To update the camera extension afterward, use Connected → Install.
+
+0.4.1 修正菜单回执刷新。若提示文件已安装但菜单回执待刷新，请在相机点击“跳过”并打开主菜单，再点击 App 的“已连接”。0.3.3 可直接安装升级；恢复与重启期间保持连接。
+Version 0.4.1 refreshes menu receipts after service restarts. If files are installed but the receipt is pending, tap Skip and open the camera main menu, then click Connected again. Known 0.3.3 installs can be upgraded; stay connected during restoration and reboot.

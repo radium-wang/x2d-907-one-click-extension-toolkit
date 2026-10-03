@@ -21,6 +21,7 @@ from pathlib import Path, PurePosixPath
 REPO = 'radium-wang/x2d-907-one-click-extension-toolkit'
 API = 'https://api.github.com/repos/' + REPO + '/releases/latest'
 BASE = 'x2d-907一键扩展功能-工具包'
+ARCHIVE_BASE = 'x2d-907-extension-toolkit'
 MAX_DOWNLOAD = 512 * 1024 * 1024
 MAX_EXPANDED = 2 * 1024 * 1024 * 1024
 
@@ -69,7 +70,7 @@ def latest(current, platform, opener=request):
     if version(tag) <= version(current): return None
     new = tag.lstrip('v')
     suffix = {'mac': 'macOS-Universal', 'win': 'Windows-x64'}[platform]
-    name = BASE + '-' + suffix + '-' + new + '.zip'
+    name = ARCHIVE_BASE + '-' + suffix + '-' + new + '.zip'
     matches = [a for a in release.get('assets', []) if a.get('name') == name]
     if len(matches) != 1: raise UpdateError('新版暂未提供本系统安装包，请稍后重试')
     asset = matches[0]

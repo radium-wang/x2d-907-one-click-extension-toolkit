@@ -68,10 +68,15 @@ Item {
                     ? findItem(grid.itemAtIndex(adapter.prankIndex), "FramedItem_root") : null
     }
     property string reportedMenuState: ""
+    property int menuReportTick: 0
     function reportMenuState() {
         if (!attached) return
         var state = playButton !== null && adapter.extensionPresent && (!adapter.prankPresent || prankButton !== null) ? "menu_ready_" + grid.count : "menu_unavailable"
-        if (state === reportedMenuState) return
+        // A service restart removes its volatile marker. Refresh the receipt
+        // even when the already-visible menu has not changed.
+        menuReportTick += 1
+        if (state === reportedMenuState && menuReportTick < 5) return
+        menuReportTick = 0
         var xhr = new XMLHttpRequest()
         xhr.onreadystatechange = function() {
             if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {

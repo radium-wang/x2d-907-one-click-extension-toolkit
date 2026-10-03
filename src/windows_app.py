@@ -6,7 +6,7 @@ from pathlib import Path
 from localization import Localizer, translate
 
 D = Path(__file__).resolve().parent
-VERSION = '0.4.0'
+VERSION = '0.4.1'
 
 
 class Session:
@@ -163,7 +163,7 @@ def main():
             send(controls['progress'], 0x0402, int(event.get('percent', 0)), 0)
         elif kind == 'status':
             settext(controls['state'], text)
-            settext(controls['detail'], '主菜单末尾进入耍起功能，总开关控制下方功能。'
+            settext(controls['detail'], event.get('hint', '') if event.get('menuPending') else '主菜单末尾进入耍起功能，总开关控制下方功能。'
                     if event.get('installed') else '相机处于原厂状态，可以安装耍起功能。')
         elif kind == 'result':
             settext(controls['state'], text)
@@ -174,6 +174,7 @@ def main():
             settext(controls['state'], '检查未通过' if session.action == 'status' else '操作未完成')
             settext(controls['detail'], text)
         log(text)
+        if event.get('menuPending'): log(event.get('hint', ''))
 
     def worker(action, prank=False):
         code = 1

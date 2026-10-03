@@ -17,6 +17,7 @@ PROCESS_OPTIONS = dict(creationflags=0x08000000) if os.name == 'nt' else {}
 ADB_SERIAL = None
 SUPPORTED_USB_PIDS = (0x0009, 0x000A)  # stock setup_product_props.sh: X2D / CFV 100C
 PREVIOUS_BUNDLE_SHA = '0cc1e1f8b45fd4416c5449320ec2000a2e53298eb07932f1958c1192928849b6'
+PREVIOUS_033_SHA = 'c2ec66226c15442637cbe4332b2fcd9083603faf2dc26628156231a2c9b96f77'
 PREVIOUS_032_SHA = '9711b81f42e8620691f10b414ff719203680ab3d18aade0856bc49308d7875ee'
 PRANK_FLAG = ROOT + '/prank-ibis'
 PREVIOUS_030_SHA = 'b6a2e2e890e2424ca8861c6fe1b9c1605ae04a1fb87642fc06f8858c8c197c00'
@@ -342,6 +343,9 @@ def recognized_bundle(manifest):
     if manifest.get('format') != 3 or manifest.get('guiSha256') != STOCK_GUI:
         raise RuntimeError('安装或恢复清单版本不匹配')
     if manifest.get('files') == current['files']: return True
+    previous_033 = (O / 'previous-bundle-0.3.3.json').read_bytes()
+    if sha(previous_033) != PREVIOUS_033_SHA: raise RuntimeError('已知 0.3.3 清单校验失败，请重新解压安装包')
+    if manifest.get('files') == json.loads(previous_033)['files']: return True
     previous_032 = (O / 'previous-bundle-0.3.2.json').read_bytes()
     if sha(previous_032) != PREVIOUS_032_SHA: raise RuntimeError('已知 0.3.2 清单校验失败，请重新解压安装包')
     if manifest.get('files') == json.loads(previous_032)['files']: return True
@@ -520,11 +524,18 @@ def status():
     if installed:
         try:
             state = backend('status')
+            if not state.get('ready'): raise RuntimeError('功能服务未就绪')
         except Exception:
             # A failed loopback service must not prevent an independent USB restore.
             verify_target()
             event('status', connected=True, model=model, installed=True, recovery=True, firmware='4.2.0',
                   message='相机已连接，功能服务未就绪，可使用恢复原状')
+            return
+        marker = shell('cat /tmp/x2d-native-menu-ui.ready 2>/dev/null || echo MENU_PENDING')
+        if marker not in ('MENU_ENTRY_READY_11', 'MENU_ENTRY_READY_12') or (state.get('prankIbis') and marker != 'MENU_ENTRY_READY_12'):
+            event('status', connected=True, model=model, installed=True, recovery=True, menuPending=True,
+                  firmware='4.2.0', state=state, message='功能文件已安装，菜单回执待刷新',
+                  hint='请在相机点击“跳过”并打开主菜单，再点击“已连接”重试；仍未通过时可恢复原状。')
             return
     else:
         if shell('sha256sum ' + RC).split()[0] != STOCK_RC:

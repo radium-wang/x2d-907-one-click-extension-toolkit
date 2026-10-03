@@ -7,14 +7,14 @@
     {
       "source": "libx2d_native_menu.so",
       "target": "/system/lib64/libx2d_native_menu.so",
-      "bytes": 212528,
-      "sha256": "e6da5e05ddc6f9ff819d3e4175cbf66b5c92feaf4396118b6ae740cb50ba1cfb"
+      "bytes": 212544,
+      "sha256": "5dd1dd0e454b57269d349dae1455aac6bcf9b927eb889df5d7e5839120179e6c"
     },
     {
       "source": "X2dNativeMenuBootstrap.qml",
       "target": "/system/etc/X2dNativeMenuBootstrap.qml",
-      "bytes": 8148,
-      "sha256": "08abddb55bd11d73aba082f72fd56beb477a8ffa22896fc5ec8d3c0273fba452"
+      "bytes": 7895,
+      "sha256": "6310e848c6efaddce5c7c2466e1343023933215d0e27841ccf657e6aa8e45095"
     },
     {
       "source": "X2dNativeMenuModel.qml",
@@ -67,8 +67,8 @@
     {
       "source": "libx2d_speed_server.so",
       "target": "/system/lib64/libx2d_speed_server.so",
-      "sha256": "079823d429141dbe00cabea9875f7ed90457221aaaf51a99f19ce2d05f082509",
-      "bytes": 7072
+      "sha256": "ca597d9b888a4c5f649b3a1220c171aa53495710d891062eef61e2938b697eb4",
+      "bytes": 7104
     },
     {
       "source": "speed-worker",

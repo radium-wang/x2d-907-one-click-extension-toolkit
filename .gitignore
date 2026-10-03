@@ -11,3 +11,8 @@
 *.bin
 *.tar.gz
 .venv*/
+
+# Generated camera bytes stay local; publish only version/checksum manifests.
+src/native-package/*
+!src/native-package/speed-bundle.json
+!src/native-package/previous*.json
