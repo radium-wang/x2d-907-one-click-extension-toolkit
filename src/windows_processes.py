@@ -89,6 +89,8 @@ class ProcessJob:
 def server_ready(endpoint):
     """Query the host socket directly; never auto-start another ADB daemon."""
     host, port = endpoint[4:].rsplit(':', 1)
+    # ADB's localhost listener is IPv4 loopback. Probe it directly, without DNS.
+    if host == 'localhost': host = '127.0.0.1'
     with socket.create_connection((host, int(port)), timeout=.25) as connection:
         connection.sendall(b'000chost:version')
         reply = b''
@@ -106,7 +108,9 @@ class ADBSession:
         self.job = self.child = self.output = None
         with socket.socket() as reservation:
             reservation.bind(('127.0.0.1', 0))
-            self.endpoint = 'tcp:127.0.0.1:' + str(reservation.getsockname()[1])
+            # ADB accepts localhost (or an omitted host) for a loopback listener;
+            # a numeric 127.0.0.1 host is rejected as an unsupported listen host.
+            self.endpoint = 'tcp:localhost:' + str(reservation.getsockname()[1])
 
     def prefix(self):
         return [self.executable, '-L', self.endpoint]

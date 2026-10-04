@@ -132,12 +132,14 @@ def adb_start_failure(code, output):
         return 'ADB 运行组件缺失，请完整解压安装包，保留 bin 目录内的两个 DLL'
     if status in (0xc000007b, 0xc000012f):
         return 'ADB 运行组件格式不正确，请重新解压完整的 Windows x64 安装包'
-    if any(token in message for token in ('cannot bind', 'address already in use', '10048', 'smartsocket')):
+    if 'listening on specified hostname currently unsupported' in message:
+        return 'ADB 本机通信参数不兼容，请更新至最新工具包后重试；相机安装尚未开始'
+    if any(token in message for token in ('access is denied', 'permission denied', '10013')):
+        return 'Windows 拒绝 ADB 启动或本机通信，请检查刚才的系统提示和安全软件记录'
+    if any(token in message for token in ('cannot bind', 'address already in use', '10048')):
         if ADB_SESSION is not None:
             return 'ADB 独立本机端口无法使用，请检查系统网络权限后重试'
         return 'ADB 本机端口无法使用，请关闭其他使用 ADB 的程序后重试（端口 5037）'
-    if any(token in message for token in ('access is denied', 'permission denied', '10013')):
-        return 'Windows 拒绝 ADB 启动或本机通信，请检查刚才的系统提示和安全软件记录'
     if 'server version' in message and "doesn't match" in message:
         return '电脑中其他版本的 ADB 与本应用冲突，请关闭使用 ADB 的程序后重试'
     return 'ADB 启动失败（退出码 ' + str(code) + '），请检查系统提示及安全软件记录，并反馈此提示'

@@ -1,7 +1,11 @@
 # Changelog
 
-## Unreleased
+## [0.4.6](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.6) — 2026-10-04
 
+- Fix Windows private ADB startup: use the supported `tcp:localhost:<port>` listener while probing IPv4 loopback directly. The numeric listen-host form used in 0.4.5 was rejected by ADB before camera installation started.
+- Distinguish unsupported listen parameters, Windows access refusal and port conflicts instead of classifying every smart-socket failure as a network permission issue. Keep private-server ownership and cleanup.
+- Publish Windows x64 and Mac universal packages at 0.4.6. The camera payload is unchanged; existing camera extensions do not need reinstallation. Native Windows startup and camera operations still need user/device validation.
+- 169 offline tests passed with local inputs; clean source: 143 passed, 26 skipped. Mac dependency, 38 Windows PE and archive checks passed; see [validation details](docs/VALIDATION.md).
 - Add an Alipay donation QR code alongside PayPal in the English/Chinese README and link the donation section from the repository Sponsor button. Documentation only; published application packages are unchanged.
 
 ## [0.4.5](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.5) — 2026-10-04
@@ -96,8 +100,12 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 
 # 中文更新日志
 
-## 未发布
+## [0.4.6](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.6) — 2026-10-04
 
+- 修复 Windows 独立 ADB 启动：监听参数使用 ADB 支持的 `tcp:localhost:<端口>`，就绪检查仍直连本机 IPv4。0.4.5 使用的数字监听地址被 ADB 拒绝，此时相机安装尚未开始。
+- 区分监听参数不兼容、Windows 拒绝访问和端口冲突，不再把所有 smart-socket 错误误报为网络权限问题；保留独立进程及退出清理。
+- 发布 0.4.6 Windows x64 与 Mac 通用安装包。相机载荷保持不变，已有相机扩展无需重装；Windows 原生启动及相机操作仍待用户或实机验证。
+- 完整离线测试 169 项通过；纯源码为 143 项通过、26 项跳过；Mac 依赖、38 份 Windows PE 和安装包检查通过，详见 [验证说明](docs/VALIDATION.md)。
 - 在中英文 README 的 PayPal 赞助链接旁加入支付宝收款码，并从仓库赞助按钮链接到捐赠说明。仅修改文档，已发布安装包保持不变。
 
 ## [0.4.5](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.5) — 2026-10-04

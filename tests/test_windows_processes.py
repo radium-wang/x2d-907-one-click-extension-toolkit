@@ -70,11 +70,10 @@ class Processes(unittest.TestCase):
     def test_private_adb_uses_foreground_loopback_and_releases_job(self):
         job = Mock(); child = Child()
         session = p.ADBSession('adb.exe', job_factory=lambda: job)
-        self.assertTrue(session.endpoint.startswith('tcp:127.0.0.1:'))
-        self.assertNotEqual(session.endpoint, 'tcp:127.0.0.1:5037')
+        self.assertEqual(session.endpoint, 'tcp:localhost:23456')
         with patch.object(p.subprocess, 'Popen', return_value=child) as launch, patch.object(p, 'server_ready', return_value=True):
             session.start(Mock(), Mock())
-        self.assertEqual(launch.call_args.args[0], session.prefix()+['server','nodaemon'])
+        self.assertEqual(launch.call_args.args[0], ['adb.exe', '-L', 'tcp:localhost:23456', 'server', 'nodaemon'])
         self.assertNotIn('start-server', launch.call_args.args[0])
         self.assertIsNot(launch.call_args.kwargs['stdout'], subprocess.PIPE)
         job.attach.assert_called_once_with(child)
@@ -104,15 +103,38 @@ class Processes(unittest.TestCase):
         stream = Mock(); stream.recv.side_effect = [b'O', b'KAY']
         connection = Mock(); connection.__enter__ = Mock(return_value=stream); connection.__exit__ = Mock()
         with patch.object(p.socket, 'create_connection', return_value=connection), patch.object(p.subprocess, 'Popen') as launch:
-            self.assertTrue(p.server_ready('tcp:127.0.0.1:23456'))
+            self.assertTrue(p.server_ready('tcp:localhost:23456'))
+            p.socket.create_connection.assert_called_once_with(('127.0.0.1', 23456), timeout=.25)
             stream.sendall.assert_called_once_with(b'000chost:version')
             launch.assert_not_called()
 
     def test_all_camera_adb_commands_keep_private_socket_and_serial(self):
-        session = Mock(); session.prefix.return_value = ['adb.exe','-L','tcp:127.0.0.1:23456']
+        session = Mock(); session.prefix.return_value = ['adb.exe','-L','tcp:localhost:23456']
         with patch.object(camera, 'ADB_SESSION', session), patch.object(camera, 'ADB_SERIAL', 'offline-camera'), patch.object(camera.subprocess, 'run') as run:
             camera.adb_call(['push','local','fixed-target'])
         self.assertEqual(run.call_args.args[0],session.prefix()+['-s','offline-camera','push','local','fixed-target'])
+
+    def test_unsupported_listen_host_is_not_reported_as_network_permission(self):
+        diagnostic = 'could not install *smartsocket* listener: listening on specified hostname currently unsupported C:/private/identity'
+        with patch.object(camera, 'ADB_SESSION', Mock()):
+            message = camera.adb_start_failure(1, diagnostic)
+        self.assertIn('通信参数不兼容', message)
+        self.assertIn('相机安装尚未开始', message)
+        self.assertNotIn('网络权限', message)
+        self.assertNotIn('private', message)
+
+    def test_bind_permission_failure_is_distinguished_from_port_conflict(self):
+        with patch.object(camera, 'ADB_SESSION', Mock()):
+            denied = camera.adb_start_failure(1, 'cannot bind listener: permission denied (10013)')
+            conflict = camera.adb_start_failure(1, 'cannot bind listener: address already in use (10048)')
+        self.assertIn('Windows 拒绝', denied)
+        self.assertIn('独立本机端口', conflict)
+
+    def test_other_smartsocket_error_preserves_exit_code(self):
+        message = camera.adb_start_failure(7, 'could not install *smartsocket* listener: unknown failure C:/private')
+        self.assertIn('退出码 7', message)
+        self.assertNotIn('端口无法使用', message)
+        self.assertNotIn('private', message)
 
     def test_camera_action_failure_also_closes_private_server(self):
         session = Mock()

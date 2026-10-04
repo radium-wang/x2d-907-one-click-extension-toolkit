@@ -1,4 +1,10 @@
-# Validation boundaries — 0.4.5
+# Validation boundaries — 0.4.6
+
+## Windows ADB listen address (0.4.6)
+
+User feedback from 0.4.5 reports private ADB startup failure before camera installation. The [official ADB socket implementation](https://android.googlesource.com/platform/packages/modules/adb/+/refs/heads/main/socket_spec.cpp) accepts an empty host or literal `localhost` for an IPv4 loopback listener; it rejects the numeric `127.0.0.1` listen host with “listening on specified hostname currently unsupported.” The bundled Windows binary contains that same diagnostic. The fix uses `tcp:localhost:<private port>` for the server and all clients, while the direct readiness probe connects to `127.0.0.1`. Foreground ownership, job-object cleanup and the camera checks are retained.
+
+The complete offline suite passes 169 tests with local inputs; a clean source copy passes 143 and skips 26. New regressions verify the literal supported launch address, endpoint propagation, numeric readiness probing and distinct sanitized diagnostics for unsupported host, access denial and port conflict. These use process/Win32 substitutes. Mac universal dependency checks and 38 Windows PE audits pass; archive checks verify unchanged camera payloads and updated application sources. Native Windows ADB startup and camera install/restore remain pending. No real ADB server, camera or driver was accessed; published 0.4.5 archives are unchanged.
 
 ## Windows exit fix (0.4.5)
 

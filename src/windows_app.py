@@ -10,7 +10,7 @@ from windows_ui import NativeStyle, Viewport, ScrollInfo, WIDTH, HEIGHT, COLORS,
 from windows_processes import UpdateCheck, stop_process
 
 D = Path(__file__).resolve().parent
-VERSION = '0.4.5'
+VERSION = '0.4.6'
 
 
 class Session:
