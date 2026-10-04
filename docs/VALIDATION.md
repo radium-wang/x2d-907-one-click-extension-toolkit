@@ -40,3 +40,9 @@ A service restart deletes the volatile menu receipt, while the original UI repor
 On macOS 27, the packaged app showed the English and Chinese Settings windows. Disabling startup checks survived an app restart and prevented the startup update query; manual checking still connected to GitHub and returned normally. The original language and automatic-check preference were restored after testing. Windows callback tests cover startup on/off, persisted preferences, manual checks and the separate download action; native Windows execution remains pending. No camera operation was started.
 
 在 macOS 27 中检查了打包 App 的中英文设置页。关闭自动检查后重开 App，选择保留且不再启动查询；手动检查仍正常连接 GitHub。测试结束恢复原语言和自动检查偏好。Windows 使用替代 API 测试启动开关、持久化、手动检查及独立下载按钮，原生 Windows 验证仍待完成。本次未操作相机。
+
+## Published update packages (0.4.2)
+
+After publishing 0.4.2 as the latest stable release, the Mac and Windows updater code from the packaged 0.4.1 distributions both detected 0.4.2, downloaded their corresponding GitHub ZIP, verified SHA-256, safely extracted it, and validated the new application identity/version. Both checks ran on Mac with the packaged runtime; this does not verify Windows replacement/relaunch. No installed application or camera was modified by these download checks.
+
+0.4.2 发布为最新稳定版后，使用 0.4.1 安装包内的 Mac / Windows 更新器代码，分别完成新版识别、GitHub 实际下载、SHA-256 校验、安全解压及应用身份与版本检查。两组检查都在 Mac 的内置运行库中执行，不代表 Windows 替换及重开已验证；下载检查未修改已安装应用或相机。
