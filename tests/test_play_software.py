@@ -144,10 +144,10 @@ class SoftwareTests(unittest.TestCase):
         calls=unittest.mock.Mock()
         with patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'verify_target'),patch.object(app,'shell',return_value='YES'), \
              patch.object(app,'read_bytes',side_effect=data),patch.object(app,'event') as events, \
-             patch.object(app,'restore') as restore,patch.object(app,'install') as install:
+             patch.object(app,'confirm_reinstall',return_value=True),patch.object(app,'restore') as restore,patch.object(app,'install') as install:
             calls.attach_mock(restore,'restore');calls.attach_mock(install,'install')
             entry()
-            self.assertEqual(calls.mock_calls,[unittest.mock.call.restore(True,report_result=False),unittest.mock.call.install(True,False)])
+            self.assertEqual(calls.mock_calls,[unittest.mock.call.restore(True,report_result=False),unittest.mock.call.install(True,False,'zh')])
             self.assertFalse(any(call.args[0]=='result' for call in events.call_args_list))
 
     @requires_payloads
@@ -155,7 +155,7 @@ class SoftwareTests(unittest.TestCase):
         entry=app.install;previous=json.loads((app.O/'previous-bundle.json').read_bytes())
         with patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'verify_target'),patch.object(app,'shell',return_value='YES'), \
              patch.object(app,'read_bytes',side_effect=[b'INSTALLED',json.dumps(previous).encode()]), \
-             patch.object(app,'event'),patch.object(app,'restore',side_effect=RuntimeError('恢复未完成')), \
+             patch.object(app,'event'),patch.object(app,'confirm_reinstall',return_value=True),patch.object(app,'restore',side_effect=RuntimeError('恢复未完成')), \
              patch.object(app,'install') as install:
             with self.assertRaisesRegex(RuntimeError,'恢复未完成'): entry()
             install.assert_not_called()

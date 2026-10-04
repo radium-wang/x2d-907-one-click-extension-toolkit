@@ -124,5 +124,39 @@
   "validation": {
     "X2D 100C": "prior-menu-and-buff-device-tested; startup-focus-mode-fix-awaiting-device-test",
     "907X & CFV 100C": "USB-and-service-installation-user-reported; ten-item-menu-fix-awaiting-device-test"
+  },
+  "uiLanguages": {
+    "en": [
+      {
+        "source": "X2dNativeMenuBootstrap.en.qml",
+        "target": "/system/etc/X2dNativeMenuBootstrap.qml",
+        "bytes": 8142,
+        "sha256": "8cacba1c15cb28238f6ea02ea2ec6714d5effbecdc0d9f107567604e49a87e65"
+      },
+      {
+        "source": "X2dNativeMenuModel.en.qml",
+        "target": "/system/etc/X2dNativeMenuModel.qml",
+        "bytes": 5428,
+        "sha256": "a6c52aa69990ff6cf11bbbb256fb52fee775a565d8c92c8474de4a302419116a"
+      },
+      {
+        "source": "X2dPrankIbisPage.en.qml",
+        "target": "/system/etc/X2dPrankIbisPage.qml",
+        "bytes": 1215,
+        "sha256": "125127f5e88d00e5e8a96965b8b3e8a29bf2078289c06959fec560a36f6e34ae"
+      },
+      {
+        "source": "X2dPlayPage.en.qml",
+        "target": "/system/etc/X2dPlayPage.qml",
+        "bytes": 8336,
+        "sha256": "9c24dd1ce36455ecc22f088bc3057e0a13bae41c0856e9467cd31ff88f9772e8"
+      },
+      {
+        "source": "X2dAfcMenuController.en.qml",
+        "target": "/system/etc/X2dAfcMenuController.qml",
+        "bytes": 5103,
+        "sha256": "b6fc06539b11e63b3f2a9213d588cce3dec5d17a3c410e8ba17b2e1b527761fd"
+      }
+    ]
   }
 }
