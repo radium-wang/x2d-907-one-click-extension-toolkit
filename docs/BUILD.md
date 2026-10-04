@@ -7,6 +7,7 @@ Commands below run from the repository root. Python 3.9+ and `requirements-dev.t
 - `src/MacApp.swift`: Cocoa interface, Settings, language selection and operation gates.
 - `src/windows_app.py`: native Win32 interface, Settings and equivalent gates.
 - `src/windows_ui.py`: Mac-aligned Windows layout and GDI skin; native controls retain input and accessibility. No added UI runtime dependency.
+- `src/windows_processes.py`: cancellable read-only update checks and owned private Windows ADB server lifetime, including crash cleanup through a Windows job object.
 - `src/app_settings.py`: persisted Windows startup update-check preference; Mac uses UserDefaults.
 - `src/x2d_play_software.py`: validated installation, reboot verification and restoration.
 - `src/transport/collect_x2d_af_usb.py`: factory USB protocol implementation.

@@ -7,9 +7,10 @@ from localization import Localizer, translate
 from reinstall_confirmation import CONTINUE, CANCEL
 from app_settings import UpdatePreferences
 from windows_ui import NativeStyle, Viewport, ScrollInfo, WIDTH, HEIGHT, COLORS, main_layout, text_style
+from windows_processes import UpdateCheck, stop_process
 
 D = Path(__file__).resolve().parent
-VERSION = '0.4.4'
+VERSION = '0.4.5'
 
 
 class Session:
@@ -137,7 +138,9 @@ def main():
     logfile = Path(os.environ.get('LOCALAPPDATA', str(D))) / 'X2DPlay' / 'latest.log'
     logfile.parent.mkdir(parents=True, exist_ok=True)
     EVENT_MESSAGE = 0x8001
-    update_state = dict(busy=False, version='')
+    update_state = dict(busy=False, version='', installing=False)
+    update_check = UpdateCheck()
+    closing = threading.Event()
     confirmation_state = dict(window=None, answer=None)
     settings_state = dict(window=None)
 
@@ -357,6 +360,7 @@ def main():
         threading.Thread(target=worker, args=(action, prank, language.language), daemon=True).start()
 
     def update_worker(wanted):
+        child = None
         try:
             env = os.environ.copy()
             env.pop('X2D_PAYLOAD_DIR', None)
@@ -365,10 +369,13 @@ def main():
                     'install' if wanted else 'check', '--current', VERSION, '--platform', 'win',
                     '--target', str(D), '--parent', str(os.getpid())]
             if wanted: args += ['--wanted', wanted]
-            child = subprocess.Popen(args, env=env, cwd=str(D), stdout=subprocess.PIPE,
-                                     stderr=subprocess.DEVNULL, text=True, encoding='utf-8', creationflags=0x08000000)
+            launch = subprocess.Popen if wanted else update_check.launch
+            child = launch(args, env=env, cwd=str(D), stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL, text=True, encoding='utf-8', creationflags=0x08000000)
+            if child is None: return
             received = False
             for line in child.stdout:
+                if closing.is_set(): break
                 if not line.startswith('TOOLKIT_UPDATE '): continue
                 event = json.loads(line[15:])
                 received |= event.get('type') in ('available', 'current', 'error', 'restart')
@@ -376,14 +383,23 @@ def main():
             code = child.wait()
             if not received: raise RuntimeError('update process ended without result')
         except Exception:
-            events.put(('update', dict(type='error', message='软件更新未完成，请检查网络连接或重新下载完整安装包；当前应用仍保留')))
+            if not closing.is_set():
+                events.put(('update', dict(type='error', message='软件更新未完成，请检查网络连接或重新下载完整安装包；当前应用仍保留')))
         finally:
-            events.put(('update_done', None)); post(hwnd, EVENT_MESSAGE, 0, 0)
+            if child is not None:
+                if not wanted:
+                    try: stop_process(child)
+                    finally: update_check.release(child)
+                child.stdout.close()
+            if not closing.is_set():
+                events.put(('update_done', None)); post(hwnd, EVENT_MESSAGE, 0, 0)
 
     def start_update(install=False):
-        if session.busy or update_state['busy']: return
+        if closing.is_set() or session.busy or update_state['busy']: return
         if install and not update_state['version']: return
-        update_state['busy'] = True; buttons()
+        update_state['busy'] = True
+        update_state['installing'] = install
+        buttons()
         threading.Thread(target=update_worker, args=(update_state['version'] if install else '',), daemon=True).start()
 
     @PROC
@@ -437,9 +453,12 @@ def main():
                     if identity in (2, 201, 202):
                         confirmation_state['answer'] = identity == 202; return 0
             if msg == 0x0010:  # WM_CLOSE
-                if session.busy or update_state['busy']:
-                    messagebox(window, language.text('相机操作尚未完成，请保持连接并等待完成后退出。'), language.text('操作进行中'), 0x40)
-                else: destroy(window)
+                if session.busy or (update_state['busy'] and update_state['installing']):
+                    messagebox(window, language.text('操作尚未结束，请等待完成后退出应用。'), language.text('操作进行中'), 0x40)
+                else:
+                    closing.set()
+                    update_check.close()
+                    destroy(window)
                 return 0
             if msg == 0x0002:
                 quitmessage(0); return 0
@@ -577,13 +596,17 @@ def main():
     show(hwnd, 5); update(hwnd)
     if preferences.auto_check: start_update()
     message = W.MSG()
-    while True:
-        result = getmsg(C.byref(message), None, 0, 0)
-        if result <= 0: break
-        if not dialog(hwnd, C.byref(message)):
-            translate(C.byref(message)); dispatch(C.byref(message))
-    skin.close()
-    deleteobject(white)
+    try:
+        while True:
+            result = getmsg(C.byref(message), None, 0, 0)
+            if result <= 0: break
+            if not dialog(hwnd, C.byref(message)):
+                translate(C.byref(message)); dispatch(C.byref(message))
+    finally:
+        closing.set()
+        update_check.close()
+        skin.close()
+        deleteobject(white)
 
 
 if __name__ == '__main__':

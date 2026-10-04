@@ -338,5 +338,9 @@
   "主菜单末尾进入耍起功能。总开关控制 AF-C、对焦加速 buff 和后屏自动亮度。": "Open Tweaks at the end of the camera menu. The master switch controls AF-C, focus boost and auto rear screen brightness.",
   "操作已完成，可以拔掉相机的 USB 数据线。请在相机主菜单末尾进入“耍起功能”，先开启总开关，再选择 AF-C、对焦加速 buff 或后屏自动亮度。": "Operation complete. You may disconnect the USB cable. Open Tweaks at the end of the camera menu, turn on the master switch, then select AF-C, focus boost or auto rear screen brightness.",
   "后屏自动亮度": "Auto Rear Screen Brightness",
-  "根据环境光调节后屏亮度，可设置最高亮度": "Adjusts to ambient light; choose a maximum screen brightness"
+  "根据环境光调节后屏亮度，可设置最高亮度": "Adjusts to ambient light; choose a maximum screen brightness",
+  "无法创建 ADB 进程退出保护；相机安装尚未开始": "Could not create ADB process cleanup protection. Camera installation has not started",
+  "无法设置 ADB 进程退出保护；相机安装尚未开始": "Could not configure ADB process cleanup protection. Camera installation has not started",
+  "无法管理 ADB 进程；相机安装尚未开始": "Could not manage the ADB process. Camera installation has not started",
+  "ADB 独立本机端口无法使用，请检查系统网络权限后重试": "The private local ADB port is unavailable. Check system network permissions and retry"
 }

@@ -1,4 +1,4 @@
-x2d/907一键扩展功能-工具包 0.4.4 · Windows x64 实验版
+x2d/907一键扩展功能-工具包 0.4.5 · Windows x64 实验版
 
 语言选择
 点击窗口右上角“设置”，可选择“中文”或“English”，默认中文，选择会保存到本机，重新启动仍沿用。
@@ -9,6 +9,14 @@ Language
 Open Settings at the top right, then choose 中文 or English. The app remembers your choice after restart.
 Buttons, feature descriptions, status, errors, instructions and existing logs follow the selected language.
 Language selection does not change feature settings or USB drivers.
+
+退出与文件夹移动 / Exit and moving the folder
+普通检查更新期间可直接关闭窗口，正在进行的检查会取消。相机/驱动操作及下载安装软件更新期间，请等待完成后退出。
+相机安装/恢复使用本软件管理的独立 ADB 进程，结束时自动回收。关闭软件窗口后再移动完整文件夹；Windows 正在运行程序时会占用运行库文件。
+You can close the window during an update check; the check is cancelled. Wait for camera/driver work and update installation to finish before quitting.
+The private ADB process is cleaned up after camera install/restore. Close the app before moving its complete folder; Windows retains runtime files while the app is running.
+旧版已经残留的 ADB 不会由新版强制结束。若软件窗口已关闭、相机操作已完成，而旧文件夹仍被占用，可在任务管理器确认文件位置后仅结束该旧软件目录下的 adb.exe，再更新；也可重启 Windows 后使用新版。
+The new app does not forcibly stop ADB left by an older version. If the old folder remains locked after the app is closed and camera work is complete, verify the executable location in Task Manager and end only adb.exe from that old toolkit folder before upgrading, or restart Windows and use the new version.
 
 English quick start
 1. Extract the entire ZIP and double-click x2d-907一键扩展功能-工具包.exe. Allow the Windows administrator prompt.

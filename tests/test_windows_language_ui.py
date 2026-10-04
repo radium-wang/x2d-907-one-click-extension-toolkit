@@ -1,6 +1,6 @@
 """Execute Windows UI callbacks with system API substitutes; no USB or worker process."""
 import ctypes as C
-import io,json,re,tempfile,unittest
+import io,json,re,subprocess,sys,tempfile,threading,unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -49,6 +49,65 @@ class WindowsLanguageUITests(unittest.TestCase):
     def setUp(self):
         preferences=patch.object(app,'UpdatePreferences',return_value=SimpleNamespace(auto_check=False,set_auto_check=lambda value:True))
         preferences.start();self.addCleanup(preferences.stop)
+
+    def test_window_close_cancels_real_blocked_update_child_without_camera_work(self):
+        ready = threading.Event(); children = []
+        popen = subprocess.Popen
+        def check_child(args, **kwargs):
+            assert args[4] == 'check'
+            kwargs.pop('creationflags',None)
+            child = popen([sys.executable,'-c','import time; time.sleep(60)'], **kwargs)
+            children.append(child); ready.set(); return child
+        class CloseAPI(WindowAPI):
+            closed = False
+            def call(self,name,*args):
+                if name == 'GetMessageW':
+                    self.proc(101,0x0111,106,0)
+                    assert ready.wait(3), 'Check process must be running before close'
+                    self.proc(101,0x0010,0,0)
+                    assert self.closed
+                    return 0
+                if name == 'DestroyWindow': self.closed=True; return 1
+                return super().call(name,*args)
+        api = CloseAPI()
+        with tempfile.TemporaryDirectory() as folder:
+            with patch.object(app,'os',SimpleNamespace(name='nt',environ={'LOCALAPPDATA':folder},getpid=lambda:123)),patch.object(app.C,'WinDLL',side_effect=lambda *a,**k:api,create=True),patch.object(app.C,'WINFUNCTYPE',C.CFUNCTYPE,create=True),patch.object(app.subprocess,'Popen',side_effect=check_child):
+                app.main()
+        self.assertEqual(len(children),1)
+        self.assertIsNotNone(children[0].poll())
+
+    def test_camera_work_and_update_install_still_block_window_close(self):
+        for camera in (False,True):
+            class ProtectedAPI(WindowAPI):
+                destroyed=0
+                blocked=0
+                def call(self,name,*args):
+                    if name == 'PostMessageW': self.proc(*args); return 1
+                    if name == 'DestroyWindow': self.destroyed+=1; return 1
+                    if name == 'MessageBoxW': self.blocked+=1; return 1
+                    if name == 'GetMessageW':
+                        if camera:
+                            self.session.start('status')
+                        else:
+                            self.proc(101,0x0111,106,0)
+                            self.proc(101,0x0111,109,0)
+                        self.proc(101,0x0010,0,0)
+                        return 0
+                    return super().call(name,*args)
+            api = ProtectedAPI()
+            class Session(app.Session):
+                def __init__(self): super().__init__(); api.session=self
+            class Thread:
+                def __init__(self,target,args,daemon): self.target,self.args=target,args
+                def start(self):
+                    if not self.args[0]: self.target(*self.args)
+            event = dict(type='available',version='0.4.5',message='发现软件新版本：0.4.5')
+            child = SimpleNamespace(stdout=io.StringIO('TOOLKIT_UPDATE '+json.dumps(event)+'\n'),wait=lambda:0,poll=lambda:0)
+            with tempfile.TemporaryDirectory() as folder:
+                with patch.object(app,'os',SimpleNamespace(name='nt',environ={'LOCALAPPDATA':folder},getpid=lambda:123)),patch.object(app.C,'WinDLL',side_effect=lambda *a,**k:api,create=True),patch.object(app.C,'WINFUNCTYPE',C.CFUNCTYPE,create=True),patch.object(app,'Session',Session),patch.object(app.threading,'Thread',Thread),patch.object(app.subprocess,'Popen',return_value=child):
+                    app.main()
+            self.assertEqual(api.destroyed,0,'Protected operation must block close')
+            self.assertEqual(api.blocked,1)
 
     def test_monitor_dpi_rescales_controls_and_tab_focus_reveals_hidden_actions(self):
         class MonitorAPI(WindowAPI):
@@ -127,7 +186,7 @@ class WindowsLanguageUITests(unittest.TestCase):
                 calls.append(args)
                 event=dict(type='available',version='0.4.3',message='发现软件新版本：0.4.3')
                 if args[4]=='install':event=dict(type='error',message='软件更新未完成')
-                return SimpleNamespace(stdout=io.StringIO('TOOLKIT_UPDATE '+json.dumps(event)+'\n'),wait=lambda:0)
+                return SimpleNamespace(stdout=io.StringIO('TOOLKIT_UPDATE '+json.dumps(event)+'\n'),wait=lambda:0,poll=lambda:0)
             with tempfile.TemporaryDirectory() as folder:
                 path=Path(folder)/'X2DPlay/settings.json'
                 RealUpdatePreferences(path).set_auto_check(automatic)
@@ -197,8 +256,9 @@ class WindowsLanguageUITests(unittest.TestCase):
             self.assertEqual(api.quit_count,0,'Closing the prompt must not quit the app')
             self.assertTrue(api.enabled[101])
 
-    def test_update_blocks_camera_writes_duplicate_update_and_window_close(self):
+    def test_update_check_blocks_writes_but_allows_window_close_before_worker_launch(self):
         class UpdateAPI(WindowAPI):
+            closed=False
             def call(self,name,*args):
                 if name=='GetMessageW':
                     self.session.verified=True
@@ -208,11 +268,12 @@ class WindowsLanguageUITests(unittest.TestCase):
                     self.proc(101,0x0111,103,0)
                     self.proc(101,0x0111,106,0)
                     self.proc(101,0x0010,0,0)
+                    assert self.closed, 'Read-only update check must allow close'
                     assert not self.session.busy and self.session.action==''
                     for h,item in self.controls.items():
                         if item['id'] in (101,102,103,106):assert not self.enabled[h]
                     return 0
-                if name=='DestroyWindow':raise AssertionError('active update must prevent close')
+                if name=='DestroyWindow':self.closed=True;return 1
                 return super().call(name,*args)
         api=UpdateAPI()
         class Session(app.Session):
