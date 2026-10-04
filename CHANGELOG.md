@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add an Alipay donation QR code alongside PayPal in the English/Chinese README and link the donation section from the repository Sponsor button. Documentation only; published application packages are unchanged.
+
 ## [0.4.5](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.5) — 2026-10-04
 
 - Allow the Windows window to close during automatic or manual update checks. Cancel and reap only the owned read-only check process, including checks that have not started yet; retain exit protection during camera/driver operations and update installation.
@@ -91,6 +95,10 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## 未发布
+
+- 在中英文 README 的 PayPal 赞助链接旁加入支付宝收款码，并从仓库赞助按钮链接到捐赠说明。仅修改文档，已发布安装包保持不变。
 
 ## [0.4.5](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.5) — 2026-10-04
 

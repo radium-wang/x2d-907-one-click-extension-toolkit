@@ -57,7 +57,11 @@ This is a **source-available** project with restrictions on software commerciali
 
 ## Support development
 
-If this toolkit helps you, you can [support its development via PayPal](https://paypal.me/RadiumWang). Donations are voluntary. Thank you for supporting ongoing development and maintenance!
+If this toolkit helps you, you can support its development via [PayPal](https://paypal.me/RadiumWang) or Alipay. Donations are voluntary. Thank you for supporting ongoing development and maintenance!
+
+**Alipay:** scan the QR code below with Alipay, or save the image and open it in Alipay's scanner.
+
+<img src="docs/images/alipay-donation.png" alt="Alipay donation QR code" width="280">
 
 ---
 
@@ -118,4 +122,8 @@ X2D 的功能入口在第 **12** 格；907 默认第 **11** 格，勾选彩蛋�
 
 ### 支持开发
 
-如果这个工具对你有帮助，欢迎通过 [PayPal 自愿赞助](https://paypal.me/RadiumWang)，支持后续开发与维护。感谢支持！
+如果这个工具对你有帮助，欢迎通过 [PayPal](https://paypal.me/RadiumWang) 或支付宝自愿赞助，支持后续开发与维护。感谢支持！
+
+**支付宝：**打开支付宝扫一扫，扫描下方收款码；也可以保存图片，在扫一扫中从相册选择。
+
+<img src="docs/images/alipay-donation.png" alt="支付宝自愿赞助收款码" width="280">
