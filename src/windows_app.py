@@ -8,7 +8,7 @@ from reinstall_confirmation import CONTINUE, CANCEL
 from app_settings import UpdatePreferences
 
 D = Path(__file__).resolve().parent
-VERSION = '0.4.2'
+VERSION = '0.4.3'
 
 
 class Session:
@@ -413,7 +413,7 @@ def main():
     if not register(C.byref(wc)): raise C.WinError(C.get_last_error())
     init = InitCommon(C.sizeof(InitCommon), 0x20)
     initcommon(C.byref(init))
-    width, height = scale(620), scale(822)
+    width, height = scale(620), scale(877)
     screenwidth = api(user, 'GetSystemMetrics', C.c_int, C.c_int)(0)
     screenheight = user.GetSystemMetrics(1)
     hwnd = create(0, wc.name, language.text('x2d/907一键扩展功能-工具包 · ') + VERSION, 0x00CA0000,
@@ -434,21 +434,23 @@ def main():
     control('title', 'STATIC', 'x2d/907一键扩展功能-工具包', 28, 24, 370, 42, textfont=titlefont)
     control('settingsbutton','BUTTON','设置',465,28,111,32,extra=0x10000,identity=107)
     control('subtitle', 'STATIC', 'X2D 100C / 907X 100C · 固件 4.2.0', 28, 75, 555, 22)
-    control('box', 'BUTTON', '相机功能', 28, 110, 548, 142, extra=7)
+    control('box', 'BUTTON', '相机功能', 28, 110, 548, 197, extra=7)
     control('afc', 'STATIC', 'AF-C 连续自动对焦', 48, 140, 510, 24, textfont=strong)
     control('afcdescription', 'STATIC', '在相机上开启连续自动对焦', 48, 168, 510, 20, textfont=small)
     control('buff', 'STATIC', '对焦加速 buff', 48, 195, 510, 24, textfont=strong)
     control('buffdescription', 'STATIC', '加快对焦扫描，关闭后恢复原厂速度', 48, 223, 510, 20, textfont=small)
-    control('prank', 'BUTTON', '添加防抖功能（907 彩蛋）', 28, 263, 548, 26, extra=0x10003, identity=105)
-    control('state', 'STATIC', '等待连接相机', 28, 306, 548, 24, textfont=strong)
-    control('detail', 'STATIC', '连接相机并开机，点击“已连接”自动准备驱动并检查状态。\r\n907X 100C 适配版待实机验证。', 28, 338, 548, 42, textfont=small)
-    control('progress', 'msctls_progress32', '', 28, 390, 548, 12)
-    control('statusbutton', 'BUTTON', '已连接', 28, 420, 120, 38, extra=0x10000, identity=101)
-    control('installbutton', 'BUTTON', '一键安装', 161, 420, 165, 38, extra=0x10000, identity=102)
-    control('restorebutton', 'BUTTON', '一键恢复原状', 339, 420, 237, 38, extra=0x10000, identity=103)
-    control('warning', 'STATIC', '开启对焦 buff 后切勿取下镜头。\r\n更换镜头前，请先关闭对焦加速 buff。', 28, 510, 548, 46, textfont=strong)
-    control('note', 'STATIC', '安装会自动备份原厂配置，并重启校验。恢复会撤回本应用的菜单与功能。\r\n请等待操作完成再拔线；首次连接会自动准备相机工厂接口驱动。', 28, 569, 548, 46, textfont=small)
-    control('logs', 'EDIT', '', 28, 627, 548, 138, extra=0x00200844, textfont=small, ex=0x200)
+    control('brightness', 'STATIC', '后屏自动亮度', 48, 250, 510, 24, textfont=strong)
+    control('brightnessdescription', 'STATIC', '根据环境光调节后屏亮度，可设置最高亮度', 48, 278, 510, 20, textfont=small)
+    control('prank', 'BUTTON', '添加防抖功能（907 彩蛋）', 28, 318, 548, 26, extra=0x10003, identity=105)
+    control('state', 'STATIC', '等待连接相机', 28, 361, 548, 24, textfont=strong)
+    control('detail', 'STATIC', '连接相机并开机，点击“已连接”自动准备驱动并检查状态。\r\n907X 100C 适配版待实机验证。', 28, 393, 548, 42, textfont=small)
+    control('progress', 'msctls_progress32', '', 28, 445, 548, 12)
+    control('statusbutton', 'BUTTON', '已连接', 28, 475, 120, 38, extra=0x10000, identity=101)
+    control('installbutton', 'BUTTON', '一键安装', 161, 475, 165, 38, extra=0x10000, identity=102)
+    control('restorebutton', 'BUTTON', '一键恢复原状', 339, 475, 237, 38, extra=0x10000, identity=103)
+    control('warning', 'STATIC', '开启对焦 buff 后切勿取下镜头。\r\n更换镜头前，请先关闭对焦加速 buff。', 28, 565, 548, 46, textfont=strong)
+    control('note', 'STATIC', '安装会自动备份原厂配置，并重启校验。恢复会撤回本应用的菜单与功能。\r\n请等待操作完成再拔线；首次连接会自动准备相机工厂接口驱动。', 28, 624, 548, 46, textfont=small)
+    control('logs', 'EDIT', '', 28, 682, 548, 138, extra=0x00200844, textfont=small, ex=0x200)
     log('工具包 Windows 版本：' + VERSION)
     from app_updates import notice
     log(notice(D))

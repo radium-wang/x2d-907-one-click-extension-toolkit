@@ -82,7 +82,7 @@ class LanguageTests(unittest.TestCase):
     def test_camera_menu_labels_replace_only_quoted_visible_strings(self):
         sources={name:(D/name).read_text(encoding='utf-8') for name in CAMERA_SOURCES}
         joined=''.join(sources.values())
-        expected={chinese:1 for chinese,_ in LABELS}
+        expected={chinese:1 for chinese,_ in LABELS if chinese not in ('自动亮度','显示屏最高亮度')}
         expected['耍起功能']=4
         for chinese,count in expected.items():
             self.assertEqual(joined.count(f'"{chinese}"'),count,chinese)

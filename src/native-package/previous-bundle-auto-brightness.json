@@ -13,8 +13,8 @@
     {
       "source": "X2dNativeMenuBootstrap.qml",
       "target": "/system/etc/X2dNativeMenuBootstrap.qml",
-      "bytes": 8979,
-      "sha256": "7bed4fff9b67e9498ccef3d13efefbbf00159473ecba404a1b50cbcc1300303d"
+      "bytes": 8148,
+      "sha256": "08abddb55bd11d73aba082f72fd56beb477a8ffa22896fc5ec8d3c0273fba452"
     },
     {
       "source": "X2dNativeMenuModel.qml",
@@ -43,8 +43,8 @@
     {
       "source": "X2dPlayPage.qml",
       "target": "/system/etc/X2dPlayPage.qml",
-      "bytes": 10901,
-      "sha256": "bcfff0a71e51765d3eb31e564135c17708e117dbdf75650854ca1984fbf134fa"
+      "bytes": 9979,
+      "sha256": "848e4dba1a60fcaa12f5cb4ac1c66fb7762e60b64b4d92f56dd018f7368babdf"
     },
     {
       "source": "X2dAfcMenuController.qml",
@@ -61,26 +61,8 @@
     {
       "source": "X2dAutoBrightnessController.qml",
       "target": "/system/etc/X2dAutoBrightnessController.qml",
-      "bytes": 2604,
-      "sha256": "251bc6fe18f30fdd20aa224bd83e17e1df5bc3294f83bb6772c12a3ee910cc9a"
-    },
-    {
-      "source": "X2dDisplaySettings.qml",
-      "target": "/system/etc/X2dDisplaySettings.qml",
-      "bytes": 23392,
-      "sha256": "4b8a91a5df6ea7c71748f668bdb0ea447ee77874d0f435d5f171bb3cc013275e"
-    },
-    {
-      "source": "X2dDisplayRearBrightness.qml",
-      "target": "/system/etc/X2dDisplayRearBrightness.qml",
-      "bytes": 7609,
-      "sha256": "58d7c06fd43fc534eae6685a52628ccbc359d7bfc031b8461394bf9bdc0d307b"
-    },
-    {
-      "source": "X2dBrightnessSlider.qml",
-      "target": "/system/etc/X2dBrightnessSlider.qml",
-      "bytes": 5436,
-      "sha256": "f51ae1d3bd72f9295a7e60a2ae51142190b51b487e7b9ebd0ac086b16dd5ffad"
+      "bytes": 2055,
+      "sha256": "961f849667b09fadd8c552b29b1a5ccd038c5e1e712cc78e16930d5b9cc38d08"
     },
     {
       "source": "ic_main_menu_play.svg",
@@ -91,8 +73,8 @@
     {
       "source": "libx2d_play_brightness.so",
       "target": "/system/lib64/libx2d_play_brightness.so",
-      "sha256": "5a3a38aa9ad114296f729ad5212bb778f43bd33d5152649eae96e6e898b30f69",
-      "bytes": 20616
+      "sha256": "935083fb469a2f5c0b7577f618119b65a0e10bab7edc1ef0d1c21cff1b46525b",
+      "bytes": 18992
     },
     {
       "source": "libx2d_speed_server.so",
@@ -103,8 +85,8 @@
     {
       "source": "speed-worker",
       "target": "/system/etc/x2d-speed-buff/worker",
-      "sha256": "910a99b6da0ff8a656dbed7d9505025c3d0a17c0a650ed81d842034351fd9d01",
-      "bytes": 5187
+      "sha256": "a7ee3c45f7aea7cef53224a1beea4fe32df79de2c346403748e72bfef26f7597",
+      "bytes": 5142
     },
     {
       "source": "speed-backend",
@@ -168,8 +150,8 @@
       {
         "source": "X2dNativeMenuBootstrap.en.qml",
         "target": "/system/etc/X2dNativeMenuBootstrap.qml",
-        "bytes": 8973,
-        "sha256": "89a7673136e40bd7218e55a570ae20a86da4d410f471a235972b532e0b7b3880"
+        "bytes": 8142,
+        "sha256": "8cacba1c15cb28238f6ea02ea2ec6714d5effbecdc0d9f107567604e49a87e65"
       },
       {
         "source": "X2dNativeMenuModel.en.qml",
@@ -186,20 +168,14 @@
       {
         "source": "X2dPlayPage.en.qml",
         "target": "/system/etc/X2dPlayPage.qml",
-        "bytes": 10887,
-        "sha256": "d519be564bff2ef54f111083f5c0245d311a49bccc922db091f21573afcf7098"
+        "bytes": 9976,
+        "sha256": "3e5b9d18af7e9032e93f2425ae1a7ffe05d02a9eadad62216e5f73771d5b34aa"
       },
       {
         "source": "X2dAfcMenuController.en.qml",
         "target": "/system/etc/X2dAfcMenuController.qml",
         "bytes": 5103,
         "sha256": "b6fc06539b11e63b3f2a9213d588cce3dec5d17a3c410e8ba17b2e1b527761fd"
-      },
-      {
-        "source": "X2dDisplayRearBrightness.en.qml",
-        "target": "/system/etc/X2dDisplayRearBrightness.qml",
-        "bytes": 7616,
-        "sha256": "c07fb391de1629d6d2e2175d9817c55ec017d3532b009e8abe03ca490a23488f"
       }
     ]
   }

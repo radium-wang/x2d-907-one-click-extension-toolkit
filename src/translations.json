@@ -324,5 +324,18 @@
   "软件更新未能安装，已保留或恢复上一版；请关闭占用软件的程序后重试": "App update could not be installed; the previous version was kept or restored. Close programs using its files and retry",
   "已知 0.3.3 清单校验失败，请重新解压安装包": "Known 0.3.3 manifest verification failed; extract the full package again",
   "功能文件已安装，菜单回执待刷新": "Feature files installed; waiting for a fresh menu receipt",
-  "请在相机点击“跳过”并打开主菜单，再点击“已连接”重试；仍未通过时可恢复原状。": "Tap Skip on the camera and open its main menu, then click Connected again. If verification still fails, use Restore original."
+  "请在相机点击“跳过”并打开主菜单，再点击“已连接”重试；仍未通过时可恢复原状。": "Tap Skip on the camera and open its main menu, then click Connected again. If verification still fails, use Restore original.",
+  "已知 0.4.2 清单校验失败，请重新解压安装包": "Known 0.4.2 manifest verification failed. Extract the full app again.",
+  "自动亮度安装包校验失败": "Auto brightness package verification failed.",
+  "屏幕启动配置不是已核验的原厂版本": "Display startup configuration is not the verified original version.",
+  "未知屏幕启动配置": "Unknown display startup configuration.",
+  "自动亮度服务尚未就绪": "Auto brightness service is not ready.",
+  "原厂屏幕启动配置校验失败": "Original display startup configuration verification failed.",
+  "屏幕系统不是已核验的原厂版本": "Display system is not the verified original version.",
+  "原厂屏幕备份或恢复配置校验失败": "Original display backup or restoration configuration verification failed.",
+  "屏幕启动配置不是本软件写入的内容": "Display startup configuration differs from this app's known contents.",
+  "主菜单末尾进入耍起功能。总开关控制 AF-C、对焦加速 buff 和后屏自动亮度。": "Open Tweaks at the end of the camera menu. The master switch controls AF-C, focus boost and auto rear screen brightness.",
+  "操作已完成，可以拔掉相机的 USB 数据线。请在相机主菜单末尾进入“耍起功能”，先开启总开关，再选择 AF-C、对焦加速 buff 或后屏自动亮度。": "Operation complete. You may disconnect the USB cable. Open Tweaks at the end of the camera menu, turn on the master switch, then select AF-C, focus boost or auto rear screen brightness.",
+  "后屏自动亮度": "Auto Rear Screen Brightness",
+  "根据环境光调节后屏亮度，可设置最高亮度": "Adjusts to ambient light; choose a maximum screen brightness"
 }

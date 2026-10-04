@@ -6,6 +6,10 @@ LABELS = (
     ('耍起功能', 'Tweaks'),
     ('开启 AF-C', 'Enable AF-C'),
     ('对焦加速 buff', 'Focus Speed Boost'),
+    ('在亮度菜单中加入自动亮度', 'Add Auto Brightness to Menu'),
+    ('请前往显示 → 亮度设置自动亮度', 'Configure auto brightness in Display → Brightness'),
+    ('自动亮度', 'Auto Brightness'),
+    ('显示屏最高亮度', 'Maximum Screen Brightness'),
     ('连续自动对焦', 'AF-C'),
     ('防抖', 'IBIS'),
 )

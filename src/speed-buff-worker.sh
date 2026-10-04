@@ -59,7 +59,7 @@ case "$action" in
    odindb-send -s camera -p focus_mode -- E_FocusModes_Afs >/dev/null
    odindb-send -s camera -p focus_mode | grep -q 'E_FocusModes_Afs(1)'
   fi
-  rm -f "$MASTER" "$ENABLED" "$AFC"; master=false; afc=false;;
+  rm -f "$MASTER" "$ENABLED" "$AFC" /blackbox/x2d-play-auto-brightness.enabled /blackbox/x2d-play-auto-brightness.available; master=false; afc=false;;
  afc_on)
   [ "$master" = true ]
   odindb-send -s camera -p focus_mode -- E_FocusModes_Afc >/dev/null

@@ -23,6 +23,8 @@ QtObject {
  property color highlightColor: "red"
  property color settingsMenuHeaderSuffixFontColor: "white"
  property string menuItemFontName: "Arial"
+ property real settingsMenuDescriptionFontSize: 32 * scaleFactor
+ property real menuItemDisabledTextOpacity: 0.6
  property int wheelTimeoutTimeMs: 3000
  property int menuListItemDefaultHeight: 120
  property int menuListDividerHeight: 1
@@ -42,6 +44,8 @@ QtObject {
       'mainmenu/MenuHeader.qml':'import QtQuick\nItem { height:100; property bool showSeparator:false; property var text: []; signal close() }',
       'mainmenu/MenuBoolSelector.qml':'import QtQuick\nItem { height:100; property string text:""; property bool value:false; property bool itemEnabled:true; property bool highlighted:false; property bool showSwitch:true; property int fontWeight:Font.Medium }',
       'components/FocusModeListItem.qml':'import QtQuick\nQtObject { property int focusMode:0; property bool valid:false; property url icon; property string text:"" }'}
+    description=D/'outputs/stock-qml/mainmenu/SettingDescription.qml'
+    resources['mainmenu/SettingDescription.qml']=description.read_text() if description.exists() else 'import QtQuick\nimport com.hasselblad.constants\nText { property bool isEnabled:true; property bool highlighted:false; font.pixelSize:Constants.settingsMenuDescriptionFontSize; color:Constants.colorWhite; opacity:isEnabled?0.7:Constants.menuItemDisabledTextOpacity; wrapMode:Text.WordWrap }'
     for name, content in resources.items(): write('resource-stubs/'+name,content)
     qrc=F/'resource-stubs.qrc'
     qrc.write_text('<RCC><qresource prefix="/app/qml">'+''.join(f'<file alias="{name}">resource-stubs/{name}</file>' for name in resources)+'</qresource></RCC>')
