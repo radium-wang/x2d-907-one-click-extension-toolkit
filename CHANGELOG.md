@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Replace the project license for subsequent versions with X2D/907 Noncommercial Distribution License 1.0: allow professional photography and free sharing/modification, prohibit software sales and paid installation without separate permission, and retain prior MIT and third-party permissions. Include the project license and third-party notices in newly built desktop packages; published archives remain unchanged.
+
 English first; [中文更新日志](#中文更新日志) follows below. Versions are listed newest first. Documentation-only changes do not imply a new application package.
 
 ## [0.4.2](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.2) — 2026-10-04
@@ -62,6 +66,10 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## 未发布
+
+- 后续版本改用 X2D/907 非商业分发许可证 1.0：允许职业摄影、修改和免费分享；出售软件、改版及收费安装须另获授权。保留历史 MIT 和第三方许可，新构建的桌面包附带项目许可与第三方说明，已发布包保持不变。
 
 版本按从新到旧排列。仅修改文档不代表发布了新安装包。
 

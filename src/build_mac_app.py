@@ -125,6 +125,8 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
         'CFBundleVersion':'18','LSMinimumSystemVersion':'.'.join(map(str,minimum)),
         'NSHighResolutionCapable':True,'NSHumanReadableCopyright':'Local experimental X2D / 907X 100C 4.2.0 tool'}))
     licenses=r/'licenses'; licenses.mkdir()
+    shutil.copy2(D.parent/'LICENSE',licenses/'X2D-907-Toolkit.txt')
+    shutil.copy2(D.parent/'THIRD_PARTY_NOTICES.md',licenses/'THIRD_PARTY_NOTICES.md')
     shutil.copy2(next(pyusb.parent.glob('pyusb-*.dist-info/LICENSE')),licenses/'PyUSB.txt')
     shutil.copy2(libusb_license or libusb.resolve().parent.parent/'COPYING',licenses/'libusb.txt')
     python_license=Path(info['stdlib'])/'LICENSE.txt'

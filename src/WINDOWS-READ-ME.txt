@@ -76,7 +76,10 @@ AF-S 关机开机保持、开启功能后状态保持、一键恢复及 907X 对
 907X 请仅在机身搭配支持自动对焦的 XCD 镜头时验收；保持镜头安装，结束后验证恢复原厂菜单与两按钮对焦布局。
 
 许可与来源
-licenses 内含第三方许可。driver/libwdi-source.zip 包含对应修改源码与构建说明。
+licenses 内含项目与第三方许可。driver/libwdi-source.zip 包含对应修改源码与构建说明。
+本版本允许修改和免费分享，允许用于收费摄影工作；出售软件、改版或收费提供安装、设置服务须另获书面授权。历史 MIT 版本及第三方组件保留原许可。
+Project license: X2D/907 Noncommercial Distribution License 1.0 (source-available).
+Professional photography is allowed. Software sales and paid installation/setup require separate written permission. See licenses/X2D-907-Toolkit.txt for the authoritative terms.
 libwdi：https://github.com/pbatard/libwdi/tree/v1.5.1
 Python：https://www.python.org/downloads/release/python-31315/
 Android：https://developer.android.com/tools/releases/platform-tools

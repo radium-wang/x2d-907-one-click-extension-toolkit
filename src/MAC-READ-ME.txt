@@ -60,7 +60,10 @@ X2D 已有实机安装、重启常驻与恢复验收。
 保持镜头安装，测试结束后使用一键恢复，并确认原厂菜单和对焦两按钮布局恢复。
 如果菜单未出现或功能异常，关闭功能、执行恢复，并记录软件的中文提示。
 
-第三方组件许可位于 App 内 Contents/Resources/licenses。
+项目与第三方许可位于 App 内 Contents/Resources/licenses。
+本版本允许修改和免费分享，允许用于收费摄影工作；出售软件、改版或收费提供安装、设置服务须另获书面授权。历史 MIT 版本及第三方组件保留原许可。
+Project license: X2D/907 Noncommercial Distribution License 1.0 (source-available).
+Professional photography is allowed. Software sales and paid installation/setup require separate written permission. See licenses/X2D-907-Toolkit.txt for the authoritative terms.
 
 907 防抖彩蛋（可选）
 点击“已连接”并成功识别 907X / CFV 100C 后，“添加防抖功能（907 彩蛋）”勾选框才会可用，默认不勾选。
