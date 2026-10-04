@@ -1,4 +1,10 @@
-# Validation boundaries — 0.4.4
+# Validation boundaries — 0.4.5
+
+## Windows exit fix (0.4.5)
+
+The window can cancel a read-only update check without waiting for a network timeout. Camera/driver work and desktop update installation retain exit protection. Regression checks run the actual window callback with Win32 substitutes while a real child process is blocked, close the window, and verify that child exits. They also cover close-before-launch and close-during-launch races, camera/update-install protection, private ADB endpoint propagation, startup/assignment failure and timeout cleanup, CLI failure cleanup, and the Windows x64 job structure/kill-on-close flags.
+
+The complete offline suite passes 166 tests with locally generated inputs; clean source passes 140 and skips 26 requiring excluded inputs. The Windows 0.4.5 package includes `windows_processes.py` and passes 38 PE and archive checks; the Mac universal package passes its dependency and archive checks. Both retain the exact 0.4.4 camera payload; existing 0.4.3/0.4.4 camera installations do not need reinstallation. Mac behavior is unchanged. The private foreground ADB server and its ownership are tested with ADB/Win32 substitutes; no real ADB server, USB device or Windows driver was used. Folder movement in a portable child-process test is not evidence of Windows directory-handle behavior. Native Windows window closure, post-install/restore cleanup, directory movement and abnormal-owner exit still need Windows validation. Published 0.4.4 archives are unchanged.
 
 ## Windows interface (0.4.4)
 

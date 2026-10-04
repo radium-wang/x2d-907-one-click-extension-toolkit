@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.5](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.5) — 2026-10-04
+
+- Allow the Windows window to close during automatic or manual update checks. Cancel and reap only the owned read-only check process, including checks that have not started yet; retain exit protection during camera/driver operations and update installation.
+- Use a foreground Windows ADB server on a private loopback socket for camera install/restore. Reap it at operation completion or failure, with Windows job-object cleanup if the owner crashes. Other applications' ADB servers are not stopped.
+- Publish Mac universal and Windows x64 packages at 0.4.5; the camera payload is unchanged from 0.4.3/0.4.4, so existing camera extensions do not need reinstallation. Mac behavior is unchanged.
+- 166 offline tests passed with local inputs; clean source: 140 passed, 26 skipped. Package audits passed. Native Windows shutdown, directory movement and abnormal-owner cleanup still need Windows validation.
+- If an older version already left its ADB process running, close the app and finish camera work before ending only `adb.exe` whose executable location is inside that old toolkit folder, or restart Windows before upgrading.
+
 ## [0.4.4](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.4) — 2026-10-04
 
 - Align the Windows interface with Mac: a white layout, rounded feature card with vector icons, gray descriptions, blue primary action, rounded controls and consistent typography. Restyle Settings and reinstall confirmation while retaining native input/accessibility and operation gates.
@@ -83,6 +91,14 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## [0.4.5](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.5) — 2026-10-04
+
+- Windows 自动或手动检查更新期间允许关闭窗口，取消并回收本次只读检查进程，也覆盖关闭时检查尚未启动的情况；相机/驱动操作及软件更新安装期间仍保留退出保护。
+- Windows 相机安装/恢复改用独立本机端口上的前台 ADB 服务，操作完成或失败后回收；所属进程异常退出时由 Windows Job Object 清理，不结束其他软件的 ADB 服务。
+- 发布 0.4.5 Mac 通用与 Windows x64 安装包；相机载荷与 0.4.3/0.4.4 相同，已有相机扩展无需重新安装，Mac 行为不变。
+- 完整离线测试 166 项通过；纯源码为 140 项通过、26 项跳过，安装包校验通过；Windows 原生退出、目录移动及异常退出清理仍待 Windows 验证。
+- 若旧版已经残留 ADB，先关闭窗口并等待相机操作完成，再在任务管理器确认文件位置后仅结束该旧软件目录下的 `adb.exe`，或重启 Windows 后升级。
 
 ## [0.4.4](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.4) — 2026-10-04
 

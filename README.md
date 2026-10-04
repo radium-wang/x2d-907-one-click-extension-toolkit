@@ -14,6 +14,7 @@ Camera menu labels follow the app language at install time: English installs **T
 - **Install / Restore original:** checks the camera and package, saves the original startup configuration, then restarts and verifies the result.
 - **Settings and updates:** in Settings, startup checks default to on and can be disabled; the choice is remembered. Manual checking remains available when automatic checks are off. A separate Download and Install Update action fetches the latest stable GitHub Release for your platform, verifies its SHA-256 digest, then installs and relaunches the app. Camera operations and app updates cannot run together. The previous app is retained beside the installation. Updates change the desktop app; updating an installed camera extension still requires **Connected → Install**.
 - **Chinese / English:** switch the desktop interface and logs in Settings; the preference survives app restarts. **Install** writes matching Chinese or English camera menu labels. Changing the camera language requires another install.
+- **Windows exit fix (0.4.5):** closing during a read-only update check cancels the check. Camera install/restore now uses an owned private ADB process that is cleaned up afterward; camera/driver work and update installation retain exit protection.
 - **Windows interface (0.4.4):** Mac-aligned feature cards, rounded buttons and Settings, with bilingual typography, per-monitor DPI scaling and scrolling on short displays. The camera payload is unchanged from 0.4.3, so existing 0.4.3 camera installations do not need reinstallation.
 - **907 IBIS entry (Easter egg):** available after a verified 907 connection; its menu label follows the installed language.
 
@@ -44,7 +45,7 @@ Native macOS 0.4.3 window rendered in an offline UI check with a disconnected st
 
 ## Verification status
 
-Earlier X2D installations, menu behavior and restoration have device/user evidence. Version 0.4.4 passed 153 offline tests, bilingual Windows layout previews and archive audits; the unchanged 0.4.3 camera payload also has Qt menu/brightness checks and native Mac bilingual layout evidence. Native Windows rendering and accessibility, auto brightness on the physical display, X2D/CFV boot and restoration, the 907 menu/Easter egg, AF-S retention across power cycles and automatic Windows driver preparation still require native/device validation. A desktop test is not a camera test. See [the evidence boundaries](docs/VALIDATION.md).
+Earlier X2D installations, menu behavior and restoration have device/user evidence. Version 0.4.5 passed 166 offline tests and archive audits; the unchanged Windows layout retains bilingual preview evidence; the unchanged 0.4.3 camera payload also has Qt menu/brightness checks and native Mac bilingual layout evidence. Native Windows shutdown/directory release, rendering and accessibility, auto brightness on the physical display, X2D/CFV boot and restoration, the 907 menu/Easter egg, AF-S retention across power cycles and automatic Windows driver preparation still require native/device validation. A desktop test is not a camera test. See [the evidence boundaries](docs/VALIDATION.md).
 
 This is an independent project, not an official Hasselblad product. Eye recognition is not included. Other camera generations and firmware versions are unsupported.
 
@@ -74,6 +75,7 @@ If this toolkit helps you, you can [support its development via PayPal](https://
 - **一键安装 / 一键恢复原状**：检查连接与文件，保存原厂启动配置，并在重启后校验结果。
 - **设置与更新**：在设置页选择语言、关闭或开启启动自动检查更新（默认开启并保存选择）；关闭后仍能手动检查。下载安装需另行点击，从 GitHub Release 获取对应系统的稳定版，校验 SHA-256 后安装并重新打开；保留上一版 App，更新与相机操作互斥。更新只替换电脑端软件；相机上的扩展需再点击 **已连接 → 一键安装** 更新。
 - **中英文切换**：在设置中选择语言，桌面界面、操作提示和日志随语言切换，重启 App 后保留选择；**一键安装** 会写入对应语言的相机菜单文案，更换相机语言需重新安装。
+- **Windows 退出修复（0.4.5）**：普通检查更新期间可关闭窗口并取消检查；相机安装/恢复改用本软件管理的独立 ADB 进程，操作结束后回收。相机/驱动操作及更新安装期间仍保留退出保护。
 - **Windows 界面（0.4.4）**：功能卡片、圆角按钮和设置页对齐 Mac，适配中英文字体、显示器 DPI 缩放及小屏幕滚动。相机载荷与 0.4.3 相同，已有 0.4.3 相机安装无需重装。
 - **907 防抖入口（彩蛋）**：识别到 907 后可选择添加；入口名称随安装语言变化。
 
@@ -102,7 +104,7 @@ X2D 的功能入口在第 **12** 格；907 默认第 **11** 格，勾选彩蛋�
 
 ### 验证与源码范围
 
-早期 X2D 安装、菜单和恢复已有实机或用户反馈；0.4.4 通过 153 项离线测试、Windows 中英文布局预览及安装包校验；沿用的 0.4.3 相机载荷另有 Qt 菜单/亮度检查和 Mac 原生中英文布局证据。**Windows 原生显示与可访问性、实际后屏自动亮度、X2D/CFV 启动与恢复、907 菜单/彩蛋、关机后保留 AF-S，以及 Windows 自动驱动准备仍待原生或实机验证。** 具体范围见 [验证说明](docs/VALIDATION.md)。
+早期 X2D 安装、菜单和恢复已有实机或用户反馈；0.4.5 通过 166 项离线测试及安装包校验，未改动的 Windows 布局保留中英文预览证据；沿用的 0.4.3 相机载荷另有 Qt 菜单/亮度检查和 Mac 原生中英文布局证据。**Windows 原生退出与目录释放、显示与可访问性、实际后屏自动亮度、X2D/CFV 启动与恢复、907 菜单/彩蛋、关机后保留 AF-S，以及 Windows 自动驱动准备仍待原生或实机验证。** 具体范围见 [验证说明](docs/VALIDATION.md)。
 
 本库只收录应用源码、测试和软件截图，不包含原厂固件、提取的编译 QML、运行库、生成的相机载荷或桌面安装压缩包。桌面安装包见 [GitHub Releases](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/latest)。更新需要应用目录可写；如提示权限不足，请将完整 App 移到自己的可写目录后重试。Mac 使用临时签名、未经公证；Windows 启动器未经代码签名。构建输入见 [构建说明](docs/BUILD.md)。
 

@@ -24,6 +24,7 @@ ADB_NAME = 'adb.exe' if os.name == 'nt' else 'adb'
 ADB = str(D / 'bin' / ADB_NAME) if (D / 'bin' / ADB_NAME).exists() else ADB_NAME
 PROCESS_OPTIONS = dict(creationflags=0x08000000) if os.name == 'nt' else {}
 ADB_SERIAL = None
+ADB_SESSION = None
 INTERACTIVE_CONFIRMATION = False
 REINSTALL_CONFIRMED = False
 SUPPORTED_USB_PIDS = (0x0009, 0x000A)  # stock setup_product_props.sh: X2D / CFV 100C
@@ -87,9 +88,20 @@ def read_bytes(path):
 
 
 def adb_call(args, **options):
-    prefix = [ADB] + (['-s', ADB_SERIAL] if ADB_SERIAL else [])
+    prefix = adb_prefix() + (['-s', ADB_SERIAL] if ADB_SERIAL else [])
     options.setdefault('stdin', subprocess.DEVNULL)
     return subprocess.run(prefix + args, capture_output=True, timeout=30, **PROCESS_OPTIONS, **options)
+
+
+def adb_prefix():
+    return ADB_SESSION.prefix() if ADB_SESSION is not None else [ADB]
+
+
+def close_adb_session():
+    global ADB_SESSION
+    if ADB_SESSION is not None:
+        session, ADB_SESSION = ADB_SESSION, None
+        session.close()
 
 
 def physical_adb_candidates(output):
@@ -121,6 +133,8 @@ def adb_start_failure(code, output):
     if status in (0xc000007b, 0xc000012f):
         return 'ADB 运行组件格式不正确，请重新解压完整的 Windows x64 安装包'
     if any(token in message for token in ('cannot bind', 'address already in use', '10048', 'smartsocket')):
+        if ADB_SESSION is not None:
+            return 'ADB 独立本机端口无法使用，请检查系统网络权限后重试'
         return 'ADB 本机端口无法使用，请关闭其他使用 ADB 的程序后重试（端口 5037）'
     if any(token in message for token in ('access is denied', 'permission denied', '10013')):
         return 'Windows 拒绝 ADB 启动或本机通信，请检查刚才的系统提示和安全软件记录'
@@ -130,7 +144,13 @@ def adb_start_failure(code, output):
 
 
 def prepare_adb_server():
+    global ADB_SESSION
     event('progress', message='正在准备 ADB；如 Windows 弹出允许提示，请先处理提示', percent=10)
+    if os.name == 'nt':
+        from windows_processes import ADBSession
+        if ADB_SESSION is None: ADB_SESSION = ADBSession(ADB)
+        ADB_SESSION.start(event, adb_start_failure)
+        return
     # Keep ONE start client alive: the server waits for its USB scan before ACK.
     # Killing the client every five seconds can interrupt that handshake. Regular
     # files avoid waiting for EOF on pipes inherited by a background server.
@@ -183,7 +203,7 @@ def ensure_adb():
     def choose():
         global ADB_SERIAL
         try:
-            result = subprocess.run([ADB, 'devices', '-l'], capture_output=True, text=True, timeout=5, **PROCESS_OPTIONS)
+            result = subprocess.run(adb_prefix() + ['devices', '-l'], capture_output=True, text=True, timeout=5, **PROCESS_OPTIONS)
         except subprocess.TimeoutExpired:
             return False
         if result.returncode: return False
@@ -192,7 +212,7 @@ def ensure_adb():
         if matches:
             if os.name == 'nt':
                 try:
-                    physical = subprocess.run([ADB, '-d', 'get-serialno'], capture_output=True, text=True, timeout=5, **PROCESS_OPTIONS)
+                    physical = subprocess.run(adb_prefix() + ['-d', 'get-serialno'], capture_output=True, text=True, timeout=5, **PROCESS_OPTIONS)
                 except subprocess.TimeoutExpired:
                     return False
                 if physical.returncode or physical.stdout.strip() != matches[0]: return False
@@ -843,12 +863,15 @@ def main():
         p.error('reinstall confirmation requires install')
     INTERACTIVE_CONFIRMATION = args.interactive_confirmation
     REINSTALL_CONFIRMED = args.confirm_reinstall
-    if args.action == 'install': install(not args.no_reboot, args.prank_ibis, args.language)
-    elif args.action == 'restore': restore(not args.no_reboot)
-    elif args.action == 'status': status()
-    else:
-        verify_target()
-        event('status', state=backend(args.action))
+    try:
+        if args.action == 'install': install(not args.no_reboot, args.prank_ibis, args.language)
+        elif args.action == 'restore': restore(not args.no_reboot)
+        elif args.action == 'status': status()
+        else:
+            verify_target()
+            event('status', state=backend(args.action))
+    finally:
+        close_adb_session()
 
 if __name__ == '__main__':
     try: main()
