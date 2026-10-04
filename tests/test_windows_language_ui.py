@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 import windows_app as app
 from reinstall_confirmation import CONTINUE, CANCEL, prompt
+from app_settings import UpdatePreferences as RealUpdatePreferences
 
 class Function:
     def __init__(self,name,owner): self.name,self.owner=name,owner
@@ -33,6 +34,7 @@ class WindowAPI:
             if args[1]==0x0147: return self.selection
             return 0
         if name=='GetMessageW':
+            self.proc(101,0x0111,107,0)
             self.snapshots.append({key:value.copy() for key,value in self.controls.items()})
             self.session.busy=True
             self.selection=1
@@ -44,6 +46,58 @@ class WindowAPI:
         return 1
 
 class WindowsLanguageUITests(unittest.TestCase):
+    def setUp(self):
+        preferences=patch.object(app,'UpdatePreferences',return_value=SimpleNamespace(auto_check=False,set_auto_check=lambda value:True))
+        preferences.start();self.addCleanup(preferences.stop)
+
+    def test_startup_preference_manual_check_and_download_are_separate_actions(self):
+        for automatic in (False,True):
+            calls=[]
+            class SettingsAPI(WindowAPI):
+                checks={}
+                started=False
+                def call(self,name,*args):
+                    if name=='SendMessageW':
+                        if args[1]==0x00F1:self.checks[args[0]]=args[2]
+                        if args[1]==0x00F0:return self.checks.get(args[0],0)
+                    if name=='PostMessageW':self.proc(*args);return 1
+                    if name=='GetMessageW':
+                        if self.started:return 0
+                        self.started=True
+                        assert len(calls)==int(automatic)
+                        self.proc(101,0x0111,107,0)
+                        checkbox=next(h for h,item in self.controls.items() if item['id']==108)
+                        assert self.checks[checkbox]==int(automatic)
+                        self.checks[checkbox]=0;self.proc(101,0x0111,108,0)
+                        self.proc(101,0x0111,106,0)
+                        assert calls[-1][4]=='check'
+                        # A known newer version must not turn the manual check into Install.
+                        self.proc(101,0x0111,106,0)
+                        assert calls[-1][4]=='check'
+                        self.proc(101,0x0111,109,0)
+                        assert calls[-1][4]=='install' and calls[-1][-2:]==['--wanted','0.4.3']
+                        assert not self.session.busy and not self.session.verified
+                        return 0
+                    return super().call(name,*args)
+            api=SettingsAPI()
+            class Session(app.Session):
+                def __init__(self):super().__init__();api.session=self
+            class Thread:
+                def __init__(self,target,args,daemon):self.target,self.args=target,args
+                def start(self):self.target(*self.args)
+            def child(args,**kwargs):
+                calls.append(args)
+                event=dict(type='available',version='0.4.3',message='发现软件新版本：0.4.3')
+                if args[4]=='install':event=dict(type='error',message='软件更新未完成')
+                return SimpleNamespace(stdout=io.StringIO('TOOLKIT_UPDATE '+json.dumps(event)+'\n'),wait=lambda:0)
+            with tempfile.TemporaryDirectory() as folder:
+                path=Path(folder)/'X2DPlay/settings.json'
+                RealUpdatePreferences(path).set_auto_check(automatic)
+                with patch.object(app,'UpdatePreferences',RealUpdatePreferences),patch.object(app,'os',SimpleNamespace(name='nt',environ={'LOCALAPPDATA':folder},getpid=lambda:123)),patch.object(app.C,'WinDLL',side_effect=lambda *a,**k:api,create=True),patch.object(app.C,'WINFUNCTYPE',C.CFUNCTYPE,create=True),patch.object(app,'Session',Session),patch.object(app.threading,'Thread',Thread),patch.object(app.subprocess,'Popen',side_effect=child):
+                    app.main()
+                self.assertFalse(RealUpdatePreferences(path).auto_check)
+                self.assertEqual(len(calls),int(automatic)+3)
+
     def test_reinstall_dialog_uses_frozen_target_language_and_explicit_response(self):
         for target_language, answer in (('en',202),('zh',201),('en','close')):
             pending=[]; replies=[]
@@ -75,6 +129,7 @@ class WindowsLanguageUITests(unittest.TestCase):
                             return 1
                         if self.started:return 0
                         self.started=True;self.session.verified=True
+                        self.proc(101,0x0111,107,0)
                         self.proc(101,0x0111,102,0)
                         self.selection=0 if target_language=='en' else 1
                         self.proc(101,0x0111,(1<<16)|104,0)
@@ -109,6 +164,7 @@ class WindowsLanguageUITests(unittest.TestCase):
             def call(self,name,*args):
                 if name=='GetMessageW':
                     self.session.verified=True
+                    self.proc(101,0x0111,107,0)
                     self.proc(101,0x0111,106,0)
                     self.proc(101,0x0111,102,0)
                     self.proc(101,0x0111,103,0)

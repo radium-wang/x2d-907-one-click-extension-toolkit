@@ -1,12 +1,12 @@
-x2d/907一键扩展功能-工具包 0.4.1 · macOS 通用实验版
+x2d/907一键扩展功能-工具包 0.4.2 · macOS 通用实验版
 
 语言选择
-窗口右上角可选择“中文”或“English”，默认中文，选择会保存到本机，重新启动仍沿用。
+点击窗口右上角“设置”，可选择“中文”或“English”，默认中文，选择会保存到本机，重新启动仍沿用。
 切换覆盖 App 按钮、功能说明、状态、错误、操作提示及当前已有日志；保存的日志也使用当前语言。
 语言切换不更改功能开关、安装状态或 USB 驱动。
 
 Language
-Choose 中文 or English at the top right. The app remembers your choice after restart.
+Open Settings at the top right, then choose 中文 or English. The app remembers your choice after restart.
 Buttons, feature descriptions, status, errors, instructions and existing logs follow the selected language.
 Language selection does not change feature settings or USB drivers.
 
@@ -14,7 +14,7 @@ English quick start
 1. Extract the ZIP and open x2d-907一键扩展功能-工具包.app. No Python or Homebrew installation is required.
 2. Turn on one supported camera, connect it to your Mac and click Connected.
 3. Once checks pass, click Install or Restore original. Keep the camera powered and connected until completion is confirmed. Tap Skip on the camera if prompted.
-4. Open Shuaqi at the end of the camera's main menu. Turn on its master switch, then AF-C or the focus speed buff.
+4. Open Tweaks (English install) or 耍起功能 (Chinese install) at the end of the camera's main menu. Turn on its master switch, then AF-C or the focus speed buff.
 5. Do not remove the lens while the focus buff is on. Turn it off before changing lenses.
 macOS 13+ on Apple silicon / Intel; original X2D 100C / 907X & CFV 100C firmware 4.2.0 only.
 This local experimental app uses ad-hoc signing and is not Apple-notarized. The 907X menu update still awaits device verification.
@@ -28,7 +28,7 @@ X2D 已有实机安装、重启常驻与恢复验收。
 907X 用户已反馈连接及服务安装通过，但原版未出现菜单入口。本版按其 10 项原厂菜单修正入口追加，实际菜单仍待用户确认；仅在 907X 机身搭配自动对焦 XCD 镜头时测试。
 不适用于 X2D II、907X 50C 或其他固件。
 
-完整解压“x2d-907-extension-toolkit-macOS-Universal-0.4.1.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
+完整解压“x2d-907-extension-toolkit-macOS-Universal-0.4.2.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
 请使用新解压的应用，避免继续打开旧版副本。
 运行库已自带，不需要安装 Python 或 Homebrew。
 0.2.7 在日志中按操作阶段显示连接、按钮操作、相机“跳过”和完成后拔线提示。
@@ -53,7 +53,7 @@ X2D 已有实机安装、重启常驻与恢复验收。
 已知旧版直接点击“一键安装”即可升级：程序先恢复原状并重启校验，再安装新版并再次重启。
 升级会关闭原功能开关，完成后请重新开启所需功能；不要在中间恢复完成时拔线。
 未知版本仍需先使用对应版本恢复，程序拒绝强行覆盖。
-日志为中文，保存于 ~/Library/Application Support/X2DPlay/latest.log。
+日志随所选 App 语言显示，保存于 ~/Library/Application Support/X2DPlay/latest.log。
 
 907X 实机验收：安装后检查主菜单末尾入口与三行开关，AF-C 关闭时两按钮、开启时三按钮。
 分别检查总开关、AF-C 和 buff，再重启检查开启状态保持。
@@ -71,10 +71,16 @@ The default-off checkbox becomes available only after Connected verifies a 907X 
 Restore removes it as well. Device verification on the 907 is pending.
 
 软件更新 / App updates
-点击“检查更新”；发现新版后，点击“下载并安装更新”。校验通过后 App 会退出、安装并重新打开；上一版保留在应用旁的更新备份目录。
-Click Check for Updates, then Download and Install Update. The verified app update installs after exit and relaunches; the previous app is retained beside the installation.
+打开“设置”，点击“手动检查更新”；发现新版后，点击“下载并安装更新”。校验通过后 App 会退出、安装并重新打开；上一版保留在应用旁的更新备份目录。
+Open Settings, click Check for Updates, then Download and Install Update. The verified app update installs after exit and relaunches; the previous app is retained beside the installation.
 相机操作期间不能更新。更新只替换电脑端 App，相机扩展需再点击“已连接 → 一键安装”更新。
 Updates are disabled during camera operations. To update the camera extension afterward, use Connected → Install.
 
 0.4.1 修正菜单回执刷新。若提示文件已安装但菜单回执待刷新，请在相机点击“跳过”并打开主菜单，再点击 App 的“已连接”。0.3.3 可直接安装升级；恢复与重启期间保持连接。
 Version 0.4.1 refreshes menu receipts after service restarts. If files are installed but the receipt is pending, tap Skip and open the camera main menu, then click Connected again. Known 0.3.3 installs can be upgraded; stay connected during restoration and reboot.
+
+0.4.2 设置 / Settings
+自动检查更新默认开启，可在设置中关闭，重启后保留选择。自动检查只查找新版，不会自动下载或安装；关闭后仍可手动检查。
+Startup update checks default to on. Disable them in Settings; the choice survives restart. Downloads and installation remain manual, and manual checks still work when automatic checks are off.
+安装时按 App 语言选择相机菜单。需要恢复并重新安装时，按目标语言弹窗确认；取消不修改相机，完成后需重新开启所需功能。
+Install selects the camera menu language from the app. Restoration before reinstallation requires confirmation in the target language. Cancel leaves the camera unchanged; re-enable the features you need after completion.

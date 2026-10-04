@@ -2,12 +2,18 @@
 
 English first; [中文更新日志](#中文更新日志) follows below. Versions are listed newest first. Documentation-only changes do not imply a new application package.
 
-## Unreleased
+## [0.4.2](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.2) — 2026-10-04
 
 ### Added
 
+- Add a Settings window on Mac and Windows containing language selection, a remembered startup update-check switch, manual update checking, and a separate Download and Install Update button. Startup checks default to on; downloads and installation remain manual.
 - Install Chinese or English camera menu labels from the app language. The camera QML stays literal text; Install selects the matching hashed files. Changing language requires another install.
 - Confirm restoration before reinstalling an existing extension, with a Mac/Windows dialog in the target camera menu language. Cancel, closing the dialog or an invalid response leaves the camera unchanged. First and unchanged installs do not prompt. CLI reinstallation requires explicit `--confirm-reinstall`.
+
+### Upgrade and validation
+
+- Users on 0.4.1 can use Check for Updates; earlier versions need a manual desktop upgrade. Camera menus require Connected → Install after the app update.
+- 134 offline tests passed with local inputs; clean source: 109 passed, 25 skipped. Native Mac Settings and bilingual confirmation were checked. Native Windows and camera reinstallation remain pending; see [validation details](docs/VALIDATION.md).
 
 ### Documentation
 
@@ -59,12 +65,18 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 
 版本按从新到旧排列。仅修改文档不代表发布了新安装包。
 
-## 尚未发布
+## [0.4.2](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.2) — 2026-10-04
 
 ### 新增
 
+- Mac / Windows 新增设置页，集中提供语言选择、可记忆的启动自动检查更新开关、手动检查更新和独立的下载安装按钮。自动检查默认开启，只查找新版，下载安装仍由用户点击。
 - 安装时按 App 语言写入中文或英文相机菜单文案。相机端 QML 仍为字面字符串；安装选择对应哈希文件。更换语言需重新安装。
 - Mac / Windows 在恢复并重新安装现有扩展前，按目标相机菜单语言弹出确认。取消、关闭弹窗或无效回复均不修改相机；首次安装和配置未变化时不弹窗。命令行重新安装需显式使用 `--confirm-reinstall`。
+
+### 升级与验证
+
+- 0.4.1 用户可点击检查更新；更早版本需手动升级电脑端软件。更新相机菜单需在 App 升级后再点击已连接 → 一键安装。
+- 含本地输入的离线测试 134 项通过；纯源码为 109 项通过、25 项跳过。Mac 原生设置页与中英文确认弹窗已检查；Windows 原生操作和相机重新安装仍待验证，详见 [验证说明](docs/VALIDATION.md)。
 
 ### 文档
 
