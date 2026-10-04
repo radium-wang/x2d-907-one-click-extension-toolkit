@@ -12,8 +12,8 @@ def run(*args):
 
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 
-def build(inputs, pyusb, llvm):
-    out = D / 'outputs/windows-app'
+def build(inputs, pyusb, llvm, output=None):
+    out = output if output is not None else D / 'outputs/windows-app'
     out.mkdir(parents=True, exist_ok=True)
     builddir = out / 'launcher-build'; builddir.mkdir(exist_ok=True)
     root = out / 'x2d-907一键扩展功能-工具包-Windows-x64'
@@ -26,7 +26,7 @@ def build(inputs, pyusb, llvm):
         assert all('/' not in n and '\\' not in n and n not in ('..', '.') for n in z.namelist())
         z.extractall(runtime)
     (runtime / 'python313._pth').write_text('python313.zip\n.\n..\n', encoding='ascii')
-    for name in ('app_updates.py', 'app_settings.py', 'reinstall_confirmation.py', 'windows_app.py', 'x2d_play_software.py', 'windows_factory_usb.py', 'windows_connection.py', 'localization.py', 'translations.json'):
+    for name in ('app_updates.py', 'app_settings.py', 'reinstall_confirmation.py', 'windows_app.py', 'windows_ui.py', 'x2d_play_software.py', 'windows_factory_usb.py', 'windows_connection.py', 'localization.py', 'translations.json'):
         shutil.copy2(D / name, root / name)
     transport = D / 'transport'
     for name in ('collect_x2d_af_usb.py',):
@@ -117,5 +117,6 @@ if __name__ == '__main__':
     parser.add_argument('--inputs', type=Path, required=True)
     parser.add_argument('--pyusb', type=Path, required=True)
     parser.add_argument('--llvm', type=Path, required=True)
+    parser.add_argument('--output', type=Path, help='Separate output directory for unpublished UI test packages')
     args = parser.parse_args()
-    build(args.inputs.resolve(), args.pyusb.resolve(), args.llvm.resolve())
+    build(args.inputs.resolve(), args.pyusb.resolve(), args.llvm.resolve(), args.output.resolve() if args.output else None)

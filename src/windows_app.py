@@ -6,9 +6,10 @@ from pathlib import Path
 from localization import Localizer, translate
 from reinstall_confirmation import CONTINUE, CANCEL
 from app_settings import UpdatePreferences
+from windows_ui import NativeStyle, Viewport, ScrollInfo, WIDTH, HEIGHT, COLORS, main_layout, text_style
 
 D = Path(__file__).resolve().parent
-VERSION = '0.4.3'
+VERSION = '0.4.4'
 
 
 class Session:
@@ -71,6 +72,9 @@ def main():
     class InitCommon(C.Structure):
         _fields_ = [('size', W.DWORD), ('classes', W.DWORD)]
 
+    class MonitorInfo(C.Structure):
+        _fields_=[('size',W.DWORD),('monitor',W.RECT),('work',W.RECT),('flags',W.DWORD)]
+
     # Explicit signatures preserve handles on 64-bit Windows.
     def api(dll, name, result, *args):
         fn = getattr(dll, name); fn.restype = result; fn.argtypes = list(args)
@@ -106,21 +110,29 @@ def main():
     quitmessage = api(user, 'PostQuitMessage', None, C.c_int)
     deleteobject = api(gdi, 'DeleteObject', W.BOOL, W.HANDLE)
     initcommon = api(common, 'InitCommonControlsEx', W.BOOL, C.POINTER(InitCommon))
+    move = api(user, 'MoveWindow', W.BOOL, W.HWND, C.c_int, C.c_int, C.c_int, C.c_int, W.BOOL)
+    clientrect = api(user, 'GetClientRect', W.BOOL, W.HWND, C.POINTER(W.RECT))
+    invalidate = api(user, 'InvalidateRect', W.BOOL, W.HWND, C.POINTER(W.RECT), W.BOOL)
+    scrollinfo = api(user, 'SetScrollInfo', C.c_int, W.HWND, C.c_int, C.POINTER(ScrollInfo), W.BOOL)
+    getscroll = api(user, 'GetScrollInfo', W.BOOL, W.HWND, C.c_int, C.POINTER(ScrollInfo))
+    position = api(user, 'SetWindowPos', W.BOOL, W.HWND, W.HWND, C.c_int, C.c_int, C.c_int, C.c_int, W.UINT)
     try:
         api(user, 'SetProcessDpiAwarenessContext', W.BOOL, W.HANDLE)(C.c_void_p(-4))
         dpi = api(user, 'GetDpiForSystem', W.UINT)()
     except AttributeError: dpi = 96
     scale = lambda n: round(n * dpi / 96)
     white = brush(0xFFFFFF)
-    fonts = []
-    def font(size, bold=False):
-        f = createfont(-scale(size), 0, 0, 0, 600 if bold else 400,
-                       0, 0, 0, 1, 0, 0, 5, 0, 'Microsoft YaHei UI')
-        fonts.append(f); return f
-    normal, small, strong, titlefont = font(14), font(12), font(14, True), font(22, True)
+    skin = NativeStyle(user, gdi, common, dpi)
+    skin.language = language.language
+    normal, small, strong, titlefont = skin.font(14), skin.font(12), skin.font(14, True), skin.font(22, True)
     session = Session()
     events = queue.Queue()
     controls = {}
+    placements = {}
+    window_dpis = {}
+    main_handle = None
+    viewport = Viewport()
+    content_width = WIDTH
     loglines = []
     logfile = Path(os.environ.get('LOCALAPPDATA', str(D))) / 'X2DPlay' / 'latest.log'
     logfile.parent.mkdir(parents=True, exist_ok=True)
@@ -129,36 +141,74 @@ def main():
     confirmation_state = dict(window=None, answer=None)
     settings_state = dict(window=None)
 
+    def outer_size(width, height, style):
+        rect = W.RECT(0,0,scale(width),scale(height))
+        try:
+            adjust = api(user,'AdjustWindowRectExForDpi',W.BOOL,C.POINTER(W.RECT),W.DWORD,W.BOOL,W.DWORD,W.UINT)
+            adjust(C.byref(rect),style,False,0,dpi)
+        except AttributeError:
+            api(user,'AdjustWindowRectEx',W.BOOL,C.POINTER(W.RECT),W.DWORD,W.BOOL,W.DWORD)(C.byref(rect),style,False,0)
+        return rect.right-rect.left, rect.bottom-rect.top
+
+    def refresh_layout():
+        nonlocal content_width
+        if main_handle is None:return
+        rect=W.RECT();clientrect(main_handle,C.byref(rect))
+        content_width=(rect.right*96/dpi) if rect.right else WIDTH
+        viewport.resize(rect.bottom*96/dpi if rect.bottom else viewport.height)
+        layout=main_layout(content_width)
+        for handle,spec in placements.items():
+            geometry=layout.get(spec['key'],spec['rect']) if spec['parent']==main_handle else spec['rect']
+            x,y,w,h=geometry
+            if spec['parent']==main_handle:y-=viewport.offset
+            owner_dpi=window_dpis.get(spec['parent'],dpi)
+            pixel=lambda value:round(value*owner_dpi/96)
+            move(handle,pixel(x),pixel(y),pixel(w),pixel(h),True)
+            size,bold,mono=spec['font']
+            if not mono and 'language' not in spec:
+                size,bold,_=text_style(spec['key'],language.language)
+            send(handle,0x0030,skin.font(size,bold,mono,dpi=owner_dpi,language=spec.get('language')),1)
+            if handle in skin.controls:skin.controls[handle]['dpi']=owner_dpi
+        info=ScrollInfo(C.sizeof(ScrollInfo),0x7,0,scale(HEIGHT)-1,scale(viewport.height),scale(viewport.offset),0)
+        scrollinfo(main_handle,1,C.byref(info),True)
+        invalidate(main_handle,None,False)
+        skin.refresh(language=language.language,dpi=dpi)
+
     def show_settings():
         if session.busy or update_state['busy']: return
         if settings_state['window'] is None:
-            panel = create(0, 'X2DPlayWindow', language.text('设置'), 0x00C80000,
-                           max(0,(screenwidth-scale(540))//2), max(0,(screenheight-scale(320))//2),
-                           scale(540),scale(320),hwnd,None,instance,None)
+            panel_width,panel_height=outer_size(450,246,0x00C80000)
+            panel = create(0, 'X2DPlayWindow', language.text('设置'), 0x02C80000,
+                           max(0,(screenwidth-panel_width)//2), max(0,(screenheight-panel_height)//2),
+                           panel_width,panel_height,hwnd,None,instance,None)
             if not panel: return
             settings_state['window'] = panel
+            window_dpis[panel]=dpi
             localized_sources[panel] = '设置'
-            control('languagelabel','STATIC','语言',24,24,100,26,parent=panel)
-            control('language','COMBOBOX','',140,20,350,120,extra=0x10003,identity=104,parent=panel)
+            control('languagelabel','STATIC','语言',24,24,84,26,parent=panel)
+            control('language','COMBOBOX','',114,22,312,120,extra=0x10003,identity=104,parent=panel)
             for name in ('中文','English'):
                 send(controls['language'],0x0143,0,C.cast(C.c_wchar_p(name),C.c_void_p).value)
             send(controls['language'],0x014E,1 if language.language=='en' else 0,0)
-            control('automaticupdates','BUTTON','启动时自动检查更新',24,74,470,28,extra=0x10003,identity=108,parent=panel)
+            control('automaticupdates','BUTTON','启动时自动检查更新',24,74,402,28,extra=0x10003,identity=108,parent=panel)
             send(controls['automaticupdates'],0x00F1,1 if preferences.auto_check else 0,0)
-            control('updatesdescription','STATIC','自动检查只查找新版，不会自动下载或安装。',24,113,470,42,textfont=small,parent=panel)
-            control('updatebutton','BUTTON','手动检查更新',24,170,200,36,extra=0x10000,identity=106,parent=panel)
-            control('downloadbutton','BUTTON','下载并安装更新',244,170,250,36,extra=0x10000,identity=109,parent=panel)
+            control('updatesdescription','STATIC','自动检查只查找新版，不会自动下载或安装。',24,113,402,40,textfont=small,parent=panel)
+            control('updatebutton','BUTTON','手动检查更新',24,172,178,32,extra=0x10000,identity=106,parent=panel)
+            control('downloadbutton','BUTTON','下载并安装更新',214,172,212,32,extra=0x10000,identity=109,parent=panel)
         buttons()
         show(settings_state['window'],5); update(settings_state['window'])
 
     def confirm_dialog(value):
         # Custom native buttons keep their language independent of Windows' UI language.
-        popup = create(0x00000001, 'X2DPlayWindow', value['title'], 0x80C80000,
-                       max(0, (screenwidth-scale(540))//2), max(0, (screenheight-scale(300))//2),
-                       scale(540), scale(300), hwnd, None, instance, None)
+        popup_width,popup_height=outer_size(540,270,0x80C80000)
+        popup = create(0x00000001, 'X2DPlayWindow', value['title'], 0x82C80000,
+                       max(0, (screenwidth-popup_width)//2), max(0, (screenheight-popup_height)//2),
+                       popup_width,popup_height,hwnd,None,instance,None)
         if not popup: return False
         confirmation_state.update(window=popup, answer=None)
+        window_dpis[popup]=dpi
         enable(hwnd, False)
+        text=cancel=proceed=None
         try:
             text = create(0, 'STATIC', value['body'], 0x50000000, scale(22), scale(20),
                           scale(485), scale(160), popup, None, instance, None)
@@ -167,7 +217,11 @@ def main():
             proceed = create(0, 'BUTTON', value['proceed'], 0x50010000, scale(318), scale(202),
                              scale(185), scale(36), popup, 202, instance, None)
             if not all((text, cancel, proceed)): return False
-            for control in (text, cancel, proceed): send(control, 0x0030, normal, 1)
+            for handle,key,rect in ((text,'confirmation_body',(22,20,485,160)),(cancel,'confirmation_cancel',(175,202,130,36)),(proceed,'confirmation_proceed',(318,202,185,36))):
+                placements[handle]=dict(key=key,parent=popup,rect=rect,font=(14,False,False),language=value['language'])
+                send(handle,0x0030,skin.font(14,language=value['language']),1)
+            skin.attach(cancel,'confirmation_cancel',size=(130,36),language=value['language'])
+            skin.attach(proceed,'confirmation_proceed',primary=True,size=(185,36),language=value['language'])
             show(popup, 5); update(popup)
             api(user, 'SetFocus', W.HWND, W.HWND)(cancel)
             message = W.MSG()
@@ -181,6 +235,8 @@ def main():
             return confirmation_state['answer'] is True
         finally:
             destroy(popup)
+            for handle in (text,cancel,proceed):placements.pop(handle,None)
+            window_dpis.pop(popup,None)
             confirmation_state.update(window=None, answer=None)
             enable(hwnd, True)
 
@@ -215,6 +271,8 @@ def main():
         language.select('en' if index == 1 else 'zh')
         for handle, text in localized_sources.items():
             native_settext(handle, language.text(text))
+        skin.refresh(language=language.language)
+        refresh_layout()
         render_logs()
 
     def consume(event):
@@ -330,7 +388,43 @@ def main():
 
     @PROC
     def procedure(window, msg, wp, lp):
+        nonlocal dpi
         try:
+            if msg == 0x000F:
+                skin.paint_parent(window,content_width,viewport.offset,main=window==main_handle)
+                return 0
+            if msg == 0x0014:return 1  # Painting fills the invalid region without background flicker.
+            if window==main_handle:
+                if msg==0x0005:refresh_layout();return 0
+                if msg in (0x0115,0x020A):
+                    if msg==0x020A:
+                        delta=C.c_short((wp>>16)&0xffff).value
+                        viewport.scroll(viewport.offset-delta/120*54)
+                    else:
+                        action=wp&0xffff
+                        info=ScrollInfo(C.sizeof(ScrollInfo),0x10,0,0,0,0,0)
+                        getscroll(window,1,C.byref(info))
+                        steps={0:-24,1:24,2:-viewport.height+24,3:viewport.height-24}
+                        if action in steps:viewport.scroll(viewport.offset+steps[action])
+                        elif action in (4,5):viewport.scroll(info.track*96/dpi)
+                        elif action==6:viewport.scroll(0)
+                        elif action==7:viewport.scroll(viewport.maximum)
+                    refresh_layout();return 0
+            if msg==0x02E0:  # Per-monitor DPI: use Windows' suggested frame, then rescale all children.
+                window_dpis[window]=wp&0xffff or 96
+                if window==main_handle:dpi=window_dpis[window]
+                skin.refresh(dpi=dpi)
+                rect=C.cast(lp,C.POINTER(W.RECT)).contents
+                suggested=W.RECT(rect.left,rect.top,rect.right,rect.bottom)
+                monitor=api(user,'MonitorFromRect',W.HANDLE,C.POINTER(W.RECT),W.DWORD)(C.byref(suggested),2)
+                info=MonitorInfo(C.sizeof(MonitorInfo),W.RECT(),W.RECT(workarea.left,workarea.top,workarea.right,workarea.bottom),0)
+                api(user,'GetMonitorInfoW',W.BOOL,W.HANDLE,C.POINTER(MonitorInfo))(monitor,C.byref(info))
+                width=min(rect.right-rect.left,info.work.right-info.work.left)
+                height=min(rect.bottom-rect.top,max(200,info.work.bottom-info.work.top-32))
+                left=max(info.work.left,min(rect.left,info.work.right-width))
+                top=max(info.work.top,min(rect.top,info.work.bottom-height))
+                position(window,None,left,top,width,height,0x14)
+                refresh_layout();return 0
             if window == settings_state['window']:
                 if msg == 0x0010: show(window,0); return 0
                 if msg == 0x0002: return 0
@@ -350,6 +444,11 @@ def main():
             if msg == 0x0002:
                 quitmessage(0); return 0
             if msg == 0x0111:  # WM_COMMAND
+                if lp in placements and (wp>>16) in (0x0100,6):  # EDIT/BUTTON focus: reveal tabbed controls.
+                    spec=placements[lp]
+                    if spec['parent']==main_handle:
+                        rect=main_layout(content_width).get(spec['key'],spec['rect'])
+                        viewport.reveal(rect[1],rect[3]);refresh_layout()
                 if (wp & 0xFFFF) == 104 and (wp >> 16) == 1:  # CBN_SELCHANGE
                     change_language(); return 0
                 if (wp >> 16) == 0:
@@ -397,9 +496,11 @@ def main():
                             settext(controls['detail'], text); log(text)
                         buttons()
                 return 0
-            if msg in (0x0138, 0x0133):  # static/edit colors
+            if msg in (0x0138, 0x0133, 0x0135):  # static/edit/button backgrounds
                 setbk(wp, 0xFFFFFF)
-                setcolor(wp, 0x0060BA if lp == controls.get('warning') else 0x343434)
+                key=placements.get(lp,{}).get('key','')
+                color=text_style(key,language.language)[2]
+                setcolor(wp,skin.rgb(color))
                 return white
         except Exception:
             # Keep the window alive and never enable writes on an unexpected UI error.
@@ -413,44 +514,60 @@ def main():
     if not register(C.byref(wc)): raise C.WinError(C.get_last_error())
     init = InitCommon(C.sizeof(InitCommon), 0x20)
     initcommon(C.byref(init))
-    width, height = scale(620), scale(877)
     screenwidth = api(user, 'GetSystemMetrics', C.c_int, C.c_int)(0)
     screenheight = user.GetSystemMetrics(1)
-    hwnd = create(0, wc.name, language.text('x2d/907一键扩展功能-工具包 · ') + VERSION, 0x00CA0000,
+    workarea=W.RECT(0,0,screenwidth,screenheight)
+    api(user,'SystemParametersInfoW',W.BOOL,W.UINT,W.UINT,W.LPVOID,W.UINT)(0x30,0,C.byref(workarea),0)
+    available=max(320,(workarea.bottom-workarea.top-64)*96/dpi)
+    viewport.resize(min(HEIGHT,available))
+    frame_style=0x02CA0000 | (0x00200000 if viewport.maximum else 0)
+    width,height=outer_size(WIDTH,viewport.height,frame_style)
+    hwnd = create(0, wc.name, language.text('x2d/907一键扩展功能-工具包 · ') + VERSION, frame_style,
                   max(0, (screenwidth-width)//2), max(0, (screenheight-height)//2),
                   width, height, None, None, instance, None)
     if not hwnd: raise C.WinError(C.get_last_error())
+    main_handle=hwnd
+    window_dpis[hwnd]=dpi
     localized_sources[hwnd] = 'x2d/907一键扩展功能-工具包 · ' + VERSION
 
     def control(key, classname, text, x, y, w, h, extra=0, identity=0, textfont=None, ex=0, parent=None):
+        owner=hwnd if parent is None else parent
+        if classname=='BUTTON':extra|=0x4000  # Native focus notifications, including keyboard navigation.
         handle = create(ex, classname, language.text(text), 0x50000000 | extra,
-                        scale(x), scale(y), scale(w), scale(h), hwnd if parent is None else parent, identity or None, instance, None)
+                        scale(x), scale(y), scale(w), scale(h), owner, identity or None, instance, None)
         if not handle: raise C.WinError(C.get_last_error())
         controls[key] = handle
         if key not in ('logs','language'): localized_sources[handle] = text
-        send(handle, 0x0030, textfont or normal, 1)
+        size,bold,_=text_style(key,language.language)
+        role=(12,False,True) if key=='logs' else (size,bold,False)
+        placements[handle]=dict(key=key,parent=owner,rect=(x,y,w,h),font=role)
+        send(handle,0x0030,skin.font(*role),1)
+        if classname=='BUTTON':skin.attach(handle,key,'checkbox' if (extra&15)==3 else 'button',primary=key=='statusbutton',size=(w,h),dpi=window_dpis.get(owner,dpi))
+        elif classname=='msctls_progress32':skin.attach(handle,key,'progress',size=(w,h))
         return handle
 
-    control('title', 'STATIC', 'x2d/907一键扩展功能-工具包', 28, 24, 370, 42, textfont=titlefont)
-    control('settingsbutton','BUTTON','设置',465,28,111,32,extra=0x10000,identity=107)
-    control('subtitle', 'STATIC', 'X2D 100C / 907X 100C · 固件 4.2.0', 28, 75, 555, 22)
-    control('box', 'BUTTON', '相机功能', 28, 110, 548, 197, extra=7)
-    control('afc', 'STATIC', 'AF-C 连续自动对焦', 48, 140, 510, 24, textfont=strong)
-    control('afcdescription', 'STATIC', '在相机上开启连续自动对焦', 48, 168, 510, 20, textfont=small)
-    control('buff', 'STATIC', '对焦加速 buff', 48, 195, 510, 24, textfont=strong)
-    control('buffdescription', 'STATIC', '加快对焦扫描，关闭后恢复原厂速度', 48, 223, 510, 20, textfont=small)
-    control('brightness', 'STATIC', '后屏自动亮度', 48, 250, 510, 24, textfont=strong)
-    control('brightnessdescription', 'STATIC', '根据环境光调节后屏亮度，可设置最高亮度', 48, 278, 510, 20, textfont=small)
-    control('prank', 'BUTTON', '添加防抖功能（907 彩蛋）', 28, 318, 548, 26, extra=0x10003, identity=105)
-    control('state', 'STATIC', '等待连接相机', 28, 361, 548, 24, textfont=strong)
-    control('detail', 'STATIC', '连接相机并开机，点击“已连接”自动准备驱动并检查状态。\r\n907X 100C 适配版待实机验证。', 28, 393, 548, 42, textfont=small)
-    control('progress', 'msctls_progress32', '', 28, 445, 548, 12)
-    control('statusbutton', 'BUTTON', '已连接', 28, 475, 120, 38, extra=0x10000, identity=101)
-    control('installbutton', 'BUTTON', '一键安装', 161, 475, 165, 38, extra=0x10000, identity=102)
-    control('restorebutton', 'BUTTON', '一键恢复原状', 339, 475, 237, 38, extra=0x10000, identity=103)
-    control('warning', 'STATIC', '开启对焦 buff 后切勿取下镜头。\r\n更换镜头前，请先关闭对焦加速 buff。', 28, 565, 548, 46, textfont=strong)
-    control('note', 'STATIC', '安装会自动备份原厂配置，并重启校验。恢复会撤回本应用的菜单与功能。\r\n请等待操作完成再拔线；首次连接会自动准备相机工厂接口驱动。', 28, 624, 548, 46, textfont=small)
-    control('logs', 'EDIT', '', 28, 682, 548, 138, extra=0x00200844, textfont=small, ex=0x200)
+    layout=main_layout()
+    def item(key,classname,text,**kwargs):return control(key,classname,text,*layout[key],**kwargs)
+    item('title','STATIC','x2d/907一键扩展功能-工具包',textfont=titlefont)
+    item('settingsbutton','BUTTON','设置',extra=0x10000,identity=107)
+    item('subtitle','STATIC','X2D 100C / 907X 100C · 固件 4.2.0')
+    item('afc','STATIC','AF-C 连续自动对焦',textfont=strong)
+    item('afcdescription','STATIC','在相机上开启连续自动对焦',textfont=small)
+    item('buff','STATIC','对焦加速 buff',textfont=strong)
+    item('buffdescription','STATIC','加快对焦扫描，关闭后恢复原厂速度',textfont=small)
+    item('brightness','STATIC','后屏自动亮度',textfont=strong)
+    item('brightnessdescription','STATIC','根据环境光调节后屏亮度，可设置最高亮度',textfont=small)
+    item('prank','BUTTON','添加防抖功能（907 彩蛋）',extra=0x10003,identity=105)
+    item('state','STATIC','等待连接相机',textfont=strong)
+    item('detail','STATIC','连接相机并开机，点击“已连接”自动准备驱动并检查状态。\r\n907X 100C 适配版待实机验证。',textfont=small)
+    item('progress','msctls_progress32','')
+    item('statusbutton','BUTTON','已连接',extra=0x10001,identity=101)
+    item('installbutton','BUTTON','一键安装',extra=0x10000,identity=102)
+    item('restorebutton','BUTTON','一键恢复原状',extra=0x10000,identity=103)
+    item('warning','STATIC','开启对焦 buff 后切勿取下镜头。\r\n更换镜头前，请先关闭对焦加速 buff。',textfont=strong)
+    item('note','STATIC','安装会自动备份原厂配置，并重启校验。恢复会撤回本应用的菜单与功能。请等待操作完成再拔线；首次连接会自动准备相机工厂接口驱动。',textfont=small)
+    item('logs','EDIT','',extra=0x00210844,textfont=small)
+    refresh_layout()
     log('工具包 Windows 版本：' + VERSION)
     from app_updates import notice
     log(notice(D))
@@ -465,7 +582,7 @@ def main():
         if result <= 0: break
         if not dialog(hwnd, C.byref(message)):
             translate(C.byref(message)); dispatch(C.byref(message))
-    for f in fonts: deleteobject(f)
+    skin.close()
     deleteobject(white)
 
 

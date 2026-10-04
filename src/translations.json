@@ -49,6 +49,7 @@
   "开启对焦 buff 后切勿取下镜头。\r\n更换镜头前，请先关闭对焦加速 buff。": "Do not remove the lens while the focus buff is on.\r\nTurn off the focus speed buff before changing lenses.",
   "安装会自动保存原厂配置，并重启相机完成校验。恢复会撤回本应用的菜单与功能。请等待操作完成再拔线。": "Install saves the original configuration and restarts the camera for verification. Restore removes Tweaks's menu and features. Disconnect only after completion.",
   "安装会自动备份原厂配置，并重启校验。恢复会撤回本应用的菜单与功能。\r\n请等待操作完成再拔线；首次连接会自动准备相机工厂接口驱动。": "Install backs up the original setup and verifies it after restart. Restore removes Tweaks.\r\nWait for completion before disconnecting. The factory USB driver is prepared automatically.",
+  "安装会自动备份原厂配置，并重启校验。恢复会撤回本应用的菜单与功能。请等待操作完成再拔线；首次连接会自动准备相机工厂接口驱动。": "Install saves the original setup and verifies it after restart. Restore removes Tweaks. Wait for completion before disconnecting; the factory USB driver is prepared automatically.",
   "请将相机开机，并通过 USB 数据线连接 Mac。": "Turn on your camera and connect it to your Mac with a USB data cable.",
   "如相机屏幕出现“跳过”按钮，请点击“跳过”，并保持数据线连接。": "If Skip appears on the camera screen, tap it and keep the USB cable connected.",
   "连接好后，请点击 App 中的“已连接”；检查通过后即可操作。": "Click Connected in the app. Install and Restore become available after the checks pass.",

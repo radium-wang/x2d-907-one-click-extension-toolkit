@@ -1,7 +1,14 @@
-# Validation boundaries — 0.4.3
+# Validation boundaries — 0.4.4
+
+## Windows interface (0.4.4)
+
+The Windows UI now shares Mac's visual hierarchy while retaining native BUTTON, EDIT and COMBOBOX controls. The complete offline suite passes 153 tests with generated inputs; clean source passes 127 and explicitly skips 26 requiring excluded inputs. Checks exercise GDI drawing state, pressed/disabled styles, progress and checkbox state, callback/resource lifetime, frozen confirmation language, per-window fonts/DPI, scrolling and focus reveal. Existing connection, camera-write and update gates are exercised with the new skin attached. Six Chinese/English main/short-window/Settings previews use the native skin's layout, palette and icon geometry and pass text-fit checks. The 0.4.4 release packages include the new Windows skin module where applicable, retain the exact 0.4.3 camera payload and pass the universal Mac, 38-file Windows PE and archive audits.
+
+Previews render with desktop Qt and host font fallback; they are not evidence of native Windows rendering or accessibility verification. Native execution still requires confirmation on Windows 10/11, including 100%/125%/150%/200% scaling, keyboard navigation, Settings and reinstall dialogs. The Mac interface is unchanged; only its release version is advanced to 0.4.4. No camera was connected or modified, and the published 0.4.3 assets remain unchanged. Existing 0.4.3 camera extensions do not need reinstallation for this desktop UI update.
 
 | Evidence | Result | Limits |
 | --- | --- | --- |
+| 0.4.4 offline Python suite | 153 passed with local inputs; clean source: 127 passed, 26 explicitly skipped | Win32 and device APIs are substitutes; native Windows rendering and camera checks remain pending |
 | 0.4.3 offline Python suite with locally generated camera inputs | 144 passed; clean source: 118 passed, 26 explicitly skipped | USB / Windows APIs and device shell are substituted; excluded build inputs cause clean-source skips; no camera is accessed |
 | 0.4.2 offline Python suite | 134 passed with local inputs; clean source: 109 passed, 25 explicitly skipped | Historical evidence for the published 0.4.2 version |
 | 0.4.3 brightness widgets and descriptions | Actual packaged delegates/stock widgets pass toggle, drag, saved-ceiling/fill and bilingual wrap checks under Qt 6.4.1 | Native model, sensor, service and SVG provider are substitutes |
