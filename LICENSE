@@ -1,16 +1,63 @@
-MIT License
+X2D/907 Noncommercial Distribution License 1.0
 
 Copyright (c) 2026 Radium Wang
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. Scope
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+"Software" means the source code, binaries and documentation to which the
+copyright holder applies this license. This license grants only rights that
+the copyright holder has authority to grant. Separately licensed third-party
+components remain governed by their own licenses; see THIRD_PARTY_NOTICES.md
+and component license notices.
+
+This license applies to versions distributed with this notice. It does not
+revoke or change permissions already granted for earlier versions under the
+MIT license or any other license. Earlier MIT-licensed versions remain MIT
+licensed. Third-party notices and permissions must not be removed.
+
+2. Permission
+
+Subject to the conditions below, permission is granted, free of charge, to
+use, study, copy, modify, build and distribute the Software, including modified
+versions, in source or binary form.
+
+Using the Software in professional or commercial photography is expressly
+permitted, including paid shoots, studio work and selling photographs or
+other photographic deliverables. Personal and internal business use is also
+permitted. Charging for photographic work does not constitute selling the
+Software or charging for its installation.
+
+Copies and modified versions must be distributed under this license, retain
+the applicable copyright and third-party notices, and include this license.
+Modified versions must identify that they have been modified and must not
+claim endorsement by the original author.
+
+3. No sale or paid installation
+
+Without separate written permission from the copyright holder, you may not:
+
+a. Sell, rent, or charge for copies of, licenses to, downloads of, or access
+   to the Software, including modified versions, or include the Software as
+   part of a paid software product or paid software bundle.
+b. Provide installation, setup, configuration or deployment of the Software
+   to others for a fee or other required compensation, whether the Software
+   itself is described as free or not.
+c. Evade these conditions by making payment for another item or service a
+   condition of receiving, using or installing the Software.
+
+Free sharing of original or modified versions and free installation help
+are permitted. Voluntary donations are permitted only when they are not a
+condition of receiving, using or installing the Software and do not purchase
+exclusive software access, features or installation services.
+
+4. Other rights and disclaimer
+
+No trademark or endorsement rights are granted. Rights and exceptions
+provided by applicable law are not limited by this license. Permissions for
+uses excluded above may be requested from the copyright holder.
+
+The permissions granted by this license terminate automatically if you
+violate its conditions. All rights not expressly granted are reserved.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -18,4 +65,8 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW.
+
+This is a custom source-available license with restrictions on software sale
+and paid installation. It is not an OSI-approved open-source license. The
+English text in this file is authoritative; summaries are informational.

@@ -46,6 +46,12 @@ Earlier X2D installations, menu behavior and restoration have device/user eviden
 
 This is an independent project, not an official Hasselblad product. Eye recognition is not included. Other camera generations and firmware versions are unsupported.
 
+## License
+
+New versions carrying the [X2D/907 Noncommercial Distribution License 1.0](LICENSE) allow use, study, modification and free redistribution. **Professional photography, including paid shoots and selling photographs, is allowed. Selling the software or modified versions, charging for software access, and paid installation/setup services require separate written permission.** Truly voluntary donations are allowed; access, features or installation must not depend on payment.
+
+This is a **source-available** project with restrictions on software commercialization; the license is not OSI-approved open source. Previously released MIT versions keep their original permissions. Third-party components keep their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md). Existing published 0.4.2 archives are unchanged by this repository license update.
+
 ## Support development
 
 If this toolkit helps you, you can [support its development via PayPal](https://paypal.me/RadiumWang). Donations are voluntary. Thank you for supporting ongoing development and maintenance!
@@ -97,6 +103,12 @@ X2D 的功能入口在第 **12** 格；907 默认第 **11** 格，勾选彩蛋�
 本库只收录应用源码、测试和软件截图，不包含原厂固件、提取的编译 QML、运行库、生成的相机载荷或桌面安装压缩包。桌面安装包见 [GitHub Releases](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/latest)。更新需要应用目录可写；如提示权限不足，请将完整 App 移到自己的可写目录后重试。Mac 使用临时签名、未经公证；Windows 启动器未经代码签名。构建输入见 [构建说明](docs/BUILD.md)。
 
 本项目为独立研究工具，非哈苏官方软件。目前不含眼部识别；不适配其他代机型或固件。
+
+### 许可
+
+后续携带 [X2D/907 非商业分发许可证 1.0](LICENSE) 的版本允许使用、研究、修改和免费分享。**允许用于收费拍摄、摄影工作室及出售摄影作品；出售软件或改版、收费提供软件访问，以及收费安装、设置服务须另获作者书面授权。** 允许自愿赞助，但不得把付款作为获取软件、使用功能或获得安装服务的条件。
+
+这是限制软件商业化的**源码公开（source-available）**项目，许可证不属于 OSI 认可的开源许可证。此前已按 MIT 发布的版本仍保留原许可；第三方组件沿用各自许可，见 [第三方说明](THIRD_PARTY_NOTICES.md)。本次仓库许可更新不修改已发布的 0.4.2 安装包。
 
 ### 支持开发
 

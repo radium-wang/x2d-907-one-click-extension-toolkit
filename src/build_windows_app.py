@@ -34,6 +34,8 @@ def build(inputs, pyusb, llvm):
     shutil.copytree(pyusb, root / 'usb', ignore=shutil.ignore_patterns('__pycache__'))
     bindir = root / 'bin'; bindir.mkdir()
     licenses = root / 'licenses'; licenses.mkdir()
+    shutil.copy2(D.parent/'LICENSE',licenses/'X2D-907-Toolkit.txt')
+    shutil.copy2(D.parent/'THIRD_PARTY_NOTICES.md',licenses/'THIRD_PARTY_NOTICES.md')
     with zipfile.ZipFile(inputs / 'platform-tools.zip') as z:
         for name in ('adb.exe', 'AdbWinApi.dll', 'AdbWinUsbApi.dll'):
             (bindir / name).write_bytes(z.read('platform-tools/' + name))
