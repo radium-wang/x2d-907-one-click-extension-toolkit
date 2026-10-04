@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.4](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.4) — 2026-10-04
+
+- Align the Windows interface with Mac: a white layout, rounded feature card with vector icons, gray descriptions, blue primary action, rounded controls and consistent typography. Restyle Settings and reinstall confirmation while retaining native input/accessibility and operation gates.
+- Scale fonts and layout for each monitor, scroll the main page on short displays and reveal controls reached by keyboard.
+- Publish Windows x64 and Mac universal packages at 0.4.4. The Mac interface and camera payload are unchanged from 0.4.3; an existing 0.4.3 camera extension does not need reinstallation.
+- 153 offline tests passed with local inputs; source-only: 127 passed, 26 skipped. Six bilingual layout previews and package audits passed. Native Windows rendering, accessibility and monitor scaling still require Windows validation; see [validation details](docs/VALIDATION.md).
+
 ## [0.4.3](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.3) — 2026-10-04
 
 - Replace the project license for subsequent versions with X2D/907 Noncommercial Distribution License 1.0: allow professional photography and free sharing/modification, prohibit software sales and paid installation without separate permission, and retain prior MIT and third-party permissions. Include the project license and third-party notices in newly built desktop packages; published archives remain unchanged.
@@ -76,6 +83,13 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## [0.4.4](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.4) — 2026-10-04
+
+- Windows 界面对齐 Mac：白色布局、带图标的圆角功能卡片、灰色说明、蓝色主按钮及统一字体间距；设置页和重新安装确认也同步调整，保留原生输入、可访问性及操作门控。
+- 按每个显示器的 DPI 缩放字体和布局，小屏幕可滚动并自动显示键盘导航选中的控件。
+- 发布 0.4.4 Windows x64 与 Mac 通用安装包。Mac 界面及相机载荷与 0.4.3 相同，已安装 0.4.3 相机扩展无需重新安装。
+- 完整离线测试 153 项通过；纯源码为 127 项通过、26 项跳过。六份中英文布局预览和安装包校验通过；Windows 原生显示、可访问性和显示器缩放仍待 Windows 验证，详见 [验证说明](docs/VALIDATION.md)。
 
 ## [0.4.3](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.3) — 2026-10-04
 

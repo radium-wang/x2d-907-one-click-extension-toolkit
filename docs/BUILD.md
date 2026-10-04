@@ -6,6 +6,7 @@ Commands below run from the repository root. Python 3.9+ and `requirements-dev.t
 
 - `src/MacApp.swift`: Cocoa interface, Settings, language selection and operation gates.
 - `src/windows_app.py`: native Win32 interface, Settings and equivalent gates.
+- `src/windows_ui.py`: Mac-aligned Windows layout and GDI skin; native controls retain input and accessibility. No added UI runtime dependency.
 - `src/app_settings.py`: persisted Windows startup update-check preference; Mac uses UserDefaults.
 - `src/x2d_play_software.py`: validated installation, reboot verification and restoration.
 - `src/transport/collect_x2d_af_usb.py`: factory USB protocol implementation.
@@ -51,6 +52,8 @@ Run builder `--help` for arguments. Package construction is offline and requires
 Mac inputs: Xcode command-line tools; official Python 3.13.15 universal framework payload; macOS 13-compatible universal libusb 1.0.30; PyUSB 1.3.1; official Android platform-tools ADB; associated license texts. The builder audits each bundled Mach-O and signs the result ad hoc. It does not notarize.
 
 Windows inputs: official Python 3.13.15 x64 embed ZIP, libusb 1.0.30 binary input, Android platform-tools, LLVM/lld, and the pinned libwdi preparation inputs. `build_windows_driver.py` documents and checks the libwdi 1.5.1 source and llvm-mingw 20260922 hashes, builds its restricted helper and includes modified libwdi source + license texts in the package. It does not install a driver on the build computer. The launcher requests administrator elevation; the helper only accepts the camera's supported composite factory interface, never a storage or parent device. ADB driver setup is separate.
+
+Windows UI test builds can pass `--output src/outputs/windows-ui-test` to keep them separate from published packages. With the optional desktop PySide6 test environment, `tests/preview_windows_ui.py --output src/outputs/windows-ui-preview` renders Chinese/English previews using the same layout, colors and vector geometry as native GDI. Those images verify layout only; they are not screenshots from a Windows execution.
 
 ## Device actions
 

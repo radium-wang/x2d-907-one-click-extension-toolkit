@@ -50,6 +50,44 @@ class WindowsLanguageUITests(unittest.TestCase):
         preferences=patch.object(app,'UpdatePreferences',return_value=SimpleNamespace(auto_check=False,set_auto_check=lambda value:True))
         preferences.start();self.addCleanup(preferences.stop)
 
+    def test_monitor_dpi_rescales_controls_and_tab_focus_reveals_hidden_actions(self):
+        class MonitorAPI(WindowAPI):
+            dpi=96
+            height=560
+            moves={}
+            fonts=[]
+            def call(self,name,*args):
+                if name=='GetClientRect':
+                    rect=args[1]._obj;rect.right=round(580*self.dpi/96);rect.bottom=round(self.height*self.dpi/96)
+                    return 1
+                if name=='CreateFontW':self.fonts.append((args[0],args[-1]))
+                if name=='MoveWindow':self.moves[args[0]]=args[1:5];return 1
+                if name=='GetMessageW':
+                    self.proc(101,0x0005,0,0)
+                    logs=next(h for h,item in self.controls.items() if item['class']=='EDIT')
+                    install=next(h for h,item in self.controls.items() if item['id']==102)
+                    self.proc(101,0x0111,0x100<<16,logs)
+                    assert self.moves[logs][1]+self.moves[logs][3]<=560
+                    self.proc(101,0x0111,(6<<16)|102,install)
+                    assert 0<=self.moves[install][1]<560
+                    self.dpi=144
+                    frame=C.wintypes.RECT(10,10,910,910)
+                    self.proc(101,0x02E0,144|(144<<16),C.addressof(frame))
+                    assert self.moves[install][0]==round(146*1.5)
+                    assert any(size==-33 for size,face in self.fonts)
+                    self.proc(101,0x0111,107,0)
+                    self.selection=1;self.proc(101,0x0111,(1<<16)|104,0)
+                    assert any(size==-28 and face=='Segoe UI' for size,face in self.fonts)
+                    assert not self.session.verified and not self.session.busy
+                    return 0
+                return super().call(name,*args)
+        api=MonitorAPI()
+        class Session(app.Session):
+            def __init__(self):super().__init__();api.session=self
+        with tempfile.TemporaryDirectory() as folder:
+            with patch.object(app,'os',SimpleNamespace(name='nt',environ={'LOCALAPPDATA':folder})),patch.object(app.C,'WinDLL',side_effect=lambda *a,**k:api,create=True),patch.object(app.C,'WINFUNCTYPE',C.CFUNCTYPE,create=True),patch.object(app,'Session',Session),patch.object(app.subprocess,'Popen') as worker:
+                app.main();worker.assert_not_called()
+
     def test_startup_preference_manual_check_and_download_are_separate_actions(self):
         for automatic in (False,True):
             calls=[]
