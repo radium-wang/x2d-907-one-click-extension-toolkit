@@ -4,7 +4,7 @@ import argparse, json, os, plistlib, shutil, subprocess, re
 from pathlib import Path
 D = Path(__file__).resolve().parent
 PAYLOAD = Path(os.environ.get('X2D_PAYLOAD_DIR', str(D/'native-package')))
-VERSION = '0.4.1'
+VERSION = '0.4.2'
 ARCHES = {'arm64', 'x86_64'}
 MINIMUM = (13, 0)
 

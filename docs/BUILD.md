@@ -4,8 +4,9 @@ Commands below run from the repository root. Python 3.9+ and `requirements-dev.t
 
 ## Source map
 
-- `src/MacApp.swift`: Cocoa interface, language selection and operation gates.
-- `src/windows_app.py`: native Win32 interface and equivalent gates.
+- `src/MacApp.swift`: Cocoa interface, Settings, language selection and operation gates.
+- `src/windows_app.py`: native Win32 interface, Settings and equivalent gates.
+- `src/app_settings.py`: persisted Windows startup update-check preference; Mac uses UserDefaults.
 - `src/x2d_play_software.py`: validated installation, reboot verification and restoration.
 - `src/transport/collect_x2d_af_usb.py`: factory USB protocol implementation.
 - `src/windows_factory_usb.py`: native Windows factory interface transport.
@@ -66,3 +67,7 @@ Desktop installations use `--interactive-confirmation` and a private stdin pipe:
 ## Optional QML model check
 
 `python3 -B tests/check_menu_qml.py` executes the source model and route with Qt service substitutes, without camera access. It needs PySide 6.4.1 and its `rcc` executable. On the tested macOS 27 host, Qt 6.4.1 ARM builds abort during CPU-feature initialization; use a separate Intel Python 3.11 / Intel PySide 6.4.1 environment under Rosetta for this exact-version test. This dependency is optional and is not part of the native Mac application.
+
+## Desktop Settings
+
+Startup update checks default to enabled and never download or install without the separate user action. Mac persists `AutoCheckUpdates` with UserDefaults; Windows persists the boolean `autoCheckUpdates` in its application settings JSON, independently of language preferences. Invalid Windows preference contents use the default. Turning automatic checks off does not disable manual checking. Settings do not perform camera operations.

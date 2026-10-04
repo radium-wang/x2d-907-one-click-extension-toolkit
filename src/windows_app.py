@@ -5,9 +5,10 @@ import json, os, queue, subprocess, sys, threading
 from pathlib import Path
 from localization import Localizer, translate
 from reinstall_confirmation import CONTINUE, CANCEL
+from app_settings import UpdatePreferences
 
 D = Path(__file__).resolve().parent
-VERSION = '0.4.1'
+VERSION = '0.4.2'
 
 
 class Session:
@@ -82,6 +83,7 @@ def main():
     native_settext = api(user, 'SetWindowTextW', W.BOOL, W.HWND, W.LPCWSTR)
     localized_sources = {}
     language = Localizer(Path(os.environ.get('LOCALAPPDATA', str(D))) / 'X2DPlay' / 'language.json')
+    preferences = UpdatePreferences(Path(os.environ.get('LOCALAPPDATA', str(D))) / 'X2DPlay' / 'settings.json')
     def settext(handle, text):
         localized_sources[handle] = text
         return native_settext(handle, language.text(text))
@@ -125,6 +127,29 @@ def main():
     EVENT_MESSAGE = 0x8001
     update_state = dict(busy=False, version='')
     confirmation_state = dict(window=None, answer=None)
+    settings_state = dict(window=None)
+
+    def show_settings():
+        if session.busy or update_state['busy']: return
+        if settings_state['window'] is None:
+            panel = create(0, 'X2DPlayWindow', language.text('设置'), 0x00C80000,
+                           max(0,(screenwidth-scale(540))//2), max(0,(screenheight-scale(320))//2),
+                           scale(540),scale(320),hwnd,None,instance,None)
+            if not panel: return
+            settings_state['window'] = panel
+            localized_sources[panel] = '设置'
+            control('languagelabel','STATIC','语言',24,24,100,26,parent=panel)
+            control('language','COMBOBOX','',140,20,350,120,extra=0x10003,identity=104,parent=panel)
+            for name in ('中文','English'):
+                send(controls['language'],0x0143,0,C.cast(C.c_wchar_p(name),C.c_void_p).value)
+            send(controls['language'],0x014E,1 if language.language=='en' else 0,0)
+            control('automaticupdates','BUTTON','启动时自动检查更新',24,74,470,28,extra=0x10003,identity=108,parent=panel)
+            send(controls['automaticupdates'],0x00F1,1 if preferences.auto_check else 0,0)
+            control('updatesdescription','STATIC','自动检查只查找新版，不会自动下载或安装。',24,113,470,42,textfont=small,parent=panel)
+            control('updatebutton','BUTTON','手动检查更新',24,170,200,36,extra=0x10000,identity=106,parent=panel)
+            control('downloadbutton','BUTTON','下载并安装更新',244,170,250,36,extra=0x10000,identity=109,parent=panel)
+        buttons()
+        show(settings_state['window'],5); update(settings_state['window'])
 
     def confirm_dialog(value):
         # Custom native buttons keep their language independent of Windows' UI language.
@@ -161,7 +186,9 @@ def main():
 
     def buttons():
         busy = session.busy or update_state['busy']
-        enable(controls['updatebutton'], not busy)
+        for key in ('settingsbutton','updatebutton'):
+            if key in controls: enable(controls[key],not busy)
+        if 'downloadbutton' in controls: enable(controls['downloadbutton'],not busy and bool(update_state['version']))
         eligible = session.verified and session.model == '907X & CFV 100C'
         enable(controls['prank'], eligible and not busy)
         if not eligible: send(controls['prank'], 0x00F1, 0, 0)  # BM_SETCHECK
@@ -295,14 +322,18 @@ def main():
         finally:
             events.put(('update_done', None)); post(hwnd, EVENT_MESSAGE, 0, 0)
 
-    def start_update():
+    def start_update(install=False):
         if session.busy or update_state['busy']: return
+        if install and not update_state['version']: return
         update_state['busy'] = True; buttons()
-        threading.Thread(target=update_worker, args=(update_state['version'],), daemon=True).start()
+        threading.Thread(target=update_worker, args=(update_state['version'] if install else '',), daemon=True).start()
 
     @PROC
     def procedure(window, msg, wp, lp):
         try:
+            if window == settings_state['window']:
+                if msg == 0x0010: show(window,0); return 0
+                if msg == 0x0002: return 0
             if window == confirmation_state['window']:
                 if msg == 0x0010:
                     confirmation_state['answer'] = False; return 0
@@ -322,6 +353,12 @@ def main():
                 if (wp & 0xFFFF) == 104 and (wp >> 16) == 1:  # CBN_SELCHANGE
                     change_language(); return 0
                 if (wp >> 16) == 0:
+                    if (wp & 0xFFFF) == 107: show_settings(); return 0
+                    if (wp & 0xFFFF) == 108:
+                        if not preferences.set_auto_check(send(controls['automaticupdates'],0x00F0,0,0)==1):
+                            log('设置无法保存，本次选择仅在当前运行中生效。')
+                        return 0
+                    if (wp & 0xFFFF) == 109: start_update(install=True); return 0
                     if (wp & 0xFFFF) == 106: start_update(); return 0
                     action = {101: 'status', 102: 'install', 103: 'restore'}.get(wp & 0xFFFF)
                     if action: start(action); return 0
@@ -352,7 +389,6 @@ def main():
                             settext(controls['state'], '软件更新未完成' if value['type'] == 'error' else text)
                         elif value['type'] == 'restart':
                             destroy(window); return 0
-                        settext(controls['updatebutton'], '下载并安装更新' if update_state['version'] else '检查更新')
                     elif kind == 'update_done':
                         update_state['busy'] = False; buttons()
                     else:
@@ -386,9 +422,9 @@ def main():
     if not hwnd: raise C.WinError(C.get_last_error())
     localized_sources[hwnd] = 'x2d/907一键扩展功能-工具包 · ' + VERSION
 
-    def control(key, classname, text, x, y, w, h, extra=0, identity=0, textfont=None, ex=0):
+    def control(key, classname, text, x, y, w, h, extra=0, identity=0, textfont=None, ex=0, parent=None):
         handle = create(ex, classname, language.text(text), 0x50000000 | extra,
-                        scale(x), scale(y), scale(w), scale(h), hwnd, identity or None, instance, None)
+                        scale(x), scale(y), scale(w), scale(h), hwnd if parent is None else parent, identity or None, instance, None)
         if not handle: raise C.WinError(C.get_last_error())
         controls[key] = handle
         if key not in ('logs','language'): localized_sources[handle] = text
@@ -396,10 +432,7 @@ def main():
         return handle
 
     control('title', 'STATIC', 'x2d/907一键扩展功能-工具包', 28, 24, 370, 42, textfont=titlefont)
-    control('language', 'COMBOBOX', '', 430, 28, 146, 120, extra=0x10003, identity=104)
-    for name in ('中文', 'English'):
-        send(controls['language'], 0x0143, 0, C.cast(C.c_wchar_p(name), C.c_void_p).value)
-    send(controls['language'], 0x014E, 1 if language.language == 'en' else 0, 0)
+    control('settingsbutton','BUTTON','设置',465,28,111,32,extra=0x10000,identity=107)
     control('subtitle', 'STATIC', 'X2D 100C / 907X 100C · 固件 4.2.0', 28, 75, 555, 22)
     control('box', 'BUTTON', '相机功能', 28, 110, 548, 142, extra=7)
     control('afc', 'STATIC', 'AF-C 连续自动对焦', 48, 140, 510, 24, textfont=strong)
@@ -413,7 +446,6 @@ def main():
     control('statusbutton', 'BUTTON', '已连接', 28, 420, 120, 38, extra=0x10000, identity=101)
     control('installbutton', 'BUTTON', '一键安装', 161, 420, 165, 38, extra=0x10000, identity=102)
     control('restorebutton', 'BUTTON', '一键恢复原状', 339, 420, 237, 38, extra=0x10000, identity=103)
-    control('updatebutton', 'BUTTON', '检查更新', 28, 465, 200, 28, extra=0x10000, identity=106)
     control('warning', 'STATIC', '开启对焦 buff 后切勿取下镜头。\r\n更换镜头前，请先关闭对焦加速 buff。', 28, 510, 548, 46, textfont=strong)
     control('note', 'STATIC', '安装会自动备份原厂配置，并重启校验。恢复会撤回本应用的菜单与功能。\r\n请等待操作完成再拔线；首次连接会自动准备相机工厂接口驱动。', 28, 569, 548, 46, textfont=small)
     control('logs', 'EDIT', '', 28, 627, 548, 138, extra=0x00200844, textfont=small, ex=0x200)
@@ -424,6 +456,7 @@ def main():
     log('若相机提示连接方式，可选择“大容量存储”。')
     buttons()
     show(hwnd, 5); update(hwnd)
+    if preferences.auto_check: start_update()
     message = W.MSG()
     while True:
         result = getmsg(C.byref(message), None, 0, 0)

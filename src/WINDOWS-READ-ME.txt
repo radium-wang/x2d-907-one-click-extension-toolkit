@@ -1,20 +1,20 @@
-x2d/907一键扩展功能-工具包 0.4.1 · Windows x64 实验版
+x2d/907一键扩展功能-工具包 0.4.2 · Windows x64 实验版
 
 语言选择
-窗口右上角可选择“中文”或“English”，默认中文，选择会保存到本机，重新启动仍沿用。
+点击窗口右上角“设置”，可选择“中文”或“English”，默认中文，选择会保存到本机，重新启动仍沿用。
 切换覆盖 App 按钮、功能说明、状态、错误、操作提示及当前已有日志；保存的日志也使用当前语言。
 语言切换不更改功能开关、安装状态或 USB 驱动。
 
 Language
-Choose 中文 or English at the top right. The app remembers your choice after restart.
+Open Settings at the top right, then choose 中文 or English. The app remembers your choice after restart.
 Buttons, feature descriptions, status, errors, instructions and existing logs follow the selected language.
 Language selection does not change feature settings or USB drivers.
 
 English quick start
-1. Extract the entire ZIP and double-click 耍起功能.exe. Allow the Windows administrator prompt.
+1. Extract the entire ZIP and double-click x2d-907一键扩展功能-工具包.exe. Allow the Windows administrator prompt.
 2. Turn on one supported camera, connect a USB data cable, then click Connected. The app prepares only the camera factory Interface 3 driver and checks the camera.
 3. Once checks pass, click Install or Restore original. Keep the camera powered and connected until completion is confirmed. Tap Skip on the camera if prompted.
-4. Open Shuaqi at the end of the camera's main menu. Turn on its master switch, then AF-C or the focus speed buff.
+4. Open Tweaks (English install) or 耍起功能 (Chinese install) at the end of the camera's main menu. Turn on its master switch, then AF-C or the focus speed buff.
 5. Do not remove the lens while the focus buff is on. Turn it off before changing lenses.
 Windows 10 / 11 x64; original X2D 100C / 907X & CFV 100C firmware 4.2.0 only.
 Automatic driver setup and the 907X menu update still await device verification. ADB is a separate interface and may require its own driver.
@@ -24,7 +24,7 @@ Automatic driver setup and the 907X menu update still await device verification.
 不适用于 X2D II、907X 50C 或其他固件。
 
 使用步骤
-1. 完整解压 ZIP 到新文件夹，双击“耍起功能.exe”。Windows 会请求管理员授权，请允许。不需要右键选择管理员启动，不要单独移动 EXE。
+1. 完整解压 ZIP 到新文件夹，双击“x2d-907一键扩展功能-工具包.exe”。Windows 会请求管理员授权，请允许。不需要右键选择管理员启动，不要单独移动 EXE。
 2. 相机开机，用数据线连接电脑，只连接一台相机。相机屏幕提示连接方式时，可选择“大容量存储”。
 3. 点击“已连接”。程序先检查相机的工厂 Interface 3 驱动；已绑定 WinUSB 时直接使用，缺少时自动准备。此步骤仅准备电脑驱动，尚未安装相机功能。
 4. 等相机文件与状态检查通过，安装及恢复按钮才会启用。点击“一键安装”，等待备份、安装和重启校验完成。如相机屏幕出现“跳过”，请点击“跳过”，继续保持连接。
@@ -90,10 +90,16 @@ The default-off checkbox becomes available only after Connected verifies a 907X 
 Restore removes it as well. Device verification on the 907 is pending.
 
 软件更新 / App updates
-点击“检查更新”；发现新版后，点击“下载并安装更新”。校验通过后 App 会退出、安装并重新打开；上一版保留在应用旁的更新备份目录。
-Click Check for Updates, then Download and Install Update. The verified app update installs after exit and relaunches; the previous app is retained beside the installation.
+打开“设置”，点击“手动检查更新”；发现新版后，点击“下载并安装更新”。校验通过后 App 会退出、安装并重新打开；上一版保留在应用旁的更新备份目录。
+Open Settings, click Check for Updates, then Download and Install Update. The verified app update installs after exit and relaunches; the previous app is retained beside the installation.
 相机操作期间不能更新。更新只替换电脑端 App，相机扩展需再点击“已连接 → 一键安装”更新。
 Updates are disabled during camera operations. To update the camera extension afterward, use Connected → Install.
 
 0.4.1 修正菜单回执刷新。若提示文件已安装但菜单回执待刷新，请在相机点击“跳过”并打开主菜单，再点击 App 的“已连接”。0.3.3 可直接安装升级；恢复与重启期间保持连接。
 Version 0.4.1 refreshes menu receipts after service restarts. If files are installed but the receipt is pending, tap Skip and open the camera main menu, then click Connected again. Known 0.3.3 installs can be upgraded; stay connected during restoration and reboot.
+
+0.4.2 设置 / Settings
+自动检查更新默认开启，可在设置中关闭，重启后保留选择。自动检查只查找新版，不会自动下载或安装；关闭后仍可手动检查。
+Startup update checks default to on. Disable them in Settings; the choice survives restart. Downloads and installation remain manual, and manual checks still work when automatic checks are off.
+安装时按 App 语言选择相机菜单。需要恢复并重新安装时，按目标语言弹窗确认；取消不修改相机，完成后需重新开启所需功能。
+Install selects the camera menu language from the app. Restoration before reinstallation requires confirmation in the target language. Cancel leaves the camera unchanged; re-enable the features you need after completion.

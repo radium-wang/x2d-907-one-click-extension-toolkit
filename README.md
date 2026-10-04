@@ -11,8 +11,8 @@ Camera menu labels follow the app language at install time: English installs **T
 - **AF-C continuous autofocus:** adds a camera-side availability switch. The stock AF-S / MF layout returns when disabled.
 - **Focus speed buff:** faster focus scans, with stock speed restored when disabled.
 - **Install / Restore original:** checks the camera and package, saves the original startup configuration, then restarts and verifies the result.
-- **Check for Updates:** fetches the latest stable GitHub Release for your platform, verifies its SHA-256 digest, then installs and relaunches the app. Camera operations and app updates cannot run together. The previous app is retained beside the installation. Updates change the desktop app; updating an installed camera extension still requires **Connected → Install**.
-- **Chinese / English:** switch the desktop interface and logs; the preference survives app restarts. **Install** writes matching Chinese or English camera menu labels. Changing the camera language requires another install.
+- **Settings and updates:** in Settings, startup checks default to on and can be disabled; the choice is remembered. Manual checking remains available when automatic checks are off. A separate Download and Install Update action fetches the latest stable GitHub Release for your platform, verifies its SHA-256 digest, then installs and relaunches the app. Camera operations and app updates cannot run together. The previous app is retained beside the installation. Updates change the desktop app; updating an installed camera extension still requires **Connected → Install**.
+- **Chinese / English:** switch the desktop interface and logs in Settings; the preference survives app restarts. **Install** writes matching Chinese or English camera menu labels. Changing the camera language requires another install.
 - **907 IBIS entry (Easter egg):** available after a verified 907 connection; its menu label follows the installed language.
 
 **Do not remove the lens while the focus buff is enabled. Disable it before changing lenses.**
@@ -34,13 +34,15 @@ The repository contains application source, tests and screenshots. Vendor firmwa
 
 ## Screenshot — English
 
-Actual macOS 0.4.1 window in the disconnected state. The 907 checkbox is intentionally disabled until identification succeeds.
+Actual macOS 0.4.2 window in the disconnected state. The 907 checkbox is intentionally disabled until identification succeeds.
 
-<img src="docs/images/app-en.jpg" alt="X2D/907 One-Click Extension Toolkit 0.4.1 English macOS interface" width="580">
+<img src="docs/images/app-en.jpg" alt="X2D/907 One-Click Extension Toolkit 0.4.2 English macOS interface" width="580">
+
+<img src="docs/images/settings-en.jpg" alt="English Settings window" width="450">
 
 ## Verification status
 
-Earlier X2D installations, menu behavior and restoration have device/user evidence. The current 0.4.1 changes passed offline connection, transaction, localization and menu tests. The 907 Easter egg, 907 menu adaptation, AF-S retention across power cycles and automatic Windows driver preparation still require device validation. A desktop test is not a camera test. See [the evidence boundaries](docs/VALIDATION.md).
+Earlier X2D installations, menu behavior and restoration have device/user evidence. The current 0.4.2 changes passed offline connection, transaction, localization and menu tests. The 907 Easter egg, 907 menu adaptation, AF-S retention across power cycles and automatic Windows driver preparation still require device validation. A desktop test is not a camera test. See [the evidence boundaries](docs/VALIDATION.md).
 
 This is an independent project, not an official Hasselblad product. Eye recognition is not included. Other camera generations and firmware versions are unsupported.
 
@@ -61,8 +63,8 @@ If this toolkit helps you, you can [support its development via PayPal](https://
 - **AF-C 连续自动对焦**：在相机上控制连续对焦入口；关闭后恢复原厂 AF-S / 手动对焦布局。
 - **对焦加速 buff**：加快对焦扫描，关闭后恢复原厂速度。
 - **一键安装 / 一键恢复原状**：检查连接与文件，保存原厂启动配置，并在重启后校验结果。
-- **检查更新**：从 GitHub Release 获取对应系统的稳定版，校验 SHA-256 后安装并重新打开；保留上一版 App，更新与相机操作互斥。更新只替换电脑端软件；相机上的扩展需再点击 **已连接 → 一键安装** 更新。
-- **中英文切换**：桌面界面、操作提示和日志随语言切换，重启 App 后保留选择；**一键安装** 会写入对应语言的相机菜单文案，更换相机语言需重新安装。
+- **设置与更新**：在设置页选择语言、关闭或开启启动自动检查更新（默认开启并保存选择）；关闭后仍能手动检查。下载安装需另行点击，从 GitHub Release 获取对应系统的稳定版，校验 SHA-256 后安装并重新打开；保留上一版 App，更新与相机操作互斥。更新只替换电脑端软件；相机上的扩展需再点击 **已连接 → 一键安装** 更新。
+- **中英文切换**：在设置中选择语言，桌面界面、操作提示和日志随语言切换，重启 App 后保留选择；**一键安装** 会写入对应语言的相机菜单文案，更换相机语言需重新安装。
 - **907 防抖入口（彩蛋）**：识别到 907 后可选择添加；入口名称随安装语言变化。
 
 **开启对焦 buff 后切勿取下镜头。更换镜头前，请先关闭对焦加速 buff。**
@@ -82,13 +84,15 @@ X2D 的功能入口在第 **12** 格；907 默认第 **11** 格，勾选彩蛋�
 
 ### 软件截图 — 中文
 
-这是 macOS 0.4.0 的实际界面截图，展示当前版本沿用的界面布局，当前未连接相机，因此 907 勾选项和写入按钮处于禁用状态。
+这是 macOS 0.4.2 的实际界面截图，当前未连接相机，因此 907 勾选项和写入按钮处于禁用状态。
 
-<img src="docs/images/app-zh.jpg" alt="x2d/907一键扩展功能-工具包 0.4.0 中文 macOS 界面" width="580">
+<img src="docs/images/app-zh.jpg" alt="x2d/907一键扩展功能-工具包 0.4.2 中文 macOS 界面" width="580">
+
+<img src="docs/images/settings-zh.jpg" alt="中文设置页" width="450">
 
 ### 验证与源码范围
 
-早期 X2D 安装、菜单和恢复已有实机或用户反馈；0.4.1 的连接门槛、事务、翻译和菜单路由已通过离线检查。**907 彩蛋、907 菜单适配、关机后保留 AF-S，以及 Windows 自动驱动准备仍待实机验证。** 具体范围见 [验证说明](docs/VALIDATION.md)。
+早期 X2D 安装、菜单和恢复已有实机或用户反馈；0.4.2 的连接门槛、事务、翻译和菜单路由已通过离线检查。**907 彩蛋、907 菜单适配、关机后保留 AF-S，以及 Windows 自动驱动准备仍待实机验证。** 具体范围见 [验证说明](docs/VALIDATION.md)。
 
 本库只收录应用源码、测试和软件截图，不包含原厂固件、提取的编译 QML、运行库、生成的相机载荷或桌面安装压缩包。桌面安装包见 [GitHub Releases](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/latest)。更新需要应用目录可写；如提示权限不足，请将完整 App 移到自己的可写目录后重试。Mac 使用临时签名、未经公证；Windows 启动器未经代码签名。构建输入见 [构建说明](docs/BUILD.md)。
 

@@ -26,7 +26,7 @@ def build(inputs, pyusb, llvm):
         assert all('/' not in n and '\\' not in n and n not in ('..', '.') for n in z.namelist())
         z.extractall(runtime)
     (runtime / 'python313._pth').write_text('python313.zip\n.\n..\n', encoding='ascii')
-    for name in ('app_updates.py', 'reinstall_confirmation.py', 'windows_app.py', 'x2d_play_software.py', 'windows_factory_usb.py', 'windows_connection.py', 'localization.py', 'translations.json'):
+    for name in ('app_updates.py', 'app_settings.py', 'reinstall_confirmation.py', 'windows_app.py', 'x2d_play_software.py', 'windows_factory_usb.py', 'windows_connection.py', 'localization.py', 'translations.json'):
         shutil.copy2(D / name, root / name)
     transport = D / 'transport'
     for name in ('collect_x2d_af_usb.py',):

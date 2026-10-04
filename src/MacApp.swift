@@ -21,9 +21,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var localizedImages: [(NSImageView, String)] = []
     var localizedFields: [ObjectIdentifier: (NSTextField, String)] = [:]
     let languageChoice = NSPopUpButton(frame: .zero, pullsDown: false)
+    let settingsButton = NSButton(title: "设置", target: nil, action: nil)
+    var settingsWindow: NSWindow?
+    let automaticUpdates = NSButton(checkboxWithTitle: "启动时自动检查更新", target: nil, action: nil)
+    let downloadUpdateButton = NSButton(title: "下载并安装更新", target: nil, action: nil)
+    let settingsUpdateStatus = NSTextField(wrappingLabelWithString: "自动检查只查找新版，不会自动下载或安装。")
+    var autoCheckUpdates = UserDefaults.standard.object(forKey: "AutoCheckUpdates") == nil
+        ? true : UserDefaults.standard.bool(forKey: "AutoCheckUpdates")
     var quitItem: NSMenuItem!
     var appVersion = ""
-    let updateButton = NSButton(title: "检查更新", target: nil, action: nil)
+    let updateButton = NSButton(title: "手动检查更新", target: nil, action: nil)
     var updateVersion = ""
     var updateBusy = false
     var updateRestarting = false
@@ -54,7 +61,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         for (field, source) in localizedFields.values { field.stringValue = translated(source) }
         for (image, source) in localizedImages { image.setAccessibilityLabel(translated(source)) }
         prankCheckbox.title = translated("添加防抖功能（907 彩蛋）")
-        updateButton.title = translated(updateVersion.isEmpty ? "检查更新" : "下载并安装更新")
+        updateButton.title = translated("手动检查更新")
+        downloadUpdateButton.title = translated("下载并安装更新")
+        settingsButton.title = translated("设置")
+        settingsWindow?.title = translated("设置")
+        automaticUpdates.title = translated("启动时自动检查更新")
         refresh.title = translated("已连接")
         install.title = translated("一键安装")
         restore.title = translated("一键恢复原状")
@@ -67,6 +78,50 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         language = languageChoice.indexOfSelectedItem == 1 ? "en" : "zh"
         UserDefaults.standard.set(language, forKey: "AppLanguage")
         renderLanguage()
+    }
+    @objc func automaticUpdatesChanged() {
+        autoCheckUpdates = automaticUpdates.state == .on
+        UserDefaults.standard.set(autoCheckUpdates, forKey: "AutoCheckUpdates")
+    }
+    @objc func settingsClicked() {
+        guard task == nil, !updateBusy else { return }
+        if settingsWindow == nil {
+            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 450, height: 260),
+                                 styleMask: [.titled, .closable], backing: .buffered, defer: false)
+            panel.isReleasedWhenClosed = false
+            settingsWindow = panel
+            let root = NSStackView()
+            root.orientation = .vertical; root.alignment = .leading; root.spacing = 18
+            root.edgeInsets = NSEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
+            root.translatesAutoresizingMaskIntoConstraints = false
+            panel.contentView!.addSubview(root)
+            NSLayoutConstraint.activate([
+                root.leadingAnchor.constraint(equalTo: panel.contentView!.leadingAnchor),
+                root.trailingAnchor.constraint(equalTo: panel.contentView!.trailingAnchor),
+                root.topAnchor.constraint(equalTo: panel.contentView!.topAnchor)
+            ])
+            let label = NSTextField(labelWithString: "语言")
+            localize(label)
+            let row = NSStackView(views: [label, languageChoice])
+            row.orientation = .horizontal; row.spacing = 16
+            root.addArrangedSubview(row)
+            automaticUpdates.state = autoCheckUpdates ? .on : .off
+            automaticUpdates.target = self; automaticUpdates.action = #selector(automaticUpdatesChanged)
+            root.addArrangedSubview(automaticUpdates)
+            localize(settingsUpdateStatus)
+            settingsUpdateStatus.textColor = .secondaryLabelColor
+            root.addArrangedSubview(settingsUpdateStatus)
+            settingsUpdateStatus.widthAnchor.constraint(equalToConstant: 402).isActive = true
+            let buttons = NSStackView(views: [updateButton, downloadUpdateButton])
+            buttons.orientation = .horizontal; buttons.spacing = 12
+            for button in [updateButton, downloadUpdateButton] { button.bezelStyle = .rounded; button.target = self }
+            updateButton.action = #selector(updateClicked)
+            downloadUpdateButton.action = #selector(downloadUpdateClicked)
+            root.addArrangedSubview(buttons)
+            panel.center()
+        }
+        renderLanguage(); setBusy(false)
+        settingsWindow?.makeKeyAndOrderFront(nil)
     }
     var outputBuffer = ""
     var connectionVerified = false
@@ -119,7 +174,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         languageChoice.setAccessibilityLabel("语言 / Language")
         let spacer = NSView()
         spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        let header = NSStackView(views: [heading, spacer, languageChoice])
+        settingsButton.bezelStyle = .rounded; settingsButton.target = self
+        settingsButton.action = #selector(settingsClicked)
+        let header = NSStackView(views: [heading, spacer, settingsButton])
         header.orientation = .horizontal; header.alignment = .centerY
         root.addArrangedSubview(header)
         header.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -56).isActive = true
@@ -167,9 +224,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         install.action = #selector(installClicked); restore.action = #selector(restoreClicked); refresh.action = #selector(refreshClicked)
         refresh.keyEquivalent = "\r"
         root.addArrangedSubview(buttons)
-        updateButton.bezelStyle = .rounded
-        updateButton.target = self; updateButton.action = #selector(updateClicked)
-        root.addArrangedSubview(updateButton)
         let warning = NSTextField(wrappingLabelWithString: "开启对焦 buff 后切勿取下镜头。\n更换镜头前，请先关闭对焦加速 buff。")
         localize(warning)
         warning.font = .systemFont(ofSize: 13, weight: .semibold)
@@ -204,6 +258,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             appendLog("请将相机开机，并通过 USB 数据线连接 Mac。")
             appendLog("如相机屏幕出现“跳过”按钮，请点击“跳过”，并保持数据线连接。")
             appendLog("连接好后，请点击 App 中的“已连接”；检查通过后即可操作。")
+            if autoCheckUpdates {
+                DispatchQueue.main.async { self.runUpdate(install: false) }
+            }
         }
     }
 
@@ -233,6 +290,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     func setBusy(_ cameraBusy: Bool) {
         let value = cameraBusy || updateBusy
         updateButton.isEnabled = !value
+        settingsButton.isEnabled = !value
+        downloadUpdateButton.isEnabled = !value && !updateVersion.isEmpty
         prankCheckbox.isEnabled = !value && connectionVerified && detectedModel == "907X & CFV 100C"
         install.isEnabled = !value && connectionVerified; restore.isEnabled = !value && connectionVerified; refresh.isEnabled = !value
     }
@@ -417,15 +476,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
     }
     @objc func updateClicked() {
+        runUpdate(install: false)
+    }
+    @objc func downloadUpdateClicked() {
+        guard !updateVersion.isEmpty else { return }
+        runUpdate(install: true)
+    }
+    func runUpdate(install: Bool) {
         guard task == nil, !updateBusy, let resources = Bundle.main.resourceURL else { return }
         updateBusy = true; setBusy(false)
         let worker = Process()
         worker.executableURL = resources.appendingPathComponent("runtime/bin/python3.13")
         worker.arguments = ["-B", "-u", resources.appendingPathComponent("app_updates.py").path,
-                            updateVersion.isEmpty ? "check" : "install", "--current", appVersion,
+                            install ? "install" : "check", "--current", appVersion,
                             "--platform", "mac", "--target", Bundle.main.bundleURL.path,
                             "--parent", String(ProcessInfo.processInfo.processIdentifier)]
-        if !updateVersion.isEmpty { worker.arguments! += ["--wanted", updateVersion] }
+        if install { worker.arguments! += ["--wanted", updateVersion] }
         var env = ProcessInfo.processInfo.environment
         env.removeValue(forKey: "X2D_PAYLOAD_DIR")
         env["PYTHONHOME"] = resources.appendingPathComponent("runtime").path
@@ -441,6 +507,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             let kind = event["type"] as? String ?? ""
             let message = event["message"] as? String ?? ""
             self.appendLog(message); self.setLocalized(self.detail, message)
+            self.setLocalized(self.settingsUpdateStatus, message)
             self.progress.doubleValue = event["percent"] as? Double ?? 0
             if kind == "available" {
                 self.updateVersion = event["version"] as? String ?? ""
