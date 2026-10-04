@@ -1,10 +1,11 @@
 """Execute Windows UI callbacks with system API substitutes; no USB or worker process."""
 import ctypes as C
-import json,re,tempfile,unittest
+import io,json,re,tempfile,unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 import windows_app as app
+from reinstall_confirmation import CONTINUE, CANCEL, prompt
 
 class Function:
     def __init__(self,name,owner): self.name,self.owner=name,owner
@@ -43,6 +44,66 @@ class WindowAPI:
         return 1
 
 class WindowsLanguageUITests(unittest.TestCase):
+    def test_reinstall_dialog_uses_frozen_target_language_and_explicit_response(self):
+        for target_language, answer in (('en',202),('zh',201),('en','close')):
+            pending=[]; replies=[]
+            class Input(io.StringIO):
+                def close(self):
+                    replies.append(self.getvalue()); super().close()
+            child=SimpleNamespace(stdin=Input(),stdout=io.StringIO(
+                'X2D_EVENT '+json.dumps(dict(type='confirmation',**prompt(target_language)))+'\n'+
+                'X2D_EVENT '+json.dumps(dict(type='cancelled',message='已取消重新安装，相机未被修改。'))+'\n'),wait=lambda:0)
+            class ConfirmationAPI(WindowAPI):
+                started=False
+                popup=None
+                popup_controls=None
+                quit_count=0
+                def call(self,name,*args):
+                    if name=='CreateWindowExW':
+                        result=super().call(name,*args)
+                        if args[2]==prompt(target_language)['title']:self.popup=result
+                        if args[9]==201:assert args[3]&1, 'Cancel must be default'
+                        return result
+                    if name=='PostMessageW':
+                        self.proc(*args);return 1
+                    if name=='PostQuitMessage':self.quit_count+=1;return 1
+                    if name=='GetMessageW':
+                        if self.popup is not None:
+                            self.popup_controls={key:value.copy() for key,value in self.controls.items()}
+                            if answer=='close':self.proc(self.popup,0x0010,0,0)
+                            else:self.proc(self.popup,0x0111,answer,0)
+                            return 1
+                        if self.started:return 0
+                        self.started=True;self.session.verified=True
+                        self.proc(101,0x0111,102,0)
+                        self.selection=0 if target_language=='en' else 1
+                        self.proc(101,0x0111,(1<<16)|104,0)
+                        fn,arguments=pending.pop()
+                        assert arguments[-1]==target_language
+                        fn(*arguments)
+                        assert not self.session.busy and self.session.verified
+                        return 0
+                    return super().call(name,*args)
+            api=ConfirmationAPI()
+            class Session(app.Session):
+                def __init__(self):super().__init__();api.session=self
+            class Thread:
+                def __init__(self,target,args,daemon):self.target,self.args=target,args
+                def start(self):pending.append((self.target,self.args))
+            with tempfile.TemporaryDirectory() as folder:
+                preferences=Path(folder)/'X2DPlay/language.json'
+                preferences.parent.mkdir();preferences.write_text(json.dumps(dict(language=target_language)))
+                with patch.object(app,'os',SimpleNamespace(name='nt',environ={'LOCALAPPDATA':folder})),patch.object(app.C,'WinDLL',side_effect=lambda *a,**k:api,create=True),patch.object(app.C,'WINFUNCTYPE',C.CFUNCTYPE,create=True),patch.object(app,'Session',Session),patch.object(app.threading,'Thread',Thread),patch.object(app.subprocess,'Popen',return_value=child) as worker:
+                    app.main()
+                arguments=worker.call_args.args[0]
+                self.assertEqual(arguments[arguments.index('--language')+1],target_language)
+                self.assertIn('--interactive-confirmation',arguments)
+            shown=[value['text'] for value in api.popup_controls.values()]
+            for key in ('title','body','cancel','proceed'):self.assertIn(prompt(target_language)[key],shown)
+            self.assertEqual(replies,[CONTINUE if answer==202 else CANCEL])
+            self.assertEqual(api.quit_count,0,'Closing the prompt must not quit the app')
+            self.assertTrue(api.enabled[101])
+
     def test_update_blocks_camera_writes_duplicate_update_and_window_close(self):
         class UpdateAPI(WindowAPI):
             def call(self,name,*args):

@@ -25,6 +25,12 @@ GitHub version/asset selection, checksum and archive path checks, app identity/v
 
 On macOS 27, a real packaged ZIP was extracted and signature-checked, then a detached copied runtime replaced a disposable app copy, retained the previous signed app, and successfully issued the relaunch. The sandboxed relaunch initially failed and the old app was restored; the normal host launch passed. No camera was accessed.
 
+## Pending PR — target-language reinstall confirmation
+
+The English camera menu PR plus the confirmation changes pass 130 offline Python tests with local payload inputs (clean source: 105 passed, 25 skipped). The five generated English QML files match the PR's recorded hashes. Apple silicon and Intel Swift checks passed. The actual Mac window displayed Chinese and English confirmation sheets using a backend fixture with no USB imports; the Continue button returned the explicit approval token. Windows callback tests exercise target-language selection frozen before a desktop language change, Cancel as the default, confirmation/cancellation responses, and closing the dialog without quitting the app. These Win32 APIs are substitutes; the Windows dialog and camera restoration/reinstallation still need native/device checks. No camera was accessed. These changes are not in the published 0.4.1 packages.
+
+英文相机菜单 PR 与确认弹窗改动通过 130 项完整离线测试；纯源码环境为 105 项通过、25 项跳过。五份英文 QML 与 PR 哈希一致，Mac 双架构 Swift 检查通过。使用不含 USB 操作的模拟后端检查了 Mac 原生中英文弹窗和继续按钮的确认回复。Windows 窗口回调测试覆盖目标语言固定、默认取消、按钮回复及关闭弹窗；仍需 Windows 原生窗口和相机实机验证。本次未操作相机，改动尚未包含在已发布的 0.4.1 安装包中。
+
 ## Menu receipt recovery (0.4.1)
 
 A service restart deletes the volatile menu receipt, while the original UI reported only when its menu changed. Bootstrap now refreshes a verified receipt every five seconds and still revokes it when the button disappears. The actual JavaScript function passed in Qt 6.4.1 with a simulated receipt loss/service restart. Connection checking now distinguishes installed files from an acknowledged menu and keeps recovery available. The affected X2D user reported that the menu existed and restoration succeeded on 0.3.3; the new behavior awaits that user’s device confirmation. Known 0.3.3 manifests and exact interrupted-write recovery bytes are retained. GitHub archive names use ASCII to avoid upload-time renaming.
