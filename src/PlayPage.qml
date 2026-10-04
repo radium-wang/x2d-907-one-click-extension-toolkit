@@ -12,7 +12,7 @@ FocusScope {
     property var featureController: null
     property bool requestPending: false
     readonly property bool featureLoaded: featureController !== null && featureController.loaded
-    readonly property bool featureBusy: (featureController !== null && featureController.busy) || brightness.busy
+    readonly property bool featureBusy: (featureController !== null && featureController.busy) || brightness.busy || mono.busy
     readonly property bool backendAvailable: featureController !== null && featureController.ready &&
                                              !featureController.faulted
     readonly property string statusMessage: !masterEnabled ? "耍起功能已关闭" :
@@ -39,6 +39,7 @@ FocusScope {
     }
 
     AutoBrightnessController { id: brightness; masterEnabled: root.masterEnabled; pageActive: root.pageActive }
+    MonoController { id: mono; masterEnabled: root.masterEnabled; pageActive: root.pageActive }
     function requestBrightnessToggle() {
         if (!pageActive || !masterEnabled || requestPending || featureBusy) return false
         return brightness.toggleFeature()
@@ -199,6 +200,34 @@ FocusScope {
                     anchors.fill: parent
                     enabled: root.pageActive && root.masterEnabled && (brightness.ready || brightness.availablePreference)
                     onClicked: root.requestBrightnessToggle()
+                }
+            }
+
+            Item {
+                objectName: "X2dPlayMonochromeSwitchRow"
+                width: parent.width
+                height: Constants.menuListItemDefaultHeight
+                StockMenu.MenuBoolSelector {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.leftMargin: Constants.settingsMenuSettingLeftMargin
+                    anchors.rightMargin: Constants.settingsMenuSettingRightMargin
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "黑白拍摄"
+                    value: mono.selected
+                    itemEnabled: root.pageActive && root.masterEnabled &&
+                                 (mono.ready || mono.selected) &&
+                                 !root.featureBusy && !root.requestPending
+                    highlighted: monoTouch.pressed
+                    showSwitch: true
+                    fontWeight: Font.Medium
+                }
+                MouseArea {
+                    id: monoTouch
+                    anchors.fill: parent
+                    enabled: root.pageActive && root.masterEnabled &&
+                             (mono.ready || mono.selected)
+                    onClicked: mono.toggle()
                 }
             }
 

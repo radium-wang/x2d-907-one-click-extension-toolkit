@@ -4,6 +4,9 @@ import argparse, base64, contextlib, hashlib, io, json, os, re, subprocess, sys,
 from pathlib import Path
 from reinstall_confirmation import CONTINUE, prompt as reinstall_prompt
 D = Path(__file__).resolve().parent
+sys.path.insert(0, str(D / 'mono'))
+from mono_usb_adapter import MonoUsbAdapter
+import mono_transaction as mono_tx
 sys.path.insert(0, str(D / 'transport'))
 import collect_x2d_af_usb as usb
 ROOT = '/blackbox/.x2d-play-software'
@@ -543,6 +546,85 @@ def backend(action):
     return json.loads(read_bytes('/tmp/x2d-speed-buff/ui.json'))
 
 
+
+def mono_package():
+    """Optional reviewed payload; absent from ordinary Shuaqi releases."""
+    path = O / 'mono-module.json'
+    if not path.is_file():
+        raise RuntimeError('No reviewed monochrome module in this package')
+    spec = json.loads(path.read_text())
+    if (spec.get('format') != 1 or spec.get('variant') != 'probe' or
+        spec.get('probeContract') != 'observation-only-no-output-mutation-v1' or
+        spec.get('source') != 'libcfv_mono.so' or
+        spec.get('stockServiceRcSha256') != '2aa2c06efcc2d7fac690f7fe5db324e12f02748fb7d368ee5f726c3d5b24f2a9' or
+        spec.get('targetModels') != ['X2D 100C'] or
+        spec.get('readyForDeviceTest') is not True):
+        raise RuntimeError('Monochrome package manifest is not reviewed')
+    module = (O / spec['source']).read_bytes()
+    from mono_usb_adapter import verify_module
+    verify_module(module, spec.get('sha256', ''))
+    return spec, module
+
+
+def mono_reboot_verify(expected_rc_sha):
+    """Verify service start after reboot; no image-function claim is made."""
+    event('progress', message='Rebooting camera to verify monochrome service startup', percent=80)
+    shell('sync;(sleep 2;reboot) >/tmp/x2d-play-reboot.log 2>&1 & echo REBOOT_DISPATCHED')
+    time.sleep(4)
+    deadline = time.monotonic() + 70
+    last = ''
+    while time.monotonic() < deadline:
+        try:
+            verify_target()
+            if shell('sha256sum /system/etc/init/camera-service.rc').split()[0] != expected_rc_sha:
+                raise RuntimeError('camera-service startup config mismatch after reboot')
+            if not shell('pidof camera-service').strip():
+                raise RuntimeError('camera-service did not start after reboot')
+            return
+        except Exception as error:
+            last = str(error)
+        time.sleep(1)
+    raise RuntimeError('Monochrome service reboot check failed: ' + last +
+                       '; keep USB connected and use mono-restore')
+
+
+def mono_install(reboot=True, confirmed=False):
+    """Prepare X2D-only observation probe; this writes /system startup files."""
+    if not confirmed:
+        raise RuntimeError('X2D diagnostic changes /system startup; pass --confirm-probe-system-write')
+    spec, module = mono_package()
+    event('progress', message='X2D observation probe: writing camera-service startup files; monochrome is not enabled', percent=5)
+    verify_target()
+    model = camera_model()
+    if model not in spec['targetModels']:
+        raise RuntimeError('This monochrome test package does not include this camera model')
+    if shell(f'test -e {ROOT}/installed && echo YES || echo NO') != 'YES':
+        raise RuntimeError('Install and verify Shuaqi before the optional monochrome module')
+    existing = json.loads(read_bytes(ROOT + '/manifest'))
+    if not recognized_bundle(existing):
+        raise RuntimeError('Installed Shuaqi version is not recognized')
+    adapter = MonoUsbAdapter(sys.modules[__name__], model)
+    result = adapter.install(module, spec['sha256'])
+    if reboot:
+        expected = sha(mono_tx.candidate_rc(read_bytes(mono_tx.BACKUP)))
+        mono_reboot_verify(expected)
+    event('result', success=True, installed=True, monoVariant=spec['variant'],
+          monoState=result, monoValidatedOnModel=False,
+          message='Monochrome module copied disabled; image routes require separate verification')
+
+
+def mono_restore(reboot=True, report_result=True):
+    """Restore from factory USB even if the experimental GUI or module fails."""
+    verify_target()
+    model = camera_model()
+    result = MonoUsbAdapter(sys.modules[__name__], model).restore()
+    if result == 'STOCK_RESTART_REQUIRED' and reboot:
+        mono_reboot_verify('2aa2c06efcc2d7fac690f7fe5db324e12f02748fb7d368ee5f726c3d5b24f2a9')
+    if report_result:
+        event('result', success=True, installed=(shell(f'test -e {ROOT}/installed && echo YES || echo NO') == 'YES'),
+              monoState=result, message='Monochrome startup files restored or already stock')
+    return result
+
 def install(reboot=True, prank_ibis=False, language='zh'):
     event('progress', message='正在检查相机与安装包', percent=5)
     verify_target()
@@ -680,11 +762,16 @@ def status():
 def restore(reboot=True, report_result=True):
     event('progress', message='正在检查恢复备份', percent=5)
     verify_target()
+    # Camera-service monochrome is restored first through factory USB, without
+    # depending on the experimental GUI, preload or loopback services.
+    mono_result = MonoUsbAdapter(sys.modules[__name__], camera_model()).restore()
     if shell(f'test -e {ROOT}/installed && echo YES || echo NO') == 'NO':
         if shell('sha256sum ' + RC).split()[0] != STOCK_RC:
             raise RuntimeError('没有本软件安装记录，且启动配置不是原厂；拒绝覆盖')
         if prepare().get('autoBrightness') and shell('sha256sum ' + DISPLAY_RC).split()[0] != DISPLAY_STOCK_RC:
             raise RuntimeError('原厂屏幕启动配置校验失败')
+        if mono_result == 'STOCK_RESTART_REQUIRED' and reboot:
+            mono_reboot_verify('2aa2c06efcc2d7fac690f7fe5db324e12f02748fb7d368ee5f726c3d5b24f2a9')
         if report_result:
             event('result', success=True, installed=False, message='相机已经是原厂状态')
         else:
@@ -847,8 +934,10 @@ def user_error(error):
 def main():
     global INTERACTIVE_CONFIRMATION, REINSTALL_CONFIRMED
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('action', choices=['install', 'status', 'restore', 'enable', 'disable', 'master_on', 'master_off', 'afc_on', 'afc_off'])
+    p.add_argument('action', choices=['install', 'status', 'restore', 'mono-install', 'mono-restore', 'enable', 'disable', 'master_on', 'master_off', 'afc_on', 'afc_off'])
     p.add_argument('--no-reboot', action='store_true', help=argparse.SUPPRESS)
+    p.add_argument('--confirm-probe-system-write', action='store_true',
+                   help='Confirm X2D-only observation probe will alter /system startup files')
     p.add_argument('--prank-ibis', action='store_true', help='Add the optional CFV-only joke menu')
     p.add_argument('--language', choices=['zh', 'en'], default='zh',
                    help='Install Chinese or English camera menu labels')
@@ -858,6 +947,8 @@ def main():
                               help='Confirm restoration before reinstalling an existing extension')
     args = p.parse_args()
     if args.prank_ibis and args.action != 'install': p.error('--prank-ibis requires install')
+    if args.confirm_probe_system_write and args.action != 'mono-install':
+        p.error('--confirm-probe-system-write requires mono-install')
     if args.language != 'zh' and args.action != 'install': p.error('--language requires install')
     if (args.interactive_confirmation or args.confirm_reinstall) and args.action != 'install':
         p.error('reinstall confirmation requires install')
@@ -866,6 +957,8 @@ def main():
     try:
         if args.action == 'install': install(not args.no_reboot, args.prank_ibis, args.language)
         elif args.action == 'restore': restore(not args.no_reboot)
+        elif args.action == 'mono-install': mono_install(not args.no_reboot, args.confirm_probe_system_write)
+        elif args.action == 'mono-restore': mono_restore(not args.no_reboot)
         elif args.action == 'status': status()
         else:
             verify_target()

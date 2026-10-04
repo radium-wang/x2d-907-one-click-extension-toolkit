@@ -63,6 +63,9 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
     for name in ('collect_x2d_af_usb.py',):
         shutil.copy2(transport/name,r/name)
     shutil.copy2(D/'x2d_play_software.py',r/'x2d_play_software.py')
+    mono=r/'mono'; mono.mkdir()
+    for name in ('mono_usb_adapter.py','mono_transaction.py'):
+        shutil.copy2(D/'mono'/name,mono/name)
     shutil.copy2(D/'translations.json',r/'translations.json')
     shutil.copy2(D/'app_updates.py',r/'app_updates.py')
     shutil.copy2(D/'reinstall_confirmation.py',r/'reinstall_confirmation.py')
@@ -72,6 +75,11 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
     for source in {f['source'] for f in manifest['files']} | english | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
         shutil.copy2(PAYLOAD/source,native/source)
     shutil.copytree(PAYLOAD/'previous-payloads',native/'previous-payloads')
+    optional=('mono-module.json','libcfv_mono.so')
+    present=[(PAYLOAD/name).is_file() for name in optional]
+    if any(present):
+        if not all(present): raise RuntimeError('Incomplete optional monochrome probe package')
+        for name in optional: shutil.copy2(PAYLOAD/name,native/name)
     # Relocate every non-system Mach-O dependency. Never rely on Homebrew at runtime.
     queue=[exe]+list(stdlib.rglob('*.so'))+[r/'lib/libusb-1.0.dylib',r/'bin/adb']
     origins={exe:Path(info['exe']).resolve(), r/'lib/libusb-1.0.dylib':libusb.resolve(), r/'bin/adb':adb.resolve()}

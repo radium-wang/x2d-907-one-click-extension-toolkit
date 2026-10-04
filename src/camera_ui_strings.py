@@ -9,6 +9,7 @@ LABELS = (
     ('在亮度菜单中加入自动亮度', 'Add Auto Brightness to Menu'),
     ('请前往显示 → 亮度设置自动亮度', 'Configure auto brightness in Display → Brightness'),
     ('自动亮度', 'Auto Brightness'),
+    ('黑白拍摄', 'Monochrome Capture'),
     ('显示屏最高亮度', 'Maximum Screen Brightness'),
     ('连续自动对焦', 'AF-C'),
     ('防抖', 'IBIS'),

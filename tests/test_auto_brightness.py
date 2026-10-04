@@ -44,10 +44,12 @@ class BrightnessTests(unittest.TestCase):
             app.ROOT+'/installed':b'INSTALLED',app.ROOT+'/created':self.files[0]['target'].encode(),app.DISPLAY_RC:b'foreign' if foreign else display,
             '/tmp/x2d-speed-buff/ui.json':b'{"ready":true,"active":false,"afc":false,"master":false}'}
         (self.folder/'speed-worker').write_bytes(b'fixture worker')
-        with patch.object(app,'O',self.folder),patch.object(app,'verify_target'),patch.object(app,'recognized_bundle',return_value=True), \
+        with patch.object(app,'O',self.folder),patch.object(app,'verify_target'),patch.object(app,'camera_model',return_value='X2D 100C'), \
+             patch.object(app,'MonoUsbAdapter') as mono,patch.object(app,'recognized_bundle',return_value=True), \
              patch.object(app,'read_bytes',side_effect=lambda p:data[p]),patch.object(app,'ensure_adb'), \
              patch.object(app,'shell',side_effect=lambda cmd:'PLAY_SOFTWARE_RESTORED' if cmd=='sh '+app.STAGE+'/restore' else 'ACTION_FINISHED' if 'ACTION_FINISHED' in cmd else 'YES'), \
              patch.object(app,'upload',side_effect=lambda n,b:self.uploads.update({n:b})),patch.object(app,'event'):
+            mono.return_value.restore.return_value='ALREADY_STOCK'
             if foreign:
                 with self.assertRaisesRegex(RuntimeError,'屏幕启动配置'):app.restore(False)
                 self.assertNotIn('restore',self.uploads);return
