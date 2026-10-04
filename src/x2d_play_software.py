@@ -2,6 +2,7 @@
 """X2D / 907X 100C shared 4.2.0 software: guarded USB install and restore."""
 import argparse, base64, contextlib, hashlib, io, json, os, re, subprocess, sys, tempfile, time
 from pathlib import Path
+from reinstall_confirmation import CONTINUE, prompt as reinstall_prompt
 D = Path(__file__).resolve().parent
 sys.path.insert(0, str(D / 'transport'))
 import collect_x2d_af_usb as usb
@@ -15,6 +16,8 @@ ADB_NAME = 'adb.exe' if os.name == 'nt' else 'adb'
 ADB = str(D / 'bin' / ADB_NAME) if (D / 'bin' / ADB_NAME).exists() else ADB_NAME
 PROCESS_OPTIONS = dict(creationflags=0x08000000) if os.name == 'nt' else {}
 ADB_SERIAL = None
+INTERACTIVE_CONFIRMATION = False
+REINSTALL_CONFIRMED = False
 SUPPORTED_USB_PIDS = (0x0009, 0x000A)  # stock setup_product_props.sh: X2D / CFV 100C
 PREVIOUS_BUNDLE_SHA = '0cc1e1f8b45fd4416c5449320ec2000a2e53298eb07932f1958c1192928849b6'
 PREVIOUS_033_SHA = 'c2ec66226c15442637cbe4332b2fcd9083603faf2dc26628156231a2c9b96f77'
@@ -361,6 +364,17 @@ def same_release_files(files, package):
     return files == package['files'] or files == apply_ui_language(package, 'en')['files']
 
 
+def confirm_reinstall(language):
+    if REINSTALL_CONFIRMED:
+        return True
+    if not INTERACTIVE_CONFIRMATION:
+        raise RuntimeError('重新安装会先恢复原状，请确认后重试（命令行使用 --confirm-reinstall）')
+    event('confirmation', **reinstall_prompt(language))
+    # No ADB setup, upload, restoration or reboot until the desktop explicitly agrees.
+    # EOF, cancellation and malformed responses all cancel without changing the camera.
+    return sys.stdin.readline(128) == CONTINUE
+
+
 def recognized_bundle(manifest):
     current = prepare()
     if manifest.get('format') != 3 or manifest.get('guiSha256') != STOCK_GUI:
@@ -480,6 +494,9 @@ def install(reboot=True, prank_ibis=False, language='zh'):
             event('result', success=True, installed=True, state=state, message='当前版本已经安装')
             return
         if recognized_bundle(installed):
+            if not confirm_reinstall(language):
+                event('cancelled', message='已取消重新安装，相机未被修改。')
+                return
             event('progress', message='检测到已知旧版，将先恢复原状再安装修正版；升级后请重新开启功能', percent=5)
             restore(True, report_result=False)
             return install(reboot, prank_ibis, language)
@@ -709,15 +726,24 @@ def user_error(error):
 
 
 def main():
+    global INTERACTIVE_CONFIRMATION, REINSTALL_CONFIRMED
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('action', choices=['install', 'status', 'restore', 'enable', 'disable', 'master_on', 'master_off', 'afc_on', 'afc_off'])
     p.add_argument('--no-reboot', action='store_true', help=argparse.SUPPRESS)
     p.add_argument('--prank-ibis', action='store_true', help='Add the optional CFV-only joke menu')
     p.add_argument('--language', choices=['zh', 'en'], default='zh',
                    help='Install Chinese or English camera menu labels')
+    confirmation = p.add_mutually_exclusive_group()
+    confirmation.add_argument('--interactive-confirmation', action='store_true', help=argparse.SUPPRESS)
+    confirmation.add_argument('--confirm-reinstall', action='store_true',
+                              help='Confirm restoration before reinstalling an existing extension')
     args = p.parse_args()
     if args.prank_ibis and args.action != 'install': p.error('--prank-ibis requires install')
     if args.language != 'zh' and args.action != 'install': p.error('--language requires install')
+    if (args.interactive_confirmation or args.confirm_reinstall) and args.action != 'install':
+        p.error('reinstall confirmation requires install')
+    INTERACTIVE_CONFIRMATION = args.interactive_confirmation
+    REINSTALL_CONFIRMED = args.confirm_reinstall
     if args.action == 'install': install(not args.no_reboot, args.prank_ibis, args.language)
     elif args.action == 'restore': restore(not args.no_reboot)
     elif args.action == 'status': status()

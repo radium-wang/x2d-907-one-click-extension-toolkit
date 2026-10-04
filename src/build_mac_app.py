@@ -65,6 +65,7 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
     shutil.copy2(D/'x2d_play_software.py',r/'x2d_play_software.py')
     shutil.copy2(D/'translations.json',r/'translations.json')
     shutil.copy2(D/'app_updates.py',r/'app_updates.py')
+    shutil.copy2(D/'reinstall_confirmation.py',r/'reinstall_confirmation.py')
     native=r/'native-package'; native.mkdir()
     manifest=json.loads((PAYLOAD/'speed-bundle.json').read_text())
     english={f['source'] for f in (manifest.get('uiLanguages') or {}).get('en') or []}

@@ -7,6 +7,7 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ### Added
 
 - Install Chinese or English camera menu labels from the app language. The camera QML stays literal text; Install selects the matching hashed files. Changing language requires another install.
+- Confirm restoration before reinstalling an existing extension, with a Mac/Windows dialog in the target camera menu language. Cancel, closing the dialog or an invalid response leaves the camera unchanged. First and unchanged installs do not prompt. CLI reinstallation requires explicit `--confirm-reinstall`.
 
 ### Documentation
 
@@ -63,6 +64,7 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ### 新增
 
 - 安装时按 App 语言写入中文或英文相机菜单文案。相机端 QML 仍为字面字符串；安装选择对应哈希文件。更换语言需重新安装。
+- Mac / Windows 在恢复并重新安装现有扩展前，按目标相机菜单语言弹出确认。取消、关闭弹窗或无效回复均不修改相机；首次安装和配置未变化时不弹窗。命令行重新安装需显式使用 `--confirm-reinstall`。
 
 ### 文档
 

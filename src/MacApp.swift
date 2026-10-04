@@ -12,6 +12,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let prankCheckbox = NSButton(checkboxWithTitle: "添加防抖功能（907 彩蛋）", target: nil, action: nil)
     var detectedModel = ""
     var task: Process?
+    var confirmationInput: FileHandle?
+    var installLanguage = "zh"
     var logBuffer = ""
     var language = UserDefaults.standard.string(forKey: "AppLanguage") == "en" ? "en" : "zh"
     var translations: [String: String] = [:]
@@ -245,7 +247,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
            let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] {
             let kind = object["type"] as? String ?? ""
             let message = object["message"] as? String ?? ""
-            if kind == "progress" {
+            if kind == "confirmation" {
+                guard currentAction == "install", task?.isRunning == true,
+                      object["language"] as? String == installLanguage,
+                      let input = confirmationInput,
+                      let title = object["title"] as? String, let body = object["body"] as? String,
+                      let cancel = object["cancel"] as? String, let proceed = object["proceed"] as? String else {
+                    try? confirmationInput?.write(contentsOf: Data("CANCEL_REINSTALL\n".utf8))
+                    return
+                }
+                let alert = NSAlert()
+                alert.alertStyle = .warning
+                alert.messageText = title; alert.informativeText = body
+                alert.addButton(withTitle: cancel).keyEquivalent = "\r"
+                alert.addButton(withTitle: proceed).keyEquivalent = ""
+                alert.beginSheetModal(for: window) { response in
+                    let reply = response == .alertSecondButtonReturn ? "CONFIRM_REINSTALL\n" : "CANCEL_REINSTALL\n"
+                    try? input.write(contentsOf: Data(reply.utf8))
+                }
+                return
+            } else if kind == "cancelled" {
+                receivedResult = true; pendingUserHint = nil
+                setLocalized(status, message); setLocalized(detail, message)
+                progress.doubleValue = 0
+            } else if kind == "progress" {
                 setLocalized(status, currentAction == "install" ? "正在安装…" : currentAction == "restore" ? "正在恢复…" : "正在检查相机…")
                 setLocalized(detail, message)
                 progress.doubleValue = (object["percent"] as? Double) ?? 0
@@ -314,8 +339,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let worker = Process()
         worker.executableURL = resources.appendingPathComponent("runtime/bin/python3.13")
         worker.arguments = ["-B", "-u", resources.appendingPathComponent("x2d_play_software.py").path, action]
-        if action == "install" && language == "en" {
-            worker.arguments! += ["--language", "en"]
+        installLanguage = language
+        if action == "install" {
+            worker.arguments! += ["--language", installLanguage, "--interactive-confirmation"]
+            let input = Pipe()
+            worker.standardInput = input
+            confirmationInput = input.fileHandleForWriting
         }
         if action == "install" && detectedModel == "907X & CFV 100C" && prankCheckbox.state == .on {
             worker.arguments!.append("--prank-ibis")
@@ -352,6 +381,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     self.setLocalized(self.detail, "请检查 USB 连接后重新点击“已连接”。")
                     self.appendLog("操作未完成，请检查 USB 连接后重试。")
                 }
+                try? self.confirmationInput?.close(); self.confirmationInput = nil
                 self.task = nil; self.setBusy(false)
                 if process.terminationStatus == 0, self.receivedResult, let hint = self.pendingUserHint {
                     self.appendLog(hint)
@@ -361,7 +391,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         task = worker
         do { try worker.run() }
-        catch { task = nil; connectionVerified = false; setBusy(false); setLocalized(status, "无法启动应用运行时"); setLocalized(detail, "应用运行环境无法启动，请重新解压完整安装包。"); appendLog("应用运行环境无法启动，请重新解压完整安装包。") }
+        catch { try? confirmationInput?.close(); confirmationInput = nil; task = nil; connectionVerified = false; setBusy(false); setLocalized(status, "无法启动应用运行时"); setLocalized(detail, "应用运行环境无法启动，请重新解压完整安装包。"); appendLog("应用运行环境无法启动，请重新解压完整安装包。") }
     }
     func appendUpdateNotice() {
         let fm = FileManager.default

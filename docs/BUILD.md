@@ -55,6 +55,8 @@ Windows inputs: official Python 3.13.15 x64 embed ZIP, libusb 1.0.30 binary inpu
 
 `src/x2d_play_software.py status` accesses the camera through factory USB for read-only checking. `install`, `restore`, feature switches and the desktop Install / Restore buttons change camera state; installation/restoration can upload files, update startup configuration and reboot. These are not offline test commands. Installation with `--prank-ibis` is rejected unless the stock model identifiers match the CFV 100C.
 
+Desktop installations use `--interactive-confirmation` and a private stdin pipe: if a known existing extension needs restoration before reinstalling, the backend waits for the target-language dialog's explicit approval before calling restore. Cancellation and EOF leave the camera unchanged. CLI users must explicitly add `--confirm-reinstall` to authorize that restoration; a first installation does not require it.
+
 # 构建与测试
 
 先执行上面的无设备测试命令。未提供本地相机载荷时，依赖载荷的用例会跳过；提供经过固定版本校验的 `X2D_PAYLOAD_DIR` 后可执行完整用例。源码不包含原厂固件、提取的编译 QML 或完整构建输入，因此单凭本库无法生成相机载荷。桌面打包所需运行库和许可文本也需单独准备。

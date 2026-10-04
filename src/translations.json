@@ -1,4 +1,6 @@
 {
+  "已取消重新安装，相机未被修改。": "Reinstallation cancelled. The camera was not changed.",
+  "重新安装会先恢复原状，请确认后重试（命令行使用 --confirm-reinstall）": "Reinstallation requires restoration first. Confirm before retrying (use --confirm-reinstall on the command line).",
   "耍起功能": "Shuaqi",
   "耍起功能 · ": "Shuaqi · ",
   "耍起功能 Windows 版本：": "Shuaqi Windows version: ",
