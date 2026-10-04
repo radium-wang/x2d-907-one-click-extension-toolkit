@@ -26,7 +26,7 @@ def build(inputs, pyusb, llvm):
         assert all('/' not in n and '\\' not in n and n not in ('..', '.') for n in z.namelist())
         z.extractall(runtime)
     (runtime / 'python313._pth').write_text('python313.zip\n.\n..\n', encoding='ascii')
-    for name in ('app_updates.py', 'windows_app.py', 'x2d_play_software.py', 'windows_factory_usb.py', 'windows_connection.py', 'localization.py', 'translations.json'):
+    for name in ('app_updates.py', 'reinstall_confirmation.py', 'windows_app.py', 'x2d_play_software.py', 'windows_factory_usb.py', 'windows_connection.py', 'localization.py', 'translations.json'):
         shutil.copy2(D / name, root / name)
     transport = D / 'transport'
     for name in ('collect_x2d_af_usb.py',):
@@ -57,7 +57,8 @@ def build(inputs, pyusb, llvm):
         shutil.copy2(inputs / 'camera-winusb/source/libwdi-1.5.1' / name,licenses / ('libwdi-'+name+'.txt'))
     native = root / 'native-package'; native.mkdir()
     manifest = json.loads((PAYLOAD/'speed-bundle.json').read_text())
-    for source in {f['source'] for f in manifest['files']} | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json'}:
+    english={f['source'] for f in (manifest.get('uiLanguages') or {}).get('en') or []}
+    for source in {f['source'] for f in manifest['files']} | english | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json'}:
         shutil.copy2(PAYLOAD / source, native / source)
     shutil.copytree(PAYLOAD/'previous-payloads',native / 'previous-payloads')
     # Generate import libraries with lld-link. Stub DLLs are build artifacts only.

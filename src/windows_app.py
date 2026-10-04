@@ -4,6 +4,7 @@ from ctypes import wintypes as W
 import json, os, queue, subprocess, sys, threading
 from pathlib import Path
 from localization import Localizer, translate
+from reinstall_confirmation import CONTINUE, CANCEL
 
 D = Path(__file__).resolve().parent
 VERSION = '0.4.1'
@@ -31,6 +32,8 @@ class Session:
         if kind == 'status':
             self.model = event.get('model', '')
             self.verified = event.get('connected') is True and event.get('firmware') == '4.2.0'
+            self.result = True
+        elif kind == 'cancelled':
             self.result = True
         elif kind == 'result':
             self.result = event.get('success') is True
@@ -121,6 +124,40 @@ def main():
     logfile.parent.mkdir(parents=True, exist_ok=True)
     EVENT_MESSAGE = 0x8001
     update_state = dict(busy=False, version='')
+    confirmation_state = dict(window=None, answer=None)
+
+    def confirm_dialog(value):
+        # Custom native buttons keep their language independent of Windows' UI language.
+        popup = create(0x00000001, 'X2DPlayWindow', value['title'], 0x80C80000,
+                       max(0, (screenwidth-scale(540))//2), max(0, (screenheight-scale(300))//2),
+                       scale(540), scale(300), hwnd, None, instance, None)
+        if not popup: return False
+        confirmation_state.update(window=popup, answer=None)
+        enable(hwnd, False)
+        try:
+            text = create(0, 'STATIC', value['body'], 0x50000000, scale(22), scale(20),
+                          scale(485), scale(160), popup, None, instance, None)
+            cancel = create(0, 'BUTTON', value['cancel'], 0x50010001, scale(175), scale(202),
+                            scale(130), scale(36), popup, 201, instance, None)
+            proceed = create(0, 'BUTTON', value['proceed'], 0x50010000, scale(318), scale(202),
+                             scale(185), scale(36), popup, 202, instance, None)
+            if not all((text, cancel, proceed)): return False
+            for control in (text, cancel, proceed): send(control, 0x0030, normal, 1)
+            show(popup, 5); update(popup)
+            api(user, 'SetFocus', W.HWND, W.HWND)(cancel)
+            message = W.MSG()
+            while confirmation_state['answer'] is None:
+                result = getmsg(C.byref(message), None, 0, 0)
+                if result <= 0:
+                    if result == 0: quitmessage(message.wParam)
+                    return False
+                if not dialog(popup, C.byref(message)):
+                    translate(C.byref(message)); dispatch(C.byref(message))
+            return confirmation_state['answer'] is True
+        finally:
+            destroy(popup)
+            confirmation_state.update(window=None, answer=None)
+            enable(hwnd, True)
 
     def buttons():
         busy = session.busy or update_state['busy']
@@ -170,14 +207,18 @@ def main():
             settext(controls['detail'], '在相机菜单中分别开启 AF-C 与对焦加速 buff。'
                     if event.get('installed') else '原厂界面与启动配置已恢复。')
             send(controls['progress'], 0x0402, 100, 0)
+        elif kind == 'cancelled':
+            settext(controls['state'], text); settext(controls['detail'], text)
+            send(controls['progress'], 0x0402, 0, 0)
         elif kind == 'error':
             settext(controls['state'], '检查未通过' if session.action == 'status' else '操作未完成')
             settext(controls['detail'], text)
         log(text)
         if event.get('menuPending'): log(event.get('hint', ''))
 
-    def worker(action, prank=False):
+    def worker(action, prank=False, target_language='zh'):
         code = 1
+        child = None
         try:
             if action == 'status':
                 from windows_connection import prepare_driver
@@ -187,15 +228,27 @@ def main():
             env = os.environ.copy()
             env.pop('X2D_PAYLOAD_DIR', None)
             env.update(PYTHONUTF8='1', PYTHONIOENCODING='utf-8', PYTHONNOUSERSITE='1')
-            child = subprocess.Popen([str(D / 'runtime/python.exe'), '-X', 'utf8', '-B', '-u',
-                                      str(D / 'x2d_play_software.py'), action] + (['--prank-ibis'] if prank else []),
-                                     cwd=str(D), env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            args = [str(D / 'runtime/python.exe'), '-X', 'utf8', '-B', '-u',
+                    str(D / 'x2d_play_software.py'), action]
+            if action == 'install':
+                args += ['--language', target_language, '--interactive-confirmation']
+            if prank:
+                args.append('--prank-ibis')
+            child = subprocess.Popen(args, cwd=str(D), env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                     stdin=subprocess.PIPE if action == 'install' else subprocess.DEVNULL,
                                      text=True, encoding='utf-8', errors='replace', creationflags=0x08000000)
             for line in child.stdout:
                 if not line.startswith('X2D_EVENT '): continue
                 try: obj = json.loads(line[10:])
                 except ValueError: continue
                 if isinstance(obj, dict):
+                    if obj.get('type') == 'confirmation':
+                        response = queue.Queue(maxsize=1)
+                        events.put(('confirmation', (obj, response, target_language)))
+                        post(hwnd, EVENT_MESSAGE, 0, 0)
+                        child.stdin.write(CONTINUE if response.get() is True else CANCEL)
+                        child.stdin.flush()
+                        continue
                     events.put(('event', obj)); post(hwnd, EVENT_MESSAGE, 0, 0)
             code = child.wait()
         except Exception as error:
@@ -203,6 +256,9 @@ def main():
             text = str(error) if isinstance(error, DriverPreparationError) else '无法启动操作，请重新解压完整安装包后重试'
             events.put(('event', {'type': 'error', 'message': text}))
         finally:
+            if child is not None and child.stdin:
+                try: child.stdin.close()
+                except OSError: pass
             events.put(('done', code)); post(hwnd, EVENT_MESSAGE, 0, 0)
 
     def start(action):
@@ -213,7 +269,7 @@ def main():
         send(controls['progress'], 0x0402, 0, 0)
         prank = action == 'install' and session.model == '907X & CFV 100C' and send(controls['prank'], 0x00F0, 0, 0) == 1
         if prank: log('已选择 907 防抖彩蛋：第 11 格为彩蛋，第 12 格为耍起功能。')
-        threading.Thread(target=worker, args=(action, prank), daemon=True).start()
+        threading.Thread(target=worker, args=(action, prank, language.language), daemon=True).start()
 
     def update_worker(wanted):
         try:
@@ -247,6 +303,14 @@ def main():
     @PROC
     def procedure(window, msg, wp, lp):
         try:
+            if window == confirmation_state['window']:
+                if msg == 0x0010:
+                    confirmation_state['answer'] = False; return 0
+                if msg == 0x0002: return 0
+                if msg == 0x0111 and (wp >> 16) == 0:
+                    identity = wp & 0xFFFF
+                    if identity in (2, 201, 202):
+                        confirmation_state['answer'] = identity == 202; return 0
             if msg == 0x0010:  # WM_CLOSE
                 if session.busy or update_state['busy']:
                     messagebox(window, language.text('相机操作尚未完成，请保持连接并等待完成后退出。'), language.text('操作进行中'), 0x40)
@@ -265,7 +329,17 @@ def main():
                 while True:
                     try: kind, value = events.get_nowait()
                     except queue.Empty: break
-                    if kind == 'event': consume(value)
+                    if kind == 'confirmation':
+                        request, response, target_language = value
+                        approved = False
+                        try:
+                            if (session.busy and session.action == 'install' and
+                                request.get('language') == target_language and
+                                all(isinstance(request.get(key), str) for key in ('title','body','cancel','proceed'))):
+                                approved = confirm_dialog(request)
+                        finally:
+                            response.put(approved)
+                    elif kind == 'event': consume(value)
                     elif kind == 'update':
                         text = value.get('message', '')
                         log(text); settext(controls['detail'], text)

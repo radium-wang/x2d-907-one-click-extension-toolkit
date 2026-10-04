@@ -11,6 +11,8 @@ import sys
 
 sys.dont_write_bytecode=True
 D=Path(__file__).resolve().parent
+sys.path.insert(0, str(D))
+from camera_ui_strings import english_qml
 support = os.environ.get('X2D_BUILD_SUPPORT')
 if not support: raise SystemExit('Set X2D_BUILD_SUPPORT to the reviewed research tool directory containing inspect_menu_resources.py')
 sys.path.insert(0, support)
@@ -68,6 +70,7 @@ assert not any((s['p_flags']&3)==3 for s in elf.iter_segments())
 imports={s.name for s in elf.get_section_by_name('.dynsym').iter_symbols() if s.name and s['st_shndx']=='SHN_UNDEF'}
 assert imports<=exports, imports-exports
 files=[]
+english_files=[]
 names={'Bootstrap':'X2dNativeMenuBootstrap','PlayMenuModel':'X2dNativeMenuModel',
        'PlayMenuRoute':'X2dNativeMenuRoute','ResidentPlayHost':'X2dNativeMenuHost',
        'PrankIbisPage':'X2dPrankIbisPage','PlayPage':'X2dPlayPage','AfcMenuController':'X2dAfcMenuController',
@@ -82,10 +85,20 @@ for source in sources:
     if play_icon_url:
         assert play_icon_url.startswith('file:///') and '..' not in play_icon_url
         text=text.replace('file:///system/etc/X2dPlayIcon',play_icon_url)
-    path=O/(names[source.stem]+'.qml')
+    packaged=names[source.stem]+'.qml'
+    path=O/packaged
     with path.open('w',encoding='utf-8',newline='\n') as stream:
         stream.write(text)
     paths.append(path)
+    target_path='/system/etc/'+packaged
+    english=english_qml(text)
+    if english!=text:
+        en_name=names[source.stem]+'.en.qml'
+        en_path=O/en_name
+        with en_path.open('w',encoding='utf-8',newline='\n') as stream:
+            stream.write(english)
+        english_files.append(dict(source=en_name,target=target_path,bytes=en_path.stat().st_size,
+                                  sha256=hashlib.sha256(en_path.read_bytes()).hexdigest()))
 icon=D/'assets/ic_main_menu_play.svg'
 assert icon.is_file()
 output_icon=O/'ic_main_menu_play.svg'
@@ -96,7 +109,9 @@ for path in paths:
     target_name='X2dPlayIcon.svg' if path==output_icon else path.name
     files.append(dict(source=path.name,target=location+target_name,bytes=path.stat().st_size,
                       sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
-report=dict(guiSha256=GUI_SHA,files=files,dependencies=deps,imports=sorted(imports),
+assert english_files, 'English camera UI siblings were not produced'
+report=dict(guiSha256=GUI_SHA,files=files,uiLanguages=dict(en=english_files),dependencies=deps,
+            imports=sorted(imports),
             deployed=False,deviceValidated=False,bootConfigurationWritten=False,
             guard='exact three units/cache pointers; opt-in; disable-file; once per boot; rollback all four writes',
             menuOnly=False,
@@ -105,4 +120,5 @@ report=dict(guiSha256=GUI_SHA,files=files,dependencies=deps,imports=sorted(impor
             afcRuntimeModelMutationValidated=False,
             playPressedHighlightCorrected=True)
 (O/'package.json').write_text(json.dumps(report,indent=2)+'\n')
-print(json.dumps(dict(compiled=True,files=len(files),bytes=len(raw),deviceValidated=False)))
+print(json.dumps(dict(compiled=True,files=len(files),englishFiles=len(english_files),
+                      bytes=len(raw),deviceValidated=False)))
