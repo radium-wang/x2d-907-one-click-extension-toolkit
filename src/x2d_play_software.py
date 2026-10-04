@@ -10,6 +10,14 @@ ROOT = '/blackbox/.x2d-play-software'
 STAGE = ROOT + '/stage'
 RC = '/system/etc/init/camera-gui.rc'
 O = Path(os.environ.get('X2D_PAYLOAD_DIR', str(D / 'native-package')))
+DISPLAY_RC = '/system/etc/init/camera-system.rc'
+DISPLAY_SYSTEM_SHA = 'bf854a21881148565ff2cc00376426c37a2b82fed94c653abf024e23ed4ceda6'
+DISPLAY_STOCK_RC = 'd43b8b26282f9e1da5825b96699658d444a58a83cda94b622e7da8aa1c35202b'
+BRIGHTNESS_PREF = '/blackbox/x2d-play-auto-brightness.enabled'
+BRIGHTNESS_FEATURE = '/blackbox/x2d-play-auto-brightness.available'
+PREVIOUS_DISPLAY_BRIGHTNESS_SHA = '73d13e8fe5d8295121b47a76fc4c553a71ae1c66cee7b8e6565ec5bf6813ed7a'
+PREVIOUS_BRIGHTNESS_SHA = '12a2c8b4785c349e13b03197b692ed1eb4d79cf291a059bf2ec077e50191310e'
+PREVIOUS_042_SHA = '34a32083a442cc667e56d311bcd9ea583a15e7f076c39f6cdc4c8e67c9024635'
 STOCK_RC = '1d6a8f9e41e269be38b3fb9ba53f4c47d18007f413c90893fdfa9d7542d1f688'
 STOCK_GUI = '16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0'
 ADB_NAME = 'adb.exe' if os.name == 'nt' else 'adb'
@@ -343,6 +351,13 @@ def prepare():
     for f in english:
         if sha((O / f['source']).read_bytes()) != f['sha256']:
             raise RuntimeError('本地安装包校验失败')
+    if manifest.get('autoBrightness'):
+        spec = manifest['autoBrightness']
+        if spec != dict(systemSha256=DISPLAY_SYSTEM_SHA, stockConfigSha256=DISPLAY_STOCK_RC,
+                        library='/system/lib64/libx2d_play_brightness.so', default='off', masterControlled=True):
+            raise RuntimeError('自动亮度安装包校验失败')
+        if not any(f['target'] == spec['library'] for f in manifest['files']):
+            raise RuntimeError('自动亮度安装包校验失败')
     return manifest
 
 
@@ -379,7 +394,21 @@ def recognized_bundle(manifest):
     current = prepare()
     if manifest.get('format') != 3 or manifest.get('guiSha256') != STOCK_GUI:
         raise RuntimeError('安装或恢复清单版本不匹配')
-    if same_release_files(manifest.get('files'), current): return True
+    if same_release_files(manifest.get('files'), current):
+        return manifest.get('autoBrightness') == current.get('autoBrightness')
+    if manifest.get('autoBrightness'):
+        for name, expected in (('previous-bundle-auto-brightness.json', PREVIOUS_BRIGHTNESS_SHA),
+                               ('previous-bundle-brightness-display.json', PREVIOUS_DISPLAY_BRIGHTNESS_SHA)):
+            previous = (O / name).read_bytes()
+            if sha(previous) != expected: raise RuntimeError('自动亮度安装包校验失败')
+            known = json.loads(previous)
+            if same_release_files(manifest.get('files'), known):
+                return manifest.get('autoBrightness') == known.get('autoBrightness')
+        return False
+    previous_042 = (O / 'previous-bundle-0.4.2.json').read_bytes()
+    if sha(previous_042) != PREVIOUS_042_SHA: raise RuntimeError('已知 0.4.2 清单校验失败，请重新解压安装包')
+    if same_release_files(manifest.get('files'), json.loads(previous_042)):
+        return not manifest.get('autoBrightness')
     previous_033 = (O / 'previous-bundle-0.3.3.json').read_bytes()
     if sha(previous_033) != PREVIOUS_033_SHA: raise RuntimeError('已知 0.3.3 清单校验失败，请重新解压安装包')
     if manifest.get('files') == json.loads(previous_033)['files']: return True
@@ -415,7 +444,25 @@ service x2d-speed-buff /system/bin/camera-gui --x2d-speed-server
     return rc
 
 
-def reboot_and_verify(installed, report_result=True, prank_ibis=False):
+def init_display_config(raw):
+    if sha(raw) != DISPLAY_STOCK_RC: raise RuntimeError('屏幕启动配置不是已核验的原厂版本')
+    first = next((line for line in raw.splitlines(keepends=True)
+                  if line.startswith(b'service camera-system /system/bin/camera-system')), None)
+    if first is None or raw.count(first) != 1: raise RuntimeError('未知屏幕启动配置')
+    return raw.replace(first, first + b'    setenv X2D_DISPLAY_RUNTIME 1\n    setenv LD_PRELOAD /system/lib64/libx2d_play_brightness.so\n', 1)
+
+
+def brightness_status():
+    raw = shell('busybox wget -T 2 -qO- http://127.0.0.1:18765/display/status | base64')
+    state = json.loads(base64.b64decode(raw))
+    if state.get('ok') is not True or state.get('ready') is not True:
+        raise RuntimeError('自动亮度服务尚未就绪')
+    if str(state.get('pid')) != shell('pidof camera-system').strip():
+        raise RuntimeError('自动亮度服务尚未就绪')
+    return state
+
+
+def reboot_and_verify(installed, report_result=True, prank_ibis=False, auto_brightness=False):
     event('progress', message='相机正在重启，等待校验', percent=85)
     shell('sync;(sleep 2;reboot) >/tmp/x2d-play-reboot.log 2>&1 & echo REBOOT_DISPATCHED')
     time.sleep(4)
@@ -437,11 +484,14 @@ def reboot_and_verify(installed, report_result=True, prank_ibis=False):
                     raise RuntimeError('菜单入口尚未完成挂接，请保持连接并等待相机界面加载')
                 state = backend('status')
                 if not state['ready']: raise RuntimeError('功能服务未就绪')
+                if auto_brightness: state['brightness'] = brightness_status()
                 if bool(state.get('prankIbis', False)) != prank_ibis or (prank_ibis and ui_marker != 'MENU_ENTRY_READY_12'):
                     raise RuntimeError('907 防抖彩蛋菜单未通过校验，请保持连接并重新检查')
             else:
                 if shell('sha256sum ' + RC).split()[0] != STOCK_RC:
                     raise RuntimeError('原厂启动配置校验失败')
+                if auto_brightness and shell('sha256sum ' + DISPLAY_RC).split()[0] != DISPLAY_STOCK_RC:
+                    raise RuntimeError('原厂屏幕启动配置校验失败')
                 targets = [f['target'] for f in prepare()['files']]
                 # Batch short requests to keep the factory protocol within its limit.
                 for target in targets:
@@ -484,6 +534,8 @@ def install(reboot=True, prank_ibis=False, language='zh'):
         phase = read_bytes(ROOT + '/installed').decode().strip()
         installed = json.loads(read_bytes(ROOT + '/manifest'))
         if phase != 'INSTALLED': raise RuntimeError('上次操作未完成，请点击恢复原状')
+        if installed['files'] == m['files'] and installed.get('autoBrightness') != m.get('autoBrightness'):
+            raise RuntimeError('自动亮度安装包校验失败')
         if installed['files'] == m['files'] and bool(installed.get('prankIbis', False)) == prank_ibis:
             state = backend('status')
             if not state['ready']: raise RuntimeError('已安装的服务未就绪，请先恢复原状')
@@ -491,6 +543,7 @@ def install(reboot=True, prank_ibis=False, language='zh'):
                 raise RuntimeError('当前版本文件已安装，但菜单入口尚未完成挂接；请保持连接并重新检查，必要时恢复原状')
             if bool(state.get('prankIbis', False)) != prank_ibis:
                 raise RuntimeError('907 防抖彩蛋菜单未通过校验，请保持连接并重新检查')
+            if m.get('autoBrightness'): state['brightness'] = brightness_status()
             event('result', success=True, installed=True, state=state, message='当前版本已经安装')
             return
         if recognized_bundle(installed):
@@ -503,6 +556,14 @@ def install(reboot=True, prank_ibis=False, language='zh'):
         raise RuntimeError('相机存在其他版本，请先用对应版本恢复原状')
     raw = read_bytes(RC)
     rc = init_config(raw)
+    display = bool(m.get('autoBrightness'))
+    if display:
+        if shell('sha256sum /system/bin/camera-system').split()[0] != DISPLAY_SYSTEM_SHA:
+            raise RuntimeError('屏幕系统不是已核验的原厂版本')
+        display_raw = read_bytes(DISPLAY_RC)
+        display_rc = init_display_config(display_raw)
+        m['displayInitBefore'] = DISPLAY_STOCK_RC
+        m['displayInitAfter'] = sha(display_rc)
     m['initBefore'] = STOCK_RC
     m['initAfter'] = sha(rc)
     ensure_adb()
@@ -511,23 +572,32 @@ def install(reboot=True, prank_ibis=False, language='zh'):
         raise RuntimeError('无法创建安全暂存目录')
     upload('stockrc', raw)
     upload('newrc', rc)
+    if display:
+        upload('stockdisplayrc', display_raw)
+        upload('newdisplayrc', display_rc)
     upload('manifest', json.dumps(m).encode())
     upload('archive', (O / 'speed-bundle.tar.gz').read_bytes())
     shell(f'tar -xzf {STAGE}/archive -C {STAGE}')
     s = header() + f'hashok {RC} {STOCK_RC}\nhashok {STAGE}/stockrc {STOCK_RC}\nhashok {STAGE}/newrc {sha(rc)}\n'
+    if display:
+        s += f'hashok {DISPLAY_RC} {DISPLAY_STOCK_RC}\nhashok {STAGE}/stockdisplayrc {DISPLAY_STOCK_RC}\nhashok {STAGE}/newdisplayrc {sha(display_rc)}\n'
     for f in m['files']:
         s += f'[ ! -e {f["target"]} ] && [ ! -L {f["target"]} ]\nhashok {STAGE}/{f["source"]} {f["sha256"]}\n'
+    if display: s += f'cp {STAGE}/stockdisplayrc {ROOT}/stockdisplayrc\n'
+    display_rollback = f'if [ "$display_touched" = 1 ]; then cat {ROOT}/stockdisplayrc >{DISPLAY_RC} || rollback_ok=0; hashok {DISPLAY_RC} {DISPLAY_STOCK_RC} || rollback_ok=0; fi' if display else ':'
     s += f'''cp {STAGE}/stockrc {ROOT}/stockrc
 cp {STAGE}/manifest {ROOT}/manifest
-success=0; touched=0; created=""
+success=0; touched=0; display_touched=0; created=""
 finish() {{
  set +e
  if [ "$success" != 1 ]; then
-  mount -o remount,rw /system
-  if [ "$touched" = 1 ]; then cat {ROOT}/stockrc >{RC}; fi
-  for path in $created; do rm -f "$path"; done
+  rollback_ok=1
+  mount -o remount,rw /system || rollback_ok=0
+  if [ "$touched" = 1 ]; then cat {ROOT}/stockrc >{RC} || rollback_ok=0; hashok {RC} {STOCK_RC} || rollback_ok=0; fi
+  {display_rollback}
+  for path in $created; do rm -f "$path" || rollback_ok=0; done
   rmdir /system/etc/x2d-speed-buff 2>/dev/null || true
-  rm -f /blackbox/.x2d-play-software/installed /blackbox/.x2d-play-software/prank-ibis
+  if [ "$rollback_ok" = 1 ]; then rm -f /blackbox/.x2d-play-software/installed /blackbox/.x2d-play-software/prank-ibis; fi
   sync
  fi
  mount -o remount,ro /system
@@ -543,13 +613,15 @@ mkdir -p /system/etc/x2d-speed-buff
         s += f'created="{f["target"]} $created"\necho "$created" >{ROOT}/created\ncat {STAGE}/{f["source"]} >{f["target"]}\nchmod 0644 {f["target"]}\nhashok {f["target"]} {f["sha256"]}\n'
     s += f'[ ! -L {PRANK_FLAG} ]\n'
     s += (f': >{PRANK_FLAG}\n' if prank_ibis else f'rm -f {PRANK_FLAG}\n')
+    if display:
+        s += f'display_touched=1\ncat {STAGE}/newdisplayrc >{DISPLAY_RC}\nhashok {DISPLAY_RC} {sha(display_rc)}\nrm -f {BRIGHTNESS_PREF} {BRIGHTNESS_FEATURE} {BRIGHTNESS_PREF}.next {BRIGHTNESS_FEATURE}.next\n'
     s += f'touched=1\ncat {STAGE}/newrc >{RC}\nhashok {RC} {sha(rc)}\nsync\nmount -o remount,ro /system\n[ "$(state)" = "$original_mount" ]\nsuccess=1\necho INSTALLED >{ROOT}/installed\necho PLAY_SOFTWARE_INSTALLED\n'
     validate_script(s)
     upload('install', s.encode())
     event('progress', message='正在安装菜单和功能服务', percent=55)
     result = shell(f'sh {STAGE}/install')
     if result != 'PLAY_SOFTWARE_INSTALLED': raise RuntimeError('安装事务未确认，请检查状态')
-    if reboot: reboot_and_verify(True, prank_ibis=prank_ibis)
+    if reboot: reboot_and_verify(True, prank_ibis=prank_ibis, auto_brightness=display)
     else: event('result', success=True, installed=True, message='文件已安装，待重启验证')
 
 
@@ -591,6 +663,8 @@ def restore(reboot=True, report_result=True):
     if shell(f'test -e {ROOT}/installed && echo YES || echo NO') == 'NO':
         if shell('sha256sum ' + RC).split()[0] != STOCK_RC:
             raise RuntimeError('没有本软件安装记录，且启动配置不是原厂；拒绝覆盖')
+        if prepare().get('autoBrightness') and shell('sha256sum ' + DISPLAY_RC).split()[0] != DISPLAY_STOCK_RC:
+            raise RuntimeError('原厂屏幕启动配置校验失败')
         if report_result:
             event('result', success=True, installed=False, message='相机已经是原厂状态')
         else:
@@ -602,6 +676,12 @@ def restore(reboot=True, report_result=True):
     raw = read_bytes(ROOT + '/stockrc')
     if sha(raw) != STOCK_RC or m['initAfter'] != sha(init_config(raw)):
         raise RuntimeError('原厂备份或恢复配置校验失败')
+    display = bool(m.get('autoBrightness'))
+    if display:
+        display_raw = read_bytes(ROOT + '/stockdisplayrc')
+        display_rc = init_display_config(display_raw)
+        if m.get('displayInitBefore') != DISPLAY_STOCK_RC or m.get('displayInitAfter') != sha(display_rc):
+            raise RuntimeError('原厂屏幕备份或恢复配置校验失败')
     phase = read_bytes(ROOT + '/installed').decode().strip()
     if phase not in ('INSTALLED', 'PREPARED', 'RESTORING'):
         raise RuntimeError('未知安装事务状态')
@@ -629,6 +709,13 @@ def restore(reboot=True, report_result=True):
         if current_rc not in (raw, init_config(raw)) and not init_config(raw).startswith(current_rc) and not raw.startswith(current_rc):
             raise RuntimeError('中断后的启动配置不是本软件写入的内容')
         s += f'hashok {RC} {sha(current_rc)}\n'
+    if display:
+        current_display = read_bytes(DISPLAY_RC)
+        if phase == 'INSTALLED' and current_display != display_rc:
+            raise RuntimeError('屏幕启动配置不是本软件写入的内容')
+        if current_display not in (display_raw, display_rc) and not display_raw.startswith(current_display) and not display_rc.startswith(current_display):
+            raise RuntimeError('屏幕启动配置不是本软件写入的内容')
+        s += f'hashok {ROOT}/stockdisplayrc {DISPLAY_STOCK_RC}\nhashok {DISPLAY_RC} {sha(current_display)}\n'
     for target in ledger:
         s += f'[ ! -L {target} ]\n'
         expected = next(f['sha256'] for f in m['files'] if f['target'] == target)
@@ -647,25 +734,37 @@ def restore(reboot=True, report_result=True):
                 expected = sha(actual)
         if phase == 'INSTALLED': s += f'hashok {target} {expected}\n'
         else: s += f'if [ -e {target} ]; then hashok {target} {expected}; fi\n'
+    display_stop = '''stop camera-system
+n=0
+while [ "$(getprop init.svc.camera-system)" != stopped ] || [ -n "$(pidof camera-system || true)" ]; do
+ n=$((n+1)); [ "$n" -lt 30 ] || exit 43; sleep 1
+done''' if display else ':'
+    display_restore = f'cat {ROOT}/stockdisplayrc >{DISPLAY_RC}\nhashok {DISPLAY_RC} {DISPLAY_STOCK_RC}' if display else ':'
     s += f'''echo RESTORING >{ROOT}/installed
 stop camera-gui
 stop x2d-speed-buff
+{display_stop}
 sleep 1
 trap 'mount -o remount,ro /system' EXIT
 mount -o remount,rw /system
 cat {ROOT}/stockrc >{RC}
 hashok {RC} {STOCK_RC}
+{display_restore}
 '''
     for target in ledger: s += 'rm -f ' + target + '\n'
-    s += f'rmdir /system/etc/x2d-speed-buff 2>/dev/null || true\nsync\nmount -o remount,ro /system\n[ "$(state)" = "$original_mount" ]\nrm -f {ROOT}/installed {PRANK_FLAG}\necho PLAY_SOFTWARE_RESTORED\n'
+    s += f'rmdir /system/etc/x2d-speed-buff 2>/dev/null || true\nsync\nmount -o remount,ro /system\n[ "$(state)" = "$original_mount" ]\nrm -f {ROOT}/installed {PRANK_FLAG} {BRIGHTNESS_PREF} {BRIGHTNESS_FEATURE} {BRIGHTNESS_PREF}.next {BRIGHTNESS_FEATURE}.next\necho PLAY_SOFTWARE_RESTORED\n'
     validate_script(s)
     upload('restore', s.encode())
     event('progress', message='正在恢复原厂启动配置', percent=60)
     if shell(f'sh {STAGE}/restore') != 'PLAY_SOFTWARE_RESTORED':
         raise RuntimeError('恢复事务未确认，请保持连接')
     if reboot:
-        if report_result: reboot_and_verify(False)
-        else: reboot_and_verify(False,report_result=False)
+        if report_result:
+            if display: reboot_and_verify(False,auto_brightness=True)
+            else: reboot_and_verify(False)
+        else:
+            if display: reboot_and_verify(False,report_result=False,auto_brightness=True)
+            else: reboot_and_verify(False,report_result=False)
     elif report_result: event('result', success=True, installed=False, message='文件已恢复，待重启验证')
 
 

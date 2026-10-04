@@ -10,7 +10,7 @@ class SoftwareTests(unittest.TestCase):
     @requires_payloads
     def test_bundle_verifies_and_has_no_eye_detection(self):
         manifest=app.prepare()
-        self.assertEqual(manifest['features'],['afc','speed-buff'])
+        self.assertEqual(manifest['features'],['afc','speed-buff','auto-rear-brightness'])
         self.assertEqual(manifest['entryIndex'],11)
         self.assertFalse(manifest['lensRestriction'])
 
@@ -60,6 +60,13 @@ class SoftwareTests(unittest.TestCase):
                   app.ROOT+'/installed':phase.encode(),app.ROOT+'/created':' '.join(ledger).encode(),
                   app.RC:modified if rc is None else rc,
                   '/tmp/x2d-speed-buff/ui.json':json.dumps(dict(ready=True,active=active,afc=False,master=False)).encode()}
+            if m.get('autoBrightness'):
+                display_raw=b'service camera-system /system/bin/camera-system\n    class core\n'
+                display_rc=display_raw+b'    setenv X2D_DISPLAY_RUNTIME 1\n    setenv LD_PRELOAD /system/lib64/libx2d_play_brightness.so\n'
+                display_patch=patch.object(app,'init_display_config',return_value=display_rc);display_patch.start();self.addCleanup(display_patch.stop)
+                m.update(displayInitBefore=app.DISPLAY_STOCK_RC,displayInitAfter=app.sha(display_rc))
+                data[app.ROOT+'/manifest']=json.dumps(m).encode()
+                data[app.ROOT+'/stockdisplayrc']=display_raw;data[app.DISPLAY_RC]=display_rc
             data.update(partial or {})
             def shell(command):
                 if command.startswith('test -e '):
@@ -69,7 +76,8 @@ class SoftwareTests(unittest.TestCase):
                 raise AssertionError(command)
             with patch.object(app,'verify_target'),patch.object(app,'ensure_adb'),patch.object(app,'shell',side_effect=shell),patch.object(app,'read_bytes',side_effect=lambda p:data[p]),patch.object(app,'upload',side_effect=lambda n,b:uploads.update({n:b})),patch.object(app,'event'),patch.object(app,'reboot_and_verify') as reboot:
                 app.restore()
-                reboot.assert_called_once_with(False)
+                if m.get('autoBrightness'): reboot.assert_called_once_with(False,auto_brightness=True)
+                else: reboot.assert_called_once_with(False)
         return uploads['restore'].decode()
 
     @requires_payloads
@@ -161,7 +169,7 @@ class SoftwareTests(unittest.TestCase):
             install.assert_not_called()
 
     def test_internal_restore_never_reports_completion_to_desktop(self):
-        with patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'verify_target'),patch.object(app,'shell',side_effect=['NO',app.STOCK_RC+' file']), \
+        with patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'verify_target'),patch.object(app,'prepare',return_value={'autoBrightness':True}),patch.object(app,'shell',side_effect=['NO',app.STOCK_RC+' file',app.DISPLAY_STOCK_RC+' file']), \
              patch.object(app,'event') as events:
             app.restore(report_result=False)
         self.assertFalse(any(call.args[0]=='result' for call in events.call_args_list))

@@ -37,14 +37,14 @@ class MenuReadyTests(unittest.TestCase):
     @requires_payloads
     def test_existing_install_missing_entry_never_reports_success(self):
         for marker in ('MENU_PENDING','MENU_ENTRY_READY_10',''):
-            with self.subTest(marker=marker), patch.object(app,'verify_target'), patch.object(app,'event') as event, patch.object(app,'backend',return_value={'ready':True}), patch.object(app,'read_bytes',side_effect=[b'INSTALLED',json.dumps(app.prepare()).encode()]), patch.object(app,'shell',side_effect=['YES',marker]):
+            with self.subTest(marker=marker), patch.object(app,'brightness_status',return_value={'ready':True}), patch.object(app,'verify_target'), patch.object(app,'event') as event, patch.object(app,'backend',return_value={'ready':True}), patch.object(app,'read_bytes',side_effect=[b'INSTALLED',json.dumps(app.prepare()).encode()]), patch.object(app,'shell',side_effect=['YES',marker]):
                 with self.assertRaisesRegex(RuntimeError,'菜单入口'): app.install()
                 self.assertFalse(any(c.args[0]=='result' for c in event.call_args_list))
 
     @requires_payloads
     def test_existing_install_accepts_both_actual_menu_lengths(self):
         for marker in ('MENU_ENTRY_READY_11','MENU_ENTRY_READY_12'):
-            with self.subTest(marker=marker), patch.object(app,'verify_target'), patch.object(app,'event') as event, patch.object(app,'backend',return_value={'ready':True}), patch.object(app,'read_bytes',side_effect=[b'INSTALLED',json.dumps(app.prepare()).encode()]), patch.object(app,'shell',side_effect=['YES',marker]):
+            with self.subTest(marker=marker), patch.object(app,'brightness_status',return_value={'ready':True}), patch.object(app,'verify_target'), patch.object(app,'event') as event, patch.object(app,'backend',return_value={'ready':True}), patch.object(app,'read_bytes',side_effect=[b'INSTALLED',json.dumps(app.prepare()).encode()]), patch.object(app,'shell',side_effect=['YES',marker]):
                 app.install()
                 self.assertEqual(event.call_args.args[0],'result'); self.assertTrue(event.call_args.kwargs['success'])
 

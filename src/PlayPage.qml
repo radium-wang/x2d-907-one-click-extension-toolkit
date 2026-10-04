@@ -12,7 +12,7 @@ FocusScope {
     property var featureController: null
     property bool requestPending: false
     readonly property bool featureLoaded: featureController !== null && featureController.loaded
-    readonly property bool featureBusy: featureController !== null && featureController.busy
+    readonly property bool featureBusy: (featureController !== null && featureController.busy) || brightness.busy
     readonly property bool backendAvailable: featureController !== null && featureController.ready &&
                                              !featureController.faulted
     readonly property string statusMessage: !masterEnabled ? "耍起功能已关闭" :
@@ -36,6 +36,12 @@ FocusScope {
     function requestSpeedToggle() {
         if (!pageActive || !masterEnabled || !backendAvailable || featureBusy) return false
         return featureController.setEnabled(!featureLoaded)
+    }
+
+    AutoBrightnessController { id: brightness; masterEnabled: root.masterEnabled; pageActive: root.pageActive }
+    function requestBrightnessToggle() {
+        if (!pageActive || !masterEnabled || requestPending || featureBusy) return false
+        return brightness.toggleFeature()
     }
 
     Rectangle { anchors.fill: parent; color: Constants.menuBackgroundColor }
@@ -154,6 +160,47 @@ FocusScope {
                 }
             }
 
+
+            Item {
+                objectName: "X2dPlayAutoBrightnessSwitchRow"
+                width: parent.width
+                // Match the stock SwitchDelegate description layout and typography.
+                readonly property real topOffset: 16 * 1.6 * Constants.scaleFactorY
+                readonly property real bottomOffset: 8 * 1.6 * Constants.scaleFactorY
+                height: brightnessColumn.height + topOffset + bottomOffset
+                Column {
+                    id: brightnessColumn
+                    anchors.top: parent.top
+                    anchors.topMargin: parent.topOffset
+                    anchors.left: parent.left; anchors.right: parent.right
+                    anchors.leftMargin: Constants.settingsMenuSettingLeftMargin
+                    anchors.rightMargin: Constants.settingsMenuSettingRightMargin
+                    spacing: 8 * 1.6 * Constants.scaleFactorY
+                    StockMenu.MenuBoolSelector {
+                        width: parent.width
+                        text: "在亮度菜单中加入自动亮度"
+                        value: root.masterEnabled && brightness.availablePreference
+                        itemEnabled: root.pageActive && root.masterEnabled && (brightness.ready || brightness.availablePreference) &&
+                                     !root.featureBusy && !root.requestPending
+                        highlighted: brightnessTouch.pressed
+                        showSwitch: true
+                        fontWeight: Font.Medium
+                    }
+                    StockMenu.SettingDescription {
+                        id: brightnessHint
+                        objectName: "X2dAutoBrightnessHint"
+                        width: parent.width
+                        text: "请前往显示 → 亮度设置自动亮度"
+                        isEnabled: root.masterEnabled
+                    }
+                }
+                MouseArea {
+                    id: brightnessTouch
+                    anchors.fill: parent
+                    enabled: root.pageActive && root.masterEnabled && (brightness.ready || brightness.availablePreference)
+                    onClicked: root.requestBrightnessToggle()
+                }
+            }
 
             Item { width: parent.width; height: Math.max(0, settingsList.height * 0.35) }
         }

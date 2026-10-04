@@ -1,10 +1,12 @@
 """Build a fixed X2D 4.2.0 software bundle offline; no device access."""
 from pathlib import Path
-import hashlib,json,tarfile,subprocess,os,shutil,io
+import hashlib,json,tarfile,subprocess,os,shutil,io,sys
 from elftools.elf.elffile import ELFFile
 D=Path(__file__).resolve().parent
 O=Path(os.environ.get('X2D_PAYLOAD_DIR', str(D/'native-package')))
 sha=lambda b:hashlib.sha256(b).hexdigest()
+env=os.environ.copy(); env['X2D_PAYLOAD_DIR']=str(O); env['X2D_CC']=os.environ.get('X2D_CC') or shutil.which('clang')
+subprocess.run([sys.executable,str(D/'brightness/build.py')],env=env,check=True)
 # Rebuild the service from source so boot behavior is never a stale binary.
 compiler=os.environ.get('X2D_CC') or shutil.which('clang')
 if not compiler: raise RuntimeError('Need clang / X2D_CC for the AArch64 service')
@@ -37,6 +39,7 @@ ui_languages=package.get('uiLanguages') or {}
 english=ui_languages.get('en') or []
 assert english, 'package.json is missing uiLanguages.en camera UI siblings'
 for src,target in {
+ 'libx2d_play_brightness.so':'/system/lib64/libx2d_play_brightness.so',
  'libx2d_speed_server.so':'/system/lib64/libx2d_speed_server.so',
  'speed-worker':'/system/etc/x2d-speed-buff/worker',
  'speed-backend':'/system/etc/x2d-speed-buff/backend',
@@ -51,10 +54,11 @@ chinese_targets={f['target'] for f in files}
 assert {f['target'] for f in english}<=chinese_targets
 for name in ('speed-worker','speed-backend','speed-transaction'):
  subprocess.run(['sh','-n',str(O/name)],check=True)
-manifest=dict(format=3,model='X2D 100C',firmware='4.2.0',guiSha256='16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0',files=files,entryIndex=11,multipliers=[3,3,2],lensRestriction=False, serviceExecutable='/system/bin/camera-gui', features=['afc','speed-buff'])
+manifest=dict(format=3,model='X2D 100C',firmware='4.2.0',guiSha256='16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0',files=files,entryIndex=11,multipliers=[3,3,2],lensRestriction=False, serviceExecutable='/system/bin/camera-gui', features=['afc','speed-buff','auto-rear-brightness'])
 manifest['entryIndexesByModel']={'X2D 100C':11,'907X & CFV 100C':10}
 manifest['compatibleModels']=['X2D 100C','907X & CFV 100C']
 manifest['validation']={'X2D 100C':'prior-menu-and-buff-device-tested; startup-focus-mode-fix-awaiting-device-test','907X & CFV 100C':'USB-and-service-installation-user-reported; ten-item-menu-fix-awaiting-device-test'}
+manifest['autoBrightness']=dict(systemSha256='bf854a21881148565ff2cc00376426c37a2b82fed94c653abf024e23ed4ceda6',stockConfigSha256='d43b8b26282f9e1da5825b96699658d444a58a83cda94b622e7da8aa1c35202b',library='/system/lib64/libx2d_play_brightness.so',default='off',masterControlled=True)
 manifest['uiLanguages']=dict(en=english)
 (O/'speed-bundle.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
 archive_names={f['source'] for f in files}|{f['source'] for f in english}

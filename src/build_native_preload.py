@@ -16,7 +16,8 @@ from camera_ui_strings import english_qml
 support = os.environ.get('X2D_BUILD_SUPPORT')
 if not support: raise SystemExit('Set X2D_BUILD_SUPPORT to the reviewed research tool directory containing inspect_menu_resources.py')
 sys.path.insert(0, support)
-from inspect_menu_resources import load_gui, GUI_SHA
+from inspect_menu_resources import load_gui, GUI_SHA, resources
+from brightness.menu_patch import generate as brightness_menu
 from firmware_image import system_file
 from elftools.elf.elffile import ELFFile
 
@@ -74,9 +75,11 @@ english_files=[]
 names={'Bootstrap':'X2dNativeMenuBootstrap','PlayMenuModel':'X2dNativeMenuModel',
        'PlayMenuRoute':'X2dNativeMenuRoute','ResidentPlayHost':'X2dNativeMenuHost',
        'PrankIbisPage':'X2dPrankIbisPage','PlayPage':'X2dPlayPage','AfcMenuController':'X2dAfcMenuController',
-       'SpeedBuffController':'X2dSpeedBuffController'}
-sources=[D/(name+'.qml') if name!='AfcMenuController' else
-         D/'AfcMenuController.qml' for name in names]
+       'SpeedBuffController':'X2dSpeedBuffController','AutoBrightnessController':'X2dAutoBrightnessController',
+       'DisplaySettings':'X2dDisplaySettings','DisplayRearBrightness':'X2dDisplayRearBrightness',
+       'BrightnessSlider':'X2dBrightnessSlider'}
+generated=brightness_menu(dict(resources(b)),O)
+sources=[generated[name] if name in generated else D/(name+'.qml') for name in names]
 paths=[target]
 for source in sources:
     text=source.read_text(encoding='utf-8')

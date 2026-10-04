@@ -147,7 +147,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         applicationItem.submenu = applicationMenu
         mainMenu.addItem(applicationItem)
         NSApp.mainMenu = mainMenu
-        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 580, height: 754),
+        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 580, height: 804),
                           styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "未知"
         appVersion = version
@@ -191,7 +191,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         featureBox.contentViewMargins = .zero
         let featureList = NSStackView(views: [
             featureRow("viewfinder", "AF-C 连续自动对焦", "在相机上开启连续自动对焦"),
-            featureRow("bolt", "对焦加速 buff", "加快对焦扫描，关闭后恢复原厂速度")
+            featureRow("bolt", "对焦加速 buff", "加快对焦扫描，关闭后恢复原厂速度"),
+            featureRow("sun.max", "后屏自动亮度", "根据环境光调节后屏亮度，可设置最高亮度")
         ])
         featureList.orientation = .vertical; featureList.spacing = 12; featureList.alignment = .leading
         featureList.translatesAutoresizingMaskIntoConstraints = false
@@ -204,7 +205,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         ])
         root.addArrangedSubview(featureBox)
         featureBox.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -56).isActive = true
-        featureBox.heightAnchor.constraint(equalToConstant: 116).isActive = true
+        featureBox.heightAnchor.constraint(equalToConstant: 166).isActive = true
         prankCheckbox.isEnabled = false
         prankCheckbox.state = .off
         root.addArrangedSubview(prankCheckbox)
@@ -339,7 +340,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 connectionVerified = object["connected"] as? Bool == true && object["firmware"] as? String == "4.2.0"
                 setLocalized(status, message)
                 setLocalized(detail, object["menuPending"] as? Bool == true ? (object["hint"] as? String ?? "") : (object["installed"] as? Bool == true)
-                    ? "主菜单末尾进入耍起功能。总开关控制 AF-C 与对焦加速 buff。"
+                    ? "主菜单末尾进入耍起功能。总开关控制 AF-C、对焦加速 buff 和后屏自动亮度。"
                     : "相机处于原厂状态，可以安装耍起功能。")
                 progress.doubleValue = 0
                 receivedResult = true
@@ -357,7 +358,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     : "原厂界面与启动配置已恢复。")
                 if object["success"] as? Bool == true {
                     pendingUserHint = object["installed"] as? Bool == true
-                        ? "操作已完成，可以拔掉相机的 USB 数据线。请在相机主菜单末尾进入“耍起功能”，先开启总开关，再选择 AF-C 或对焦加速 buff。"
+                        ? "操作已完成，可以拔掉相机的 USB 数据线。请在相机主菜单末尾进入“耍起功能”，先开启总开关，再选择 AF-C、对焦加速 buff 或后屏自动亮度。"
                         : "恢复已完成，可以拔掉相机的 USB 数据线，继续使用原厂功能。"
                 }
             } else if kind == "error" {

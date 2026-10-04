@@ -1,8 +1,11 @@
-# Validation boundaries — 0.4.2
+# Validation boundaries — 0.4.3
 
 | Evidence | Result | Limits |
 | --- | --- | --- |
-| Full offline Python suite with locally generated camera inputs | 134 tests passed with local inputs; clean source checkout: 109 passed, 25 explicitly skipped | USB / Windows APIs and device shell are substituted; no camera is accessed |
+| 0.4.3 offline Python suite with locally generated camera inputs | 144 passed; clean source: 118 passed, 26 explicitly skipped | USB / Windows APIs and device shell are substituted; excluded build inputs cause clean-source skips; no camera is accessed |
+| 0.4.2 offline Python suite | 134 passed with local inputs; clean source: 109 passed, 25 explicitly skipped | Historical evidence for the published 0.4.2 version |
+| 0.4.3 brightness widgets and descriptions | Actual packaged delegates/stock widgets pass toggle, drag, saved-ceiling/fill and bilingual wrap checks under Qt 6.4.1 | Native model, sensor, service and SVG provider are substitutes |
+| 0.4.3 native Mac overview | Full Chinese/English windows with the new brightness row fit without clipping; README images updated | Offline UI mode disables camera and updater operations; Windows native layout is pending |
 | Qt 6.4.1 desktop menu model | 907 optional row at 11, Shuaqi at 12; removal, stock routes and repeated returns passed | Source model and graphics are substitutes |
 | Stock four-column grid + packaged Bootstrap QML | Actual mouse clicks, highlight, Easter egg page, return, status-driven insertion/removal and menu acknowledgements passed | Outer camera services are substituted; no 907 device validation |
 | Native Mac 0.4.2 windows | Settings, Chinese / English switch, saved startup update-check switch, manual checking with automatic checks off, and disabled writes when disconnected checked | Host macOS 27; this does not verify all supported macOS versions |
@@ -46,3 +49,15 @@ On macOS 27, the packaged app showed the English and Chinese Settings windows. D
 After publishing 0.4.2 as the latest stable release, the Mac and Windows updater code from the packaged 0.4.1 distributions both detected 0.4.2, downloaded their corresponding GitHub ZIP, verified SHA-256, safely extracted it, and validated the new application identity/version. Both checks ran on Mac with the packaged runtime; this does not verify Windows replacement/relaunch. No installed application or camera was modified by these download checks.
 
 0.4.2 发布为最新稳定版后，使用 0.4.1 安装包内的 Mac / Windows 更新器代码，分别完成新版识别、GitHub 实际下载、SHA-256 校验、安全解压及应用身份与版本检查。两组检查都在 Mac 的内置运行库中执行，不代表 Windows 替换及重开已验证；下载检查未修改已安装应用或相机。
+
+## Auto brightness integration (0.4.3)
+
+Only the independent brightness runtime, policy and controller were adapted from the donor. The optional feature is enabled in Tweaks with a gray hint to Display → Brightness. The Display page controls Auto independently and retains stock brightness as a ceiling; output moves the fill without moving the knob. Stock firmware/resource hash checks and AArch64 import checks apply. No camera was connected or modified.
+
+144 offline Python tests passed with generated inputs. A separate source-only copy passed 118 tests and explicitly skipped 26 that require excluded inputs. Actual C callbacks exercise ceiling edits without cancelling Auto or flashing the manual value, sensor fallback, idle/EVF guards, wake synchronization, master gating, durable feature/Auto commands, save failures and evenly spaced dimming output. Transaction tests cover failures in both startup configurations and exact recognition of published 0.4.2 plus both earlier local brightness builds, in both menu languages.
+
+Qt 6.4.1 tests check the actual Tweaks page/controller and the packaged, stock-derived Display delegate with original stock widgets. Changing reported output moves only the white fill; lowering the ceiling keeps the fill left of the knob. Touch toggles retain menu availability. Real continuous drags match the stock slider in both directions and retain Auto. Bootstrap's actual route function targets Display only. Native model/types/API and SVG image provider are substitutes, so this does not prove the camera's Android/Qt lifecycle.
+
+The hint now uses the actual stock SettingDescription component and switch-description spacing. Qt 6.4.1 checks cover Chinese and English at widths 1024, 768 and 620 with matching stock font/opacity; the narrow English description wraps to two lines and its row grows without clipping. The native Mac feature card was rendered and inspected in both languages using a test harness with camera and update operations disabled. The Windows overview passes translation/callback checks; its native rendering still needs Windows validation.
+
+Mac universal and Windows x64 archives are rebuilt for 0.4.3. Archive audits verify the current payload hashes, both earlier local brightness recovery catalogs, published 0.4.2 recovery, the project license and the unchanged donor MIT notice. The license was updated in a separate commit before this release; existing older release assets remain unchanged. Native Windows GUI execution and all camera checks remain pending. Physical rear-display smoothness, Android/Qt loading and permissions, X2D/CFV cold boot and restoration need device validation. The integer-percent stock API still limits output granularity; evenly paced transitions reduce the filter's long tail but do not promise an imperceptible hardware transition. Generated evidence stays in ignored outputs.

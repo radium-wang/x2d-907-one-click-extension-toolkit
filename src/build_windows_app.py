@@ -36,6 +36,7 @@ def build(inputs, pyusb, llvm):
     licenses = root / 'licenses'; licenses.mkdir()
     shutil.copy2(D.parent/'LICENSE',licenses/'X2D-907-Toolkit.txt')
     shutil.copy2(D.parent/'THIRD_PARTY_NOTICES.md',licenses/'THIRD_PARTY_NOTICES.md')
+    shutil.copy2(D/'brightness/LICENSE',licenses/'X2D-New-Extension.txt')
     with zipfile.ZipFile(inputs / 'platform-tools.zip') as z:
         for name in ('adb.exe', 'AdbWinApi.dll', 'AdbWinUsbApi.dll'):
             (bindir / name).write_bytes(z.read('platform-tools/' + name))
@@ -60,7 +61,7 @@ def build(inputs, pyusb, llvm):
     native = root / 'native-package'; native.mkdir()
     manifest = json.loads((PAYLOAD/'speed-bundle.json').read_text())
     english={f['source'] for f in (manifest.get('uiLanguages') or {}).get('en') or []}
-    for source in {f['source'] for f in manifest['files']} | english | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json'}:
+    for source in {f['source'] for f in manifest['files']} | english | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
         shutil.copy2(PAYLOAD / source, native / source)
     shutil.copytree(PAYLOAD/'previous-payloads',native / 'previous-payloads')
     # Generate import libraries with lld-link. Stub DLLs are build artifacts only.

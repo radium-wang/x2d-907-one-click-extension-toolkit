@@ -4,7 +4,7 @@ import argparse, json, os, plistlib, shutil, subprocess, re
 from pathlib import Path
 D = Path(__file__).resolve().parent
 PAYLOAD = Path(os.environ.get('X2D_PAYLOAD_DIR', str(D/'native-package')))
-VERSION = '0.4.2'
+VERSION = '0.4.3'
 ARCHES = {'arm64', 'x86_64'}
 MINIMUM = (13, 0)
 
@@ -69,7 +69,7 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
     native=r/'native-package'; native.mkdir()
     manifest=json.loads((PAYLOAD/'speed-bundle.json').read_text())
     english={f['source'] for f in (manifest.get('uiLanguages') or {}).get('en') or []}
-    for source in {f['source'] for f in manifest['files']} | english | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json'}:
+    for source in {f['source'] for f in manifest['files']} | english | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
         shutil.copy2(PAYLOAD/source,native/source)
     shutil.copytree(PAYLOAD/'previous-payloads',native/'previous-payloads')
     # Relocate every non-system Mach-O dependency. Never rely on Homebrew at runtime.
@@ -122,11 +122,12 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
         'CFBundleName':'x2d/907一键扩展功能-工具包','CFBundleDisplayName':'x2d/907一键扩展功能-工具包',
         'CFBundleIdentifier':'local.x2d.play','CFBundleExecutable':'X2DPlay',
         'CFBundlePackageType':'APPL','CFBundleShortVersionString':VERSION,
-        'CFBundleVersion':'18','LSMinimumSystemVersion':'.'.join(map(str,minimum)),
+        'CFBundleVersion':'19','LSMinimumSystemVersion':'.'.join(map(str,minimum)),
         'NSHighResolutionCapable':True,'NSHumanReadableCopyright':'Local experimental X2D / 907X 100C 4.2.0 tool'}))
     licenses=r/'licenses'; licenses.mkdir()
     shutil.copy2(D.parent/'LICENSE',licenses/'X2D-907-Toolkit.txt')
     shutil.copy2(D.parent/'THIRD_PARTY_NOTICES.md',licenses/'THIRD_PARTY_NOTICES.md')
+    shutil.copy2(D/'brightness/LICENSE',licenses/'X2D-New-Extension.txt')
     shutil.copy2(next(pyusb.parent.glob('pyusb-*.dist-info/LICENSE')),licenses/'PyUSB.txt')
     shutil.copy2(libusb_license or libusb.resolve().parent.parent/'COPYING',licenses/'libusb.txt')
     python_license=Path(info['stdlib'])/'LICENSE.txt'

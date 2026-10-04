@@ -43,8 +43,8 @@
     {
       "source": "X2dPlayPage.qml",
       "target": "/system/etc/X2dPlayPage.qml",
-      "bytes": 10901,
-      "sha256": "bcfff0a71e51765d3eb31e564135c17708e117dbdf75650854ca1984fbf134fa"
+      "bytes": 11035,
+      "sha256": "b517c6d34fcc9c62f14804aaf85704678614626b6b68248cbf194b0f6e836f65"
     },
     {
       "source": "X2dAfcMenuController.qml",
@@ -186,8 +186,8 @@
       {
         "source": "X2dPlayPage.en.qml",
         "target": "/system/etc/X2dPlayPage.qml",
-        "bytes": 10887,
-        "sha256": "d519be564bff2ef54f111083f5c0245d311a49bccc922db091f21573afcf7098"
+        "bytes": 11021,
+        "sha256": "537aa18fa219f5551d5d9d215ea9b45e0b04459e2daa03edb77c813f2ef35817"
       },
       {
         "source": "X2dAfcMenuController.en.qml",

@@ -1,8 +1,18 @@
 # Changelog
 
-## Unreleased
+## [0.4.3](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.3) — 2026-10-04
 
 - Replace the project license for subsequent versions with X2D/907 Noncommercial Distribution License 1.0: allow professional photography and free sharing/modification, prohibit software sales and paid installation without separate permission, and retain prior MIT and third-party permissions. Include the project license and third-party notices in newly built desktop packages; published archives remain unchanged.
+- Add Auto Rear Screen Brightness to the Mac/Windows feature overview in both languages. Match the camera hint to the stock switch-description font, opacity and spacing, with wrapping for English.
+- Add an optional Auto Brightness entry to Display → Brightness through Tweaks, with a smaller gray navigation hint. Enabling the feature also enables Auto; the Display switch then controls Auto independently. The rear slider sets the saved maximum while its white fill follows actual output and its knob stays at the maximum.
+- Use evenly paced brightness transitions to reduce isolated dimming steps near the target. Stock output still has integer-percent precision.
+- Extend both desktop builders and guarded install/restore to include the display library, back up camera-system startup configuration, roll back both configurations on failure, and retain published 0.4.2 and earlier local auto-brightness recovery records.
+- Local/offline validation only; physical display, boot and restoration checks remain pending on X2D and CFV 100C.
+
+### Upgrade and validation
+
+- Upgrade the desktop app through Settings → Check for Updates or download the complete package. Then click Connected → Install to update the camera extension; a recognized older installation is restored first after confirmation.
+- 144 offline tests passed with local inputs; source-only: 118 passed, 26 skipped. Qt 6.4.1 brightness/menu and bilingual native Mac layout checks passed. Package audits cover universal Mac dependencies, 38 Windows PE files, payload hashes and recovery catalogs. Windows native rendering and camera checks remain pending; see [validation details](docs/VALIDATION.md).
 
 English first; [中文更新日志](#中文更新日志) follows below. Versions are listed newest first. Documentation-only changes do not imply a new application package.
 
@@ -67,9 +77,19 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 
 # 中文更新日志
 
-## 未发布
+## [0.4.3](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.3) — 2026-10-04
 
 - 后续版本改用 X2D/907 非商业分发许可证 1.0：允许职业摄影、修改和免费分享；出售软件、改版及收费安装须另获授权。保留历史 MIT 和第三方许可，新构建的桌面包附带项目许可与第三方说明，已发布包保持不变。
+- Mac/Windows 中英文功能介绍新增后屏自动亮度；相机引导文字复用原厂开关说明的字号、灰度和间距，英文自动换行。
+- 在耍起功能中加入“在亮度菜单中加入自动亮度”及灰色小字引导；开启时同时启用自动亮度，之后在显示 → 亮度中独立开关。滑块圆球设定最高亮度，白线跟随当前输出，自动亮度变化不移动圆球。
+- 减光改为均匀的小步推进，减少临近目标时逐格停顿变长的现象；原厂接口仍按整数百分比输出。
+- 安装与恢复增加屏幕配置备份、双配置回滚，保留已发布 0.4.2 和前两份本地自动亮度测试版的恢复记录；Mac/Windows 构建同步支持。
+- 只做本地与离线验证；X2D/CFV 100C 的屏幕、启动和恢复仍待实机验证。
+
+### 升级与验证
+
+- 在设置 → 检查更新中升级电脑端 App，或下载完整安装包。之后点击已连接 → 一键安装更新相机扩展；识别到旧版时，会经确认先恢复再安装。
+- 完整离线测试 144 项通过；纯源码为 118 项通过、26 项跳过。Qt 6.4.1 亮度/菜单检查与 Mac 原生中英文布局检查通过。安装包已校验 Mac 通用依赖、38 份 Windows PE 文件、载荷哈希和恢复记录；Windows 原生显示及相机实机检查仍待完成，详见 [验证说明](docs/VALIDATION.md)。
 
 版本按从新到旧排列。仅修改文档不代表发布了新安装包。
 

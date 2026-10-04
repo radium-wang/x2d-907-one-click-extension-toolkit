@@ -55,12 +55,29 @@ Item {
         screen.viewModel.favoriteModel = adapter
         parent = drawer
         attached = true
+        routeDisplaySettings()
         screen.viewModel.inMenu = Qt.binding(function() { return originalLoader.active || route.playShowing })
         screen.viewModel.preventSwipe = Qt.binding(function() { return originalSwipe.preventSwipe || route.playShowing })
         drawerList.interactive = Qt.binding(function() { return !drawerList.blockSwipe && !route.playShowing })
         console.info("X2D_NATIVE_MENU_ATTACHED")
     }
     function dispatch(name, sub, open, shortcut) { route.dispatch(name, sub, open, shortcut) }
+    // Keep the stock Display model and submenu routing; replace only its rear slider.
+    function routeDisplaySettings() {
+        if (!attached || !originalLoader || !screen.viewModel.menu) return
+        if (screen.viewModel.menu.menuName === "displayMenu" &&
+            originalLoader.source.toString() === "qrc:/app/qml/mainmenu/SettingsGeneric.qml")
+            originalLoader.source = "file:///system/etc/X2dDisplaySettings.qml"
+    }
+    Connections {
+        target: root.originalLoader
+        function onSourceChanged() { root.routeDisplaySettings() }
+    }
+    Connections {
+        target: root.screen && root.screen.viewModel ? root.screen.viewModel.menu : null
+        ignoreUnknownSignals: true
+        function onMenuNameChanged() { Qt.callLater(root.routeDisplaySettings) }
+    }
     function refreshPlayButton() {
         playButton = attached && adapter.extensionPresent && grid.count === adapter.items.count
                     ? findItem(grid.itemAtIndex(adapter.extensionIndex), "FramedItem_root") : null
