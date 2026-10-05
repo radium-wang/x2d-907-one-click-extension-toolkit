@@ -1,5 +1,9 @@
 # Changelog
 
+## Documentation update — 2026-10-05
+
+- Put direct Windows and macOS 0.4.7 installer downloads at the top of the README and release notes, with platform requirements and extraction guidance. Published application archives are unchanged.
+
 ## [0.4.7](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.7) — 2026-10-05
 
 - Add Traditional Chinese as a third language in Mac and Windows Settings. Desktop buttons, guidance, status, logs and remembered language follow the selection.
@@ -105,6 +109,10 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## 文档更新 — 2026-10-05
+
+- 在 README 与发布说明开头提供 Windows 和 Mac 0.4.7 安装包直达链接，写明系统要求及完整解压提示；已发布的软件压缩包保持不变。
 
 ## [0.4.7](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.7) — 2026-10-05
 
