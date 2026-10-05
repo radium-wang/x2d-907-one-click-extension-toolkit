@@ -1,12 +1,12 @@
-x2d/907一键扩展功能-工具包 0.4.6 · Windows x64 实验版
+x2d/907一键扩展功能-工具包 0.4.7 · Windows x64 实验版
 
 语言选择
-点击窗口右上角“设置”，可选择“中文”或“English”，默认中文，选择会保存到本机，重新启动仍沿用。
+点击窗口右上角“设置”，可选择“简体中文”、“繁體中文”或“English”，默认简体中文，选择会保存到本机，重新启动仍沿用。
 切换覆盖 App 按钮、功能说明、状态、错误、操作提示及当前已有日志；保存的日志也使用当前语言。
 语言切换不更改功能开关、安装状态或 USB 驱动。
 
 Language
-Open Settings at the top right, then choose 中文 or English. The app remembers your choice after restart.
+Open Settings at the top right, then choose Simplified Chinese, Traditional Chinese or English. The app remembers your choice after restart.
 Buttons, feature descriptions, status, errors, instructions and existing logs follow the selected language.
 Language selection does not change feature settings or USB drivers.
 
@@ -24,7 +24,7 @@ English quick start
 1. Extract the entire ZIP and double-click x2d-907一键扩展功能-工具包.exe. Allow the Windows administrator prompt.
 2. Turn on one supported camera, connect a USB data cable, then click Connected. The app prepares only the camera factory Interface 3 driver and checks the camera.
 3. Once checks pass, click Install or Restore original. Keep the camera powered and connected until completion is confirmed. Tap Skip on the camera if prompted.
-4. Open Tweaks (English install) or 耍起功能 (Chinese install) at the end of the camera's main menu. Turn on its master switch, then AF-C, the focus speed buff, or auto rear screen brightness.
+4. Open Tweaks (English install) or 耍起功能 (Chinese install) at the end of the camera's main menu. Turn on its master switch, then AF-C, the focus speed buff, or auto rear screen brightness. Select Traditional Chinese in Settings before Install for Traditional Chinese camera text.
 5. Do not remove the lens while the focus buff is on. Turn it off before changing lenses.
 Windows 10 / 11 x64; original X2D 100C / 907X & CFV 100C firmware 4.2.0 only.
 Automatic driver setup and the 907X menu update still await device verification. ADB is a separate interface and may require its own driver.

@@ -15,9 +15,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var confirmationInput: FileHandle?
     var installLanguage = "zh"
     var logBuffer = ""
-    var language = UserDefaults.standard.string(forKey: "AppLanguage") == "en" ? "en" : "zh"
+    var language: String = {
+        let saved = UserDefaults.standard.string(forKey: "AppLanguage") ?? "zh"
+        return ["zh", "zh-Hant", "en"].contains(saved) ? saved : "zh"
+    }()
     var translations: [String: String] = [:]
+    var traditionalTranslations: [String: String] = [:]
     var fragments: [String] = []
+    var traditionalFragments: [String] = []
     var localizedImages: [(NSImageView, String)] = []
     var localizedFields: [ObjectIdentifier: (NSTextField, String)] = [:]
     let languageChoice = NSPopUpButton(frame: .zero, pullsDown: false)
@@ -37,14 +42,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var updateTask: Process?
 
     func translated(_ text: String) -> String {
-        if language != "en" { return text.replacingOccurrences(of: "Windows", with: "系统") }
-        var value = translations[text] ?? text
-        if translations[text] == nil {
-            for key in fragments where value.contains(key) {
-                value = value.replacingOccurrences(of: key, with: translations[key]!)
+        if language == "zh" { return text.replacingOccurrences(of: "Windows", with: "系统") }
+        let catalog = language == "zh-Hant" ? traditionalTranslations : translations
+        let keys = language == "zh-Hant" ? traditionalFragments : fragments
+        var value = catalog[text] ?? text
+        if catalog[text] == nil {
+            for key in keys where value.contains(key) {
+                value = value.replacingOccurrences(of: key, with: catalog[key]!)
             }
         }
-        return value.replacingOccurrences(of: "Windows", with: "the system")
+        return value.replacingOccurrences(of: "Windows", with: language == "zh-Hant" ? "系統" : "the system")
     }
     func setLocalized(_ field: NSTextField, _ text: String) {
         localizedFields[ObjectIdentifier(field)] = (field, text)
@@ -71,11 +78,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         restore.title = translated("一键恢复原状")
         quitItem.title = translated("退出 x2d/907一键扩展功能-工具包")
         window.title = translated("x2d/907一键扩展功能-工具包 · ") + appVersion
-        languageChoice.selectItem(at: language == "en" ? 1 : 0)
+        languageChoice.selectItem(at: language == "zh-Hant" ? 1 : language == "en" ? 2 : 0)
         renderLog()
     }
     @objc func languageChanged() {
-        language = languageChoice.indexOfSelectedItem == 1 ? "en" : "zh"
+        language = languageChoice.indexOfSelectedItem == 1 ? "zh-Hant" : languageChoice.indexOfSelectedItem == 2 ? "en" : "zh"
         UserDefaults.standard.set(language, forKey: "AppLanguage")
         renderLanguage()
     }
@@ -138,6 +145,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             translations = catalog
             fragments = catalog.keys.sorted { $0.count == $1.count ? $0 < $1 : $0.count > $1.count }
         }
+        if let url = Bundle.main.resourceURL?.appendingPathComponent("translations_zh_hant.json"),
+           let data = try? Data(contentsOf: url),
+           let catalog = try? JSONDecoder().decode([String: String].self, from: data) {
+            traditionalTranslations = catalog
+            traditionalFragments = catalog.keys.sorted { $0.count == $1.count ? $0 < $1 : $0.count > $1.count }
+        }
         NSApp.setActivationPolicy(.regular)
         let mainMenu = NSMenu()
         let applicationItem = NSMenuItem()
@@ -168,7 +181,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let heading = NSTextField(labelWithString: "x2d/907一键扩展功能-工具包")
         heading.font = .systemFont(ofSize: 22, weight: .semibold)
         localize(heading)
-        languageChoice.addItems(withTitles: ["中文", "English"])
+        languageChoice.addItems(withTitles: ["简体中文", "繁體中文", "English"])
         languageChoice.target = self
         languageChoice.action = #selector(languageChanged)
         languageChoice.setAccessibilityLabel("语言 / Language")

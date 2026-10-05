@@ -165,7 +165,7 @@ class NativeStyle:
     def font(self, size=14, bold=False, mono=False, dpi=None, language=None):
         dpi=self.dpi if dpi is None else dpi
         language=self.language if language is None else language
-        face='Consolas' if mono else 'Segoe UI' if language=='en' else 'Microsoft YaHei UI'
+        face='Consolas' if mono else 'Segoe UI' if language=='en' else 'Microsoft JhengHei UI' if language=='zh-Hant' else 'Microsoft YaHei UI'
         key=(size,bold,face,dpi)
         if key not in self.fonts:
             self.fonts[key]=self.createfont(-round(size*dpi/96),0,0,0,600 if bold else 400,0,0,0,1,0,0,5,0,face)

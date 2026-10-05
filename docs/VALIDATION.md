@@ -1,4 +1,8 @@
-# Validation boundaries — 0.4.6
+# Validation boundaries — 0.4.7
+
+## Traditional Chinese desktop and camera menus (0.4.7)
+
+The third desktop language is backed by a static Traditional Chinese catalog in both Mac and Windows packages. Offline checks cover persisted selection, translated diagnostics, target-language reinstall confirmation, and Traditional camera QML overlays. The overlay files have recorded SHA-256 hashes and retain the same install targets as the base files. Both 0.4.6 Simplified Chinese and English manifests remain recognized by the 0.4.7 restore/upgrade path; the camera-side functional binaries have identical hashes. The complete local-payload suite passes 171 tests; clean source passes 146 and skips 25 requiring excluded payloads. Both desktop archives include the new catalog and overlays, and the Windows PE and Mac dependency audits pass. No camera or Windows host was accessed for this change; native Traditional Chinese layout and physical camera behavior remain pending.
 
 ## Windows ADB listen address (0.4.6)
 

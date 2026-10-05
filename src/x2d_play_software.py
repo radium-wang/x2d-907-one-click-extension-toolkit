@@ -367,12 +367,14 @@ def prepare():
     for f in manifest['files']:
         if sha((O / f['source']).read_bytes()) != f['sha256']:
             raise RuntimeError('本地安装包校验失败')
-    english = (manifest.get('uiLanguages') or {}).get('en') or []
-    if not english:
-        raise RuntimeError('安装包缺少英文相机界面文件')
-    for f in english:
-        if sha((O / f['source']).read_bytes()) != f['sha256']:
-            raise RuntimeError('本地安装包校验失败')
+    languages = manifest.get('uiLanguages') or {}
+    for language in ('en', 'zh-Hant'):
+        overlay = languages.get(language) or []
+        if language == 'en' and not overlay:
+            raise RuntimeError('安装包缺少英文相机界面文件')
+        for f in overlay:
+            if sha((O / f['source']).read_bytes()) != f['sha256']:
+                raise RuntimeError('本地安装包校验失败')
     if manifest.get('autoBrightness'):
         spec = manifest['autoBrightness']
         if spec != dict(systemSha256=DISPLAY_SYSTEM_SHA, stockConfigSha256=DISPLAY_STOCK_RC,
@@ -386,11 +388,11 @@ def prepare():
 def apply_ui_language(manifest, language='zh'):
     if language == 'zh':
         return manifest
-    if language != 'en':
+    if language not in ('en', 'zh-Hant'):
         raise RuntimeError('Unsupported camera UI language')
-    overlay = (manifest.get('uiLanguages') or {}).get('en')
+    overlay = (manifest.get('uiLanguages') or {}).get(language)
     if not overlay:
-        raise RuntimeError('安装包缺少英文相机界面文件')
+        raise RuntimeError('安装包缺少所选语言的相机界面文件')
     by_target = {entry['target']: entry for entry in overlay}
     selected = dict(manifest)
     selected['files'] = [by_target.get(entry['target'], entry) for entry in manifest['files']]
@@ -398,7 +400,10 @@ def apply_ui_language(manifest, language='zh'):
 
 
 def same_release_files(files, package):
-    return files == package['files'] or files == apply_ui_language(package, 'en')['files']
+    if files == package['files']:
+        return True
+    return any(files == apply_ui_language(package, language)['files']
+               for language in ('en', 'zh-Hant') if (package.get('uiLanguages') or {}).get(language))
 
 
 def confirm_reinstall(language):
@@ -852,8 +857,8 @@ def main():
     p.add_argument('action', choices=['install', 'status', 'restore', 'enable', 'disable', 'master_on', 'master_off', 'afc_on', 'afc_off'])
     p.add_argument('--no-reboot', action='store_true', help=argparse.SUPPRESS)
     p.add_argument('--prank-ibis', action='store_true', help='Add the optional CFV-only joke menu')
-    p.add_argument('--language', choices=['zh', 'en'], default='zh',
-                   help='Install Chinese or English camera menu labels')
+    p.add_argument('--language', choices=['zh', 'zh-Hant', 'en'], default='zh',
+                   help='Install Simplified Chinese, Traditional Chinese or English camera menu labels')
     confirmation = p.add_mutually_exclusive_group()
     confirmation.add_argument('--interactive-confirmation', action='store_true', help=argparse.SUPPRESS)
     confirmation.add_argument('--confirm-reinstall', action='store_true',

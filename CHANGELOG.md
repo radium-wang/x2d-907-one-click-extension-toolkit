@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.7](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.7) — 2026-10-05
+
+- Add Traditional Chinese as a third language in Mac and Windows Settings. Desktop buttons, guidance, status, logs and remembered language follow the selection.
+- Install hashed Traditional Chinese camera menu overlays, including feature labels and camera-side messages. Existing Simplified Chinese and English installs remain recognizable for upgrade and restoration. Switching camera language requires Connected → Install and, for a different existing installation, restore/reinstall confirmation in the selected language.
+- Package the new catalog and camera overlays in both desktop distributions. Offline tests pass with local payloads; native Windows rendering and installation on a physical camera still require validation.
+
 ## [0.4.6](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.6) — 2026-10-04
 
 - Fix Windows private ADB startup: use the supported `tcp:localhost:<port>` listener while probing IPv4 loopback directly. The numeric listen-host form used in 0.4.5 was rejected by ADB before camera installation started.
@@ -99,6 +105,12 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## [0.4.7](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.7) — 2026-10-05
+
+- Mac 与 Windows 设置页新增“繁體中文”，界面按钮、引导、状态、日志和保存的语言选择会一起切换。
+- 安装时写入经过哈希校验的繁体相机菜单文件，覆盖功能名称和相机内提示。已安装的简体中文、英文版本仍可识别并恢复。改变相机语言需点击“已连接 → 一键安装”；若当前已安装其他语言，会先按目标语言提示恢复和重新安装。
+- 双平台安装包包含新翻译表与相机文件；带本地载荷的离线测试已通过。Windows 原生显示和相机实装仍待验证。
 
 ## [0.4.6](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.6) — 2026-10-04
 

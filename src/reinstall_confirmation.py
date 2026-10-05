@@ -19,4 +19,10 @@ def prompt(language):
                          '功能开关将关闭，相机会在恢复和安装过程中重启。'
                          '请保持相机供电和 USB 连接，完成后重新开启所需功能。',
                     cancel='取消', proceed='继续安装')
+    if language == 'zh-Hant':
+        return dict(language='zh-Hant', title='還原並重新安裝擴充功能？',
+                    body='將先移除目前的擴充功能並還原本工具的修改，再安裝繁體中文相機選單。'
+                         '功能開關將關閉，相機會在還原和安裝過程中重新啟動。'
+                         '請保持相機供電和 USB 連線，完成後重新開啟所需功能。',
+                    cancel='取消', proceed='繼續安裝')
     raise ValueError('Unsupported target language')

@@ -37,7 +37,7 @@ class WindowAPI:
             self.proc(101,0x0111,107,0)
             self.snapshots.append({key:value.copy() for key,value in self.controls.items()})
             self.session.busy=True
-            self.selection=1
+            self.selection=2
             self.proc(101,0x0111,(1<<16)|104,0)
             self.snapshots.append({key:value.copy() for key,value in self.controls.items()})
             assert self.session.busy and not self.session.verified
@@ -135,7 +135,7 @@ class WindowsLanguageUITests(unittest.TestCase):
                     assert self.moves[install][0]==round(146*1.5)
                     assert any(size==-33 for size,face in self.fonts)
                     self.proc(101,0x0111,107,0)
-                    self.selection=1;self.proc(101,0x0111,(1<<16)|104,0)
+                    self.selection=2;self.proc(101,0x0111,(1<<16)|104,0)
                     assert any(size==-28 and face=='Segoe UI' for size,face in self.fonts)
                     assert not self.session.verified and not self.session.busy
                     return 0
@@ -196,7 +196,7 @@ class WindowsLanguageUITests(unittest.TestCase):
                 self.assertEqual(len(calls),int(automatic)+3)
 
     def test_reinstall_dialog_uses_frozen_target_language_and_explicit_response(self):
-        for target_language, answer in (('en',202),('zh',201),('en','close')):
+        for target_language, answer in (('en',202),('zh',201),('zh-Hant',202),('en','close')):
             pending=[]; replies=[]
             class Input(io.StringIO):
                 def close(self):
@@ -228,7 +228,7 @@ class WindowsLanguageUITests(unittest.TestCase):
                         self.started=True;self.session.verified=True
                         self.proc(101,0x0111,107,0)
                         self.proc(101,0x0111,102,0)
-                        self.selection=0 if target_language=='en' else 1
+                        self.selection=0 if target_language=='en' else 2
                         self.proc(101,0x0111,(1<<16)|104,0)
                         fn,arguments=pending.pop()
                         assert arguments[-1]==target_language

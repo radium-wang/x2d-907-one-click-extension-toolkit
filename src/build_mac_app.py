@@ -4,7 +4,7 @@ import argparse, json, os, plistlib, shutil, subprocess, re
 from pathlib import Path
 D = Path(__file__).resolve().parent
 PAYLOAD = Path(os.environ.get('X2D_PAYLOAD_DIR', str(D/'native-package')))
-VERSION = '0.4.6'
+VERSION = '0.4.7'
 ARCHES = {'arm64', 'x86_64'}
 MINIMUM = (13, 0)
 
@@ -64,12 +64,13 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
         shutil.copy2(transport/name,r/name)
     shutil.copy2(D/'x2d_play_software.py',r/'x2d_play_software.py')
     shutil.copy2(D/'translations.json',r/'translations.json')
+    shutil.copy2(D/'translations_zh_hant.json',r/'translations_zh_hant.json')
     shutil.copy2(D/'app_updates.py',r/'app_updates.py')
     shutil.copy2(D/'reinstall_confirmation.py',r/'reinstall_confirmation.py')
     native=r/'native-package'; native.mkdir()
     manifest=json.loads((PAYLOAD/'speed-bundle.json').read_text())
-    english={f['source'] for f in (manifest.get('uiLanguages') or {}).get('en') or []}
-    for source in {f['source'] for f in manifest['files']} | english | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
+    localized={f['source'] for entries in (manifest.get('uiLanguages') or {}).values() for f in entries}
+    for source in {f['source'] for f in manifest['files']} | localized | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
         shutil.copy2(PAYLOAD/source,native/source)
     shutil.copytree(PAYLOAD/'previous-payloads',native/'previous-payloads')
     # Relocate every non-system Mach-O dependency. Never rely on Homebrew at runtime.

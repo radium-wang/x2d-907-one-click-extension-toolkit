@@ -343,5 +343,6 @@
   "无法设置 ADB 进程退出保护；相机安装尚未开始": "Could not configure ADB process cleanup protection. Camera installation has not started",
   "无法管理 ADB 进程；相机安装尚未开始": "Could not manage the ADB process. Camera installation has not started",
   "ADB 独立本机端口无法使用，请检查系统网络权限后重试": "The private local ADB port is unavailable. Check system network permissions and retry",
-  "ADB 本机通信参数不兼容，请更新至最新工具包后重试；相机安装尚未开始": "The local ADB connection parameters are incompatible. Update to the latest toolkit and retry; camera installation has not started"
+  "ADB 本机通信参数不兼容，请更新至最新工具包后重试；相机安装尚未开始": "The local ADB connection parameters are incompatible. Update to the latest toolkit and retry; camera installation has not started",
+  "安装包缺少所选语言的相机界面文件": "The package is missing the selected camera language files"
 }

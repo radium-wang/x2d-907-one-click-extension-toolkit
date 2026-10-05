@@ -12,7 +12,7 @@ import sys
 sys.dont_write_bytecode=True
 D=Path(__file__).resolve().parent
 sys.path.insert(0, str(D))
-from camera_ui_strings import english_qml
+from camera_ui_strings import english_qml, traditional_qml
 support = os.environ.get('X2D_BUILD_SUPPORT')
 if not support: raise SystemExit('Set X2D_BUILD_SUPPORT to the reviewed research tool directory containing inspect_menu_resources.py')
 sys.path.insert(0, support)
@@ -72,6 +72,7 @@ imports={s.name for s in elf.get_section_by_name('.dynsym').iter_symbols() if s.
 assert imports<=exports, imports-exports
 files=[]
 english_files=[]
+traditional_files=[]
 names={'Bootstrap':'X2dNativeMenuBootstrap','PlayMenuModel':'X2dNativeMenuModel',
        'PlayMenuRoute':'X2dNativeMenuRoute','ResidentPlayHost':'X2dNativeMenuHost',
        'PrankIbisPage':'X2dPrankIbisPage','PlayPage':'X2dPlayPage','AfcMenuController':'X2dAfcMenuController',
@@ -102,6 +103,14 @@ for source in sources:
             stream.write(english)
         english_files.append(dict(source=en_name,target=target_path,bytes=en_path.stat().st_size,
                                   sha256=hashlib.sha256(en_path.read_bytes()).hexdigest()))
+    traditional=traditional_qml(text)
+    if traditional!=text:
+        hant_name=names[source.stem]+'.zh-Hant.qml'
+        hant_path=O/hant_name
+        with hant_path.open('w',encoding='utf-8',newline='\n') as stream:
+            stream.write(traditional)
+        traditional_files.append(dict(source=hant_name,target=target_path,bytes=hant_path.stat().st_size,
+                                      sha256=hashlib.sha256(hant_path.read_bytes()).hexdigest()))
 icon=D/'assets/ic_main_menu_play.svg'
 assert icon.is_file()
 output_icon=O/'ic_main_menu_play.svg'
@@ -113,7 +122,8 @@ for path in paths:
     files.append(dict(source=path.name,target=location+target_name,bytes=path.stat().st_size,
                       sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
 assert english_files, 'English camera UI siblings were not produced'
-report=dict(guiSha256=GUI_SHA,files=files,uiLanguages=dict(en=english_files),dependencies=deps,
+assert traditional_files, 'Traditional Chinese camera UI siblings were not produced'
+report=dict(guiSha256=GUI_SHA,files=files,uiLanguages={'en':english_files,'zh-Hant':traditional_files},dependencies=deps,
             imports=sorted(imports),
             deployed=False,deviceValidated=False,bootConfigurationWritten=False,
             guard='exact three units/cache pointers; opt-in; disable-file; once per boot; rollback all four writes',

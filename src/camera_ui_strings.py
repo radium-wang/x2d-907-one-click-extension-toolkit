@@ -1,4 +1,5 @@
 """Quote-exact camera menu labels. Desktop localization stays separate."""
+from localization import TRADITIONAL
 
 # Visible menu labels only. Status sentences that contain the same words are left alone
 # because replacement matches the full quoted string, including the closing quote.
@@ -24,3 +25,13 @@ def english_qml(text):
     for chinese, english in LABELS:
         result = result.replace(f'"{chinese}"', f'"{english}"')
     return result.replace(f'"{PRANK_BODY_ZH}"', f'"{PRANK_BODY_EN}"')
+
+
+def traditional_qml(text):
+    # Only source-language, quoted camera copy is replaced. QML identifiers and
+    # non-Chinese protocol strings remain byte-for-byte identical.
+    result = text
+    for chinese, traditional in TRADITIONAL.items():
+        if chinese != traditional:
+            result = result.replace(f'"{chinese}"', f'"{traditional}"')
+    return result

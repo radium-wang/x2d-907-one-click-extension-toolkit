@@ -10,7 +10,7 @@ from windows_ui import NativeStyle, Viewport, ScrollInfo, WIDTH, HEIGHT, COLORS,
 from windows_processes import UpdateCheck, stop_process
 
 D = Path(__file__).resolve().parent
-VERSION = '0.4.6'
+VERSION = '0.4.7'
 
 
 class Session:
@@ -190,9 +190,9 @@ def main():
             localized_sources[panel] = '设置'
             control('languagelabel','STATIC','语言',24,24,84,26,parent=panel)
             control('language','COMBOBOX','',114,22,312,120,extra=0x10003,identity=104,parent=panel)
-            for name in ('中文','English'):
+            for name in ('简体中文','繁體中文','English'):
                 send(controls['language'],0x0143,0,C.cast(C.c_wchar_p(name),C.c_void_p).value)
-            send(controls['language'],0x014E,1 if language.language=='en' else 0,0)
+            send(controls['language'],0x014E,1 if language.language=='zh-Hant' else 2 if language.language=='en' else 0,0)
             control('automaticupdates','BUTTON','启动时自动检查更新',24,74,402,28,extra=0x10003,identity=108,parent=panel)
             send(controls['automaticupdates'],0x00F1,1 if preferences.auto_check else 0,0)
             control('updatesdescription','STATIC','自动检查只查找新版，不会自动下载或安装。',24,113,402,40,textfont=small,parent=panel)
@@ -271,7 +271,7 @@ def main():
 
     def change_language():
         index = send(controls['language'], 0x0147, 0, 0)  # CB_GETCURSEL
-        language.select('en' if index == 1 else 'zh')
+        language.select('zh-Hant' if index == 1 else 'en' if index == 2 else 'zh')
         for handle, text in localized_sources.items():
             native_settext(handle, language.text(text))
         skin.refresh(language=language.language)

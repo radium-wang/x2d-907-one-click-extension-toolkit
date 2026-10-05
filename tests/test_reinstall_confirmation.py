@@ -14,7 +14,8 @@ class ReinstallConfirmationTests(unittest.TestCase):
     def package(self):
         zh = dict(source='page.qml', target='/system/etc/page.qml', sha256='zh', bytes=1)
         en = dict(source='page.en.qml', target=zh['target'], sha256='en', bytes=2)
-        return dict(format=3, guiSha256=app.STOCK_GUI, files=[zh], uiLanguages=dict(en=[en]))
+        hant = dict(source='page.zh-Hant.qml', target=zh['target'], sha256='hant', bytes=3)
+        return dict(format=3, guiSha256=app.STOCK_GUI, files=[zh], uiLanguages={'en':[en],'zh-Hant':[hant]})
 
     def install_case(self, response, language='en', known=True, initial=False, same=False):
         package = self.package()
@@ -60,7 +61,7 @@ class ReinstallConfirmationTests(unittest.TestCase):
                 self.assertEqual(event.call_args.args[0], 'cancelled')
 
     def test_confirmed_restore_precedes_reinstall_and_keeps_target_language(self):
-        for language in ('en','zh'):
+        for language in ('en','zh','zh-Hant'):
             event, restore, install = self.install_case(CONTINUE, language)
             restore.assert_called_once_with(True, report_result=False)
             install.assert_called_once_with(True, False, language)
@@ -83,10 +84,12 @@ class ReinstallConfirmationTests(unittest.TestCase):
             self.assertTrue(app.confirm_reinstall('en')); event.assert_not_called()
 
     def test_popup_copy_and_buttons_follow_target_language(self):
-        en, zh = prompt('en'), prompt('zh')
+        en, zh, hant = prompt('en'), prompt('zh'), prompt('zh-Hant')
         self.assertIsNone(re.search('[\u3400-\u9fff]', ''.join(en.values())))
         self.assertIn('English camera menu',en['body']); self.assertIn('中文相机菜单',zh['body'])
         self.assertEqual(en['cancel'],'Cancel'); self.assertEqual(zh['cancel'],'取消')
+        self.assertIn('繁體中文相機選單',hant['body'])
+        self.assertEqual(hant['proceed'],'繼續安裝')
         with self.assertRaises(ValueError): prompt('fr')
 
 

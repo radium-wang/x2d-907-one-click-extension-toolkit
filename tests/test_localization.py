@@ -3,8 +3,8 @@ from payload_support import requires_payloads
 import ast,json,re,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
-from localization import CATALOG, Localizer, translate
-from camera_ui_strings import LABELS, PRANK_BODY_EN, PRANK_BODY_ZH, english_qml
+from localization import CATALOG, TRADITIONAL, Localizer, translate
+from camera_ui_strings import LABELS, PRANK_BODY_EN, PRANK_BODY_ZH, english_qml, traditional_qml
 import windows_app
 import x2d_play_software as backend
 import windows_factory_usb as factory
@@ -21,17 +21,24 @@ class LanguageTests(unittest.TestCase):
             tree=ast.parse((D/filename).read_text())
             docs={id(node.body[0].value) for node in ast.walk(tree) if isinstance(node,(ast.Module,ast.FunctionDef,ast.ClassDef)) and node.body and isinstance(node.body[0],ast.Expr) and isinstance(node.body[0].value,ast.Constant) and isinstance(node.body[0].value.value,str)}
             for node in ast.walk(tree):
-                if isinstance(node,ast.Constant) and isinstance(node.value,str) and id(node) not in docs and CHINESE.search(node.value) and node.value not in ('中文','语言 / Language'):
+                if isinstance(node,ast.Constant) and isinstance(node.value,str) and id(node) not in docs and CHINESE.search(node.value) and node.value not in ('中文','简体中文','繁體中文','语言 / Language'):
                     with self.subTest(file=filename,text=node.value): self.assert_english(translate(node.value,'en'))
         for match in re.finditer(r'"(?:[^"\\]|\\.)*"',(D/'MacApp.swift').read_text()):
             try: text=json.loads(match.group())
             except ValueError: continue
-            if CHINESE.search(text) and text not in ('中文','语言 / Language'): self.assert_english(translate(text,'en'))
+            if CHINESE.search(text) and text not in ('中文','简体中文','繁體中文','系統','语言 / Language'): self.assert_english(translate(text,'en'))
 
     def test_chinese_messages_unchanged_and_english_no_mixed_language(self):
         for text in CATALOG:
             self.assertEqual(translate(text,'zh'),text)
             if text not in ('中文','语言 / Language'): self.assert_english(translate(text,'en'))
+
+    def test_traditional_catalog_covers_desktop_and_diagnostic_copy(self):
+        self.assertEqual(set(CATALOG)-set(TRADITIONAL),set())
+        for source,expected in [('一键安装','一鍵安裝'),('连续自动对焦','連續自動對焦'),
+                                ('后屏自动亮度','後屏自動亮度')]:
+            self.assertEqual(translate(source,'zh-Hant'),expected)
+        self.assertIn('USB 錯誤碼 -3',translate('工厂接口访问被拒绝（USB 错误码 -3）','zh-Hant'))
 
     def test_diagnostic_codes_paths_and_markers_preserved(self):
         for step in ('信息读取','打开','描述符读取','端点读取','发送','接收'):
@@ -63,6 +70,8 @@ class LanguageTests(unittest.TestCase):
             self.assertEqual(Localizer(path).text('一键安装'),'Install')
             self.assertEqual(json.loads(path.read_text()),{'language':'en'})
             instance.select('zh');self.assertEqual(Localizer(path).text('一键安装'),'一键安装')
+            instance.select('zh-Hant');self.assertEqual(Localizer(path).text('一键安装'),'一鍵安裝')
+            self.assertEqual(json.loads(path.read_text()),{'language':'zh-Hant'})
             with self.assertRaises(ValueError): instance.select('other')
 
     def test_switch_during_operation_never_changes_gates_or_event_data(self):
@@ -104,11 +113,24 @@ class LanguageTests(unittest.TestCase):
         self.assertIn(f'"{PRANK_BODY_ZH}"',sources['PrankIbisPage.qml'])
         self.assertIn('"耍起功能"',sources['PlayPage.qml'])
 
+    def test_traditional_camera_copy_preserves_qml_logic(self):
+        for path in D.glob('*.qml'):
+            source=path.read_text(encoding='utf-8')
+            translated=traditional_qml(source)
+            if source == translated: continue
+            with self.subTest(file=path.name):
+                self.assertEqual(source.count('"'),translated.count('"'))
+                self.assertNotIn('"连续自动对焦"',translated)
+        self.assertIn('"耍起功能"', (D/'PlayPage.qml').read_text())
+        self.assertEqual(english_qml('"耍起功能已关闭"'),'"耍起功能已关闭"')
+        self.assertIn('"耍起功能已關閉"',traditional_qml('"耍起功能已关闭"'))
+
     def test_camera_ui_language_overlay_keeps_targets_and_rejects_mixed_hashes(self):
         chinese=[dict(source='X2dPlayPage.qml',target='/system/etc/X2dPlayPage.qml',sha256='aa',bytes=1),
                  dict(source='libx2d_native_menu.so',target='/system/lib64/libx2d_native_menu.so',sha256='bb',bytes=2)]
         english=[dict(source='X2dPlayPage.en.qml',target='/system/etc/X2dPlayPage.qml',sha256='cc',bytes=3)]
-        package=dict(format=3,guiSha256=backend.STOCK_GUI,files=chinese,uiLanguages=dict(en=english))
+        traditional=[dict(source='X2dPlayPage.zh-Hant.qml',target='/system/etc/X2dPlayPage.qml',sha256='dd',bytes=4)]
+        package=dict(format=3,guiSha256=backend.STOCK_GUI,files=chinese,uiLanguages={'en':english,'zh-Hant':traditional})
         self.assertIs(backend.apply_ui_language(package,'zh'),package)
         selected=backend.apply_ui_language(package,'en')
         self.assertEqual(selected['files'][0],english[0])
@@ -116,6 +138,7 @@ class LanguageTests(unittest.TestCase):
         self.assertEqual([entry['target'] for entry in selected['files']],[entry['target'] for entry in chinese])
         self.assertTrue(backend.same_release_files(chinese,package))
         self.assertTrue(backend.same_release_files(selected['files'],package))
+        self.assertTrue(backend.same_release_files(backend.apply_ui_language(package,'zh-Hant')['files'],package))
         mixed=[dict(english[0],sha256='dead'),chinese[1]]
         self.assertFalse(backend.same_release_files(mixed,package))
         with self.assertRaises(RuntimeError): backend.apply_ui_language(package,'fr')
@@ -126,7 +149,10 @@ class LanguageTests(unittest.TestCase):
         for text in ('正在安装菜单和功能服务','正在恢复原厂启动配置'): translate(text,'en')
         self.assertEqual(before,backend.prepare()['files'])
         english=backend.apply_ui_language(backend.prepare(),'en')['files']
+        traditional=backend.apply_ui_language(backend.prepare(),'zh-Hant')['files']
         self.assertNotEqual(before,english)
+        self.assertNotEqual(before,traditional)
         self.assertEqual([entry['target'] for entry in before],[entry['target'] for entry in english])
+        self.assertEqual([entry['target'] for entry in before],[entry['target'] for entry in traditional])
 
 if __name__=='__main__':unittest.main()

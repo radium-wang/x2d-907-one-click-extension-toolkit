@@ -1,12 +1,12 @@
-x2d/907一键扩展功能-工具包 0.4.6 · macOS 通用实验版
+x2d/907一键扩展功能-工具包 0.4.7 · macOS 通用实验版
 
 语言选择
-点击窗口右上角“设置”，可选择“中文”或“English”，默认中文，选择会保存到本机，重新启动仍沿用。
+点击窗口右上角“设置”，可选择“简体中文”、“繁體中文”或“English”，默认简体中文，选择会保存到本机，重新启动仍沿用。
 切换覆盖 App 按钮、功能说明、状态、错误、操作提示及当前已有日志；保存的日志也使用当前语言。
 语言切换不更改功能开关、安装状态或 USB 驱动。
 
 Language
-Open Settings at the top right, then choose 中文 or English. The app remembers your choice after restart.
+Open Settings at the top right, then choose Simplified Chinese, Traditional Chinese or English. The app remembers your choice after restart.
 Buttons, feature descriptions, status, errors, instructions and existing logs follow the selected language.
 Language selection does not change feature settings or USB drivers.
 
@@ -14,7 +14,7 @@ English quick start
 1. Extract the ZIP and open x2d-907一键扩展功能-工具包.app. No Python or Homebrew installation is required.
 2. Turn on one supported camera, connect it to your Mac and click Connected.
 3. Once checks pass, click Install or Restore original. Keep the camera powered and connected until completion is confirmed. Tap Skip on the camera if prompted.
-4. Open Tweaks (English install) or 耍起功能 (Chinese install) at the end of the camera's main menu. Turn on its master switch, then AF-C, the focus speed buff, or auto rear screen brightness.
+4. Open Tweaks (English install) or 耍起功能 (Chinese install) at the end of the camera's main menu. Turn on its master switch, then AF-C, the focus speed buff, or auto rear screen brightness. Select Traditional Chinese in Settings before Install for Traditional Chinese camera text.
 5. Do not remove the lens while the focus buff is on. Turn it off before changing lenses.
 macOS 13+ on Apple silicon / Intel; original X2D 100C / 907X & CFV 100C firmware 4.2.0 only.
 This local experimental app uses ad-hoc signing and is not Apple-notarized. The 907X menu update still awaits device verification.
@@ -28,7 +28,7 @@ X2D 已有实机安装、重启常驻与恢复验收。
 907X 用户已反馈连接及服务安装通过，但原版未出现菜单入口。本版按其 10 项原厂菜单修正入口追加，实际菜单仍待用户确认；仅在 907X 机身搭配自动对焦 XCD 镜头时测试。
 不适用于 X2D II、907X 50C 或其他固件。
 
-完整解压“x2d-907-extension-toolkit-macOS-Universal-0.4.6.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
+完整解压“x2d-907-extension-toolkit-macOS-Universal-0.4.7.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
 请使用新解压的应用，避免继续打开旧版副本。
 运行库已自带，不需要安装 Python 或 Homebrew。
 0.2.7 在日志中按操作阶段显示连接、按钮操作、相机“跳过”和完成后拔线提示。
