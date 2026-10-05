@@ -4,7 +4,7 @@ import argparse, json, os, plistlib, shutil, subprocess, re
 from pathlib import Path
 D = Path(__file__).resolve().parent
 PAYLOAD = Path(os.environ.get('X2D_PAYLOAD_DIR', str(D/'native-package')))
-VERSION = '0.4.7'
+VERSION = '0.4.8'
 ARCHES = {'arm64', 'x86_64'}
 MINIMUM = (13, 0)
 
@@ -40,8 +40,9 @@ def resolve_dependency(dep, origin, framework):
         raise RuntimeError('Unsupported dependency: ' + dep)
     return Path(dep).resolve()
 
-def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
-    out = D/'outputs/mac-app'; out.mkdir(parents=True, exist_ok=True)
+def build(python, adb, libusb, pyusb, framework=None, libusb_license=None, output=None):
+    out = output if output is not None else D/'outputs/mac-app'
+    out.mkdir(parents=True, exist_ok=True)
     app = out/'x2d-907一键扩展功能-工具包.app'
     if app.exists(): shutil.rmtree(app)
     c=app/'Contents'; r=c/'Resources'; m=c/'MacOS'
@@ -70,7 +71,7 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
     native=r/'native-package'; native.mkdir()
     manifest=json.loads((PAYLOAD/'speed-bundle.json').read_text())
     localized={f['source'] for entries in (manifest.get('uiLanguages') or {}).values() for f in entries}
-    for source in {f['source'] for f in manifest['files']} | localized | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
+    for source in {f['source'] for f in manifest['files']} | localized | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-0.4.7.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
         shutil.copy2(PAYLOAD/source,native/source)
     shutil.copytree(PAYLOAD/'previous-payloads',native/'previous-payloads')
     # Relocate every non-system Mach-O dependency. Never rely on Homebrew at runtime.
@@ -123,7 +124,7 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None):
         'CFBundleName':'x2d/907一键扩展功能-工具包','CFBundleDisplayName':'x2d/907一键扩展功能-工具包',
         'CFBundleIdentifier':'local.x2d.play','CFBundleExecutable':'X2DPlay',
         'CFBundlePackageType':'APPL','CFBundleShortVersionString':VERSION,
-        'CFBundleVersion':'21','LSMinimumSystemVersion':'.'.join(map(str,minimum)),
+        'CFBundleVersion':'22','LSMinimumSystemVersion':'.'.join(map(str,minimum)),
         'NSHighResolutionCapable':True,'NSHumanReadableCopyright':'Local experimental X2D / 907X 100C 4.2.0 tool'}))
     licenses=r/'licenses'; licenses.mkdir()
     shutil.copy2(D.parent/'LICENSE',licenses/'X2D-907-Toolkit.txt')
@@ -187,4 +188,5 @@ if __name__=='__main__':
     p.add_argument('--pyusb',type=Path,required=True)
     inputs.add_argument('--python-framework',type=Path,help='解包后的官方 Python.framework；无需安装或执行安装脚本')
     p.add_argument('--libusb-license',type=Path)
-    a=p.parse_args();build(a.python,a.adb,a.libusb,a.pyusb,a.python_framework,a.libusb_license)
+    p.add_argument('--output',type=Path,help='Separate output directory for unpublished test packages')
+    a=p.parse_args();build(a.python,a.adb,a.libusb,a.pyusb,a.python_framework,a.libusb_license,a.output)

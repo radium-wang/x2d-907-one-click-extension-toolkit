@@ -10,7 +10,7 @@ from windows_ui import NativeStyle, Viewport, ScrollInfo, WIDTH, HEIGHT, COLORS,
 from windows_processes import UpdateCheck, stop_process
 
 D = Path(__file__).resolve().parent
-VERSION = '0.4.7'
+VERSION = '0.4.8'
 
 
 class Session:
@@ -292,7 +292,7 @@ def main():
                     if event.get('installed') else '相机处于原厂状态，可以安装耍起功能。')
         elif kind == 'result':
             settext(controls['state'], text)
-            settext(controls['detail'], '在相机菜单中分别开启 AF-C 与对焦加速 buff。'
+            settext(controls['detail'], '在相机菜单中分别开启 AF-C 与对焦加速。'
                     if event.get('installed') else '原厂界面与启动配置已恢复。')
             send(controls['progress'], 0x0402, 100, 0)
         elif kind == 'cancelled':
@@ -572,7 +572,7 @@ def main():
     item('subtitle','STATIC','X2D 100C / 907X 100C · 固件 4.2.0')
     item('afc','STATIC','AF-C 连续自动对焦',textfont=strong)
     item('afcdescription','STATIC','在相机上开启连续自动对焦',textfont=small)
-    item('buff','STATIC','对焦加速 buff',textfont=strong)
+    item('buff','STATIC','对焦加速',textfont=strong)
     item('buffdescription','STATIC','加快对焦扫描，关闭后恢复原厂速度',textfont=small)
     item('brightness','STATIC','后屏自动亮度',textfont=strong)
     item('brightnessdescription','STATIC','根据环境光调节后屏亮度，可设置最高亮度',textfont=small)
@@ -583,7 +583,7 @@ def main():
     item('statusbutton','BUTTON','已连接',extra=0x10001,identity=101)
     item('installbutton','BUTTON','一键安装',extra=0x10000,identity=102)
     item('restorebutton','BUTTON','一键恢复原状',extra=0x10000,identity=103)
-    item('warning','STATIC','开启对焦 buff 后切勿取下镜头。\r\n更换镜头前，请先关闭对焦加速 buff。',textfont=strong)
+    item('warning','STATIC','对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。',textfont=strong)
     item('note','STATIC','安装会自动备份原厂配置，并重启校验。恢复会撤回本应用的菜单与功能。请等待操作完成再拔线；首次连接会自动准备相机工厂接口驱动。',textfont=small)
     item('logs','EDIT','',extra=0x00210844,textfont=small)
     refresh_layout()

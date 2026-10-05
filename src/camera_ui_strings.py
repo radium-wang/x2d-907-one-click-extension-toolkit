@@ -6,7 +6,9 @@ from localization import TRADITIONAL
 LABELS = (
     ('耍起功能', 'Tweaks'),
     ('开启 AF-C', 'Enable AF-C'),
-    ('对焦加速 buff', 'Focus Speed Boost'),
+    ('对焦加速', 'Focus Speed Boost'),
+    ('对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。',
+     'Focus acceleration works by tripling lens motor speed. Not recommended for older lenses.'),
     ('在亮度菜单中加入自动亮度', 'Add Auto Brightness to Menu'),
     ('请前往显示 → 亮度设置自动亮度', 'Configure auto brightness in Display → Brightness'),
     ('自动亮度', 'Auto Brightness'),

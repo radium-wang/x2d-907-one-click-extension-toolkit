@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.8](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.8) — 2026-10-05
+
+- Replace the desktop lens-change warning with guidance that focus acceleration works by tripling lens motor speed and is not recommended for older lenses. Update both bundled instructions and the README in Simplified Chinese, Traditional Chinese and English.
+- Rename the Chinese focus-speed label to 对焦加速 / 對焦加速; keep the English names unchanged. Add the same guidance below the camera switch using the stock SettingDescription font, gray appearance and wrapping layout.
+- Retain the exact published 0.4.7 manifest and all language payloads for recognized upgrade and interrupted restoration. Focus acceleration code and parameters are unchanged. After updating the desktop app to 0.4.8, use Connected → Install to update camera text. A recognized older install is restored first after confirmation.
+
+- Publish Mac universal and Windows x64 packages. 173 offline tests passed; clean source: 146 passed, 27 skipped. Nine camera description layouts/touch checks, three native Mac language previews, nine Windows layout previews and package audits passed; native Windows and camera/lens behavior still need validation.
+
 ## Documentation update — 2026-10-05
 
 - Put direct Windows and macOS 0.4.7 installer downloads at the top of the README and release notes, with platform requirements and extraction guidance. Published application archives are unchanged.
@@ -109,6 +117,14 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## [0.4.8](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.8) — 2026-10-05
+
+- 删除电脑端换镜头警告，改为“对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。”；同步简体、繁体、英文、包内说明及 README。
+- 中文名称改为“对焦加速 / 對焦加速”，英文名称不变；相机开关下方加入同样的提示，使用原厂说明字号、灰度和自动换行布局。
+- 保留已发布 0.4.7 的精确清单及所有语言载荷，支持识别旧安装、升级和中断恢复。加速实现和参数未改动；电脑端升级到 0.4.8 后，点击“已连接 → 一键安装”更新相机文案；识别到旧安装时，经确认先恢复再安装。
+
+- 发布 Mac 通用与 Windows x64 安装包。173 项完整离线测试通过；纯源码为 146 项通过、27 项跳过。九份相机说明布局/触控检查、三种语言的 Mac 原生预览、九份 Windows 布局预览和安装包校验通过；Windows 原生及相机/镜头行为仍待验证。
 
 ## 文档更新 — 2026-10-05
 

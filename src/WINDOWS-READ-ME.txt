@@ -1,4 +1,4 @@
-x2d/907一键扩展功能-工具包 0.4.7 · Windows x64 实验版
+x2d/907一键扩展功能-工具包 0.4.8 · Windows x64 实验版
 
 语言选择
 点击窗口右上角“设置”，可选择“简体中文”、“繁體中文”或“English”，默认简体中文，选择会保存到本机，重新启动仍沿用。
@@ -25,7 +25,7 @@ English quick start
 2. Turn on one supported camera, connect a USB data cable, then click Connected. The app prepares only the camera factory Interface 3 driver and checks the camera.
 3. Once checks pass, click Install or Restore original. Keep the camera powered and connected until completion is confirmed. Tap Skip on the camera if prompted.
 4. Open Tweaks (English install) or 耍起功能 (Chinese install) at the end of the camera's main menu. Turn on its master switch, then AF-C, the focus speed buff, or auto rear screen brightness. Select Traditional Chinese in Settings before Install for Traditional Chinese camera text.
-5. Do not remove the lens while the focus buff is on. Turn it off before changing lenses.
+5. Focus acceleration works by tripling lens motor speed. Not recommended for older lenses.
 Windows 10 / 11 x64; original X2D 100C / 907X & CFV 100C firmware 4.2.0 only.
 Automatic driver setup and the 907X menu update still await device verification. ADB is a separate interface and may require its own driver.
 
@@ -38,11 +38,10 @@ Automatic driver setup and the 907X menu update still await device verification.
 2. 相机开机，用数据线连接电脑，只连接一台相机。相机屏幕提示连接方式时，可选择“大容量存储”。
 3. 点击“已连接”。程序先检查相机的工厂 Interface 3 驱动；已绑定 WinUSB 时直接使用，缺少时自动准备。此步骤仅准备电脑驱动，尚未安装相机功能。
 4. 等相机文件与状态检查通过，安装及恢复按钮才会启用。点击“一键安装”，等待备份、安装和重启校验完成。如相机屏幕出现“跳过”，请点击“跳过”，继续保持连接。
-5. App 报告安装完成后可以拔线。相机主菜单末尾进入“耍起功能”：X2D 默认第 12 项，907X / CFV 默认第 11 项。先开启总开关，再开启 AF-C、对焦加速 buff 或“在亮度菜单中加入自动亮度”。自动亮度开关和显示屏最高亮度位于“显示 → 亮度”；圆球设置上限，白线显示当前输出。
+5. App 报告安装完成后可以拔线。相机主菜单末尾进入“耍起功能”：X2D 默认第 12 项，907X / CFV 默认第 11 项。先开启总开关，再开启 AF-C、对焦加速 或“在亮度菜单中加入自动亮度”。自动亮度开关和显示屏最高亮度位于“显示 → 亮度”；圆球设置上限，白线显示当前输出。
 6. 需要撤回时，重新连接并点击“已连接”，检查通过后点击“一键恢复原状”，等待恢复和重启校验完成后再拔线。
 
-开启对焦 buff 后切勿取下镜头。
-更换镜头前，请先关闭对焦加速 buff。
+对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。
 
 本版更新
 自动准备工厂接口 WinUSB 驱动，并在双击启动时请求管理员授权。

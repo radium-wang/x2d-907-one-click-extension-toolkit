@@ -137,20 +137,34 @@ FocusScope {
             Item {
                 objectName: "X2dPlaySpeedSwitchRow"
                 width: parent.width
-                height: Constants.menuListItemDefaultHeight
-                StockMenu.MenuBoolSelector {
+                readonly property real topOffset: 16 * 1.6 * Constants.scaleFactorY
+                readonly property real bottomOffset: 8 * 1.6 * Constants.scaleFactorY
+                height: speedColumn.height + topOffset + bottomOffset
+                Column {
+                    id: speedColumn
+                    anchors.top: parent.top
+                    anchors.topMargin: parent.topOffset
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.leftMargin: Constants.settingsMenuSettingLeftMargin
                     anchors.rightMargin: Constants.settingsMenuSettingRightMargin
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "对焦加速 buff"
-                    value: root.featureLoaded
-                    itemEnabled: root.pageActive && root.masterEnabled && root.backendAvailable &&
-                                 !root.featureBusy && !root.requestPending
-                    highlighted: speedTouch.pressed
-                    showSwitch: true
-                    fontWeight: Font.Medium
+                    spacing: 8 * 1.6 * Constants.scaleFactorY
+                    StockMenu.MenuBoolSelector {
+                        width: parent.width
+                        text: "对焦加速"
+                        value: root.featureLoaded
+                        itemEnabled: root.pageActive && root.masterEnabled && root.backendAvailable &&
+                                     !root.featureBusy && !root.requestPending
+                        highlighted: speedTouch.pressed
+                        showSwitch: true
+                        fontWeight: Font.Medium
+                    }
+                    StockMenu.SettingDescription {
+                        objectName: "X2dFocusSpeedHint"
+                        width: parent.width
+                        text: "对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。"
+                        isEnabled: root.masterEnabled && root.backendAvailable
+                    }
                 }
                 MouseArea {
                     id: speedTouch

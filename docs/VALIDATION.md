@@ -1,4 +1,4 @@
-# Validation boundaries — 0.4.7
+# Validation boundaries — 0.4.8
 
 ## Traditional Chinese desktop and camera menus (0.4.7)
 
@@ -84,3 +84,9 @@ Qt 6.4.1 tests check the actual Tweaks page/controller and the packaged, stock-d
 The hint now uses the actual stock SettingDescription component and switch-description spacing. Qt 6.4.1 checks cover Chinese and English at widths 1024, 768 and 620 with matching stock font/opacity; the narrow English description wraps to two lines and its row grows without clipping. The native Mac feature card was rendered and inspected in both languages using a test harness with camera and update operations disabled. The Windows overview passes translation/callback checks; its native rendering still needs Windows validation.
 
 Mac universal and Windows x64 archives are rebuilt for 0.4.3. Archive audits verify the current payload hashes, both earlier local brightness recovery catalogs, published 0.4.2 recovery, the project license and the unchanged donor MIT notice. The license was updated in a separate commit before this release; existing older release assets remain unchanged. Native Windows GUI execution and all camera checks remain pending. Physical rear-display smoothness, Android/Qt loading and permissions, X2D/CFV cold boot and restoration need device validation. The integer-percent stock API still limits output granularity; evenly paced transitions reduce the filter's long tail but do not promise an imperceptible hardware transition. Generated evidence stays in ignored outputs.
+
+## Focus acceleration guidance (0.4.8)
+
+The desktop guidance, Chinese switch name and a stock-style description below that switch were updated in three languages. Only PlayPage text/layout changes in the current camera payload; native libraries, service scripts, acceleration parameters and brightness behavior are unchanged. Exact published 0.4.7 manifests and old bytes in all three languages are retained for recognized upgrade and interrupted restoration; altered hashes and a tampered catalog are rejected.
+
+173 offline tests pass with generated inputs; clean source passes 146 and skips 27 requiring excluded inputs. Qt 6.4.1 checks the actual packaged page using stock widgets and substitute camera services in nine language/width cases: description typography/opacity match stock, wrapping does not clip, real clicks toggle and master-off blocks writes. Mac native preview checks cover all three languages without camera/update operations; Windows previews use the shared layout with host font fallback. Windows native rendering, camera loading and lens behavior still need device/native validation. Removing the old warning does not constitute a lens hot-swap hardware test. The 0.4.8 release archives contain this guidance and the old recovery catalog; the published 0.4.7 archives remain unchanged.

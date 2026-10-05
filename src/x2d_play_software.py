@@ -18,6 +18,7 @@ BRIGHTNESS_FEATURE = '/blackbox/x2d-play-auto-brightness.available'
 PREVIOUS_DISPLAY_BRIGHTNESS_SHA = '73d13e8fe5d8295121b47a76fc4c553a71ae1c66cee7b8e6565ec5bf6813ed7a'
 PREVIOUS_BRIGHTNESS_SHA = '12a2c8b4785c349e13b03197b692ed1eb4d79cf291a059bf2ec077e50191310e'
 PREVIOUS_042_SHA = '34a32083a442cc667e56d311bcd9ea583a15e7f076c39f6cdc4c8e67c9024635'
+PREVIOUS_047_SHA = 'cb510721aabea62d35220a9e60aed23569195fdd1defab2a5c5f57a897c557c4'
 STOCK_RC = '1d6a8f9e41e269be38b3fb9ba53f4c47d18007f413c90893fdfa9d7542d1f688'
 STOCK_GUI = '16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0'
 ADB_NAME = 'adb.exe' if os.name == 'nt' else 'adb'
@@ -424,7 +425,8 @@ def recognized_bundle(manifest):
     if same_release_files(manifest.get('files'), current):
         return manifest.get('autoBrightness') == current.get('autoBrightness')
     if manifest.get('autoBrightness'):
-        for name, expected in (('previous-bundle-auto-brightness.json', PREVIOUS_BRIGHTNESS_SHA),
+        for name, expected in (('previous-bundle-0.4.7.json', PREVIOUS_047_SHA),
+                               ('previous-bundle-auto-brightness.json', PREVIOUS_BRIGHTNESS_SHA),
                                ('previous-bundle-brightness-display.json', PREVIOUS_DISPLAY_BRIGHTNESS_SHA)):
             previous = (O / name).read_bytes()
             if sha(previous) != expected: raise RuntimeError('自动亮度安装包校验失败')

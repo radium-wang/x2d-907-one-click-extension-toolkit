@@ -102,7 +102,7 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,required=True)
     args=parser.parse_args();args.output.mkdir(parents=True,exist_ok=True)
     reports=[]
-    for language in ('zh','en'):
+    for language in ('zh','zh-Hant','en'):
         reports.append(render(args.output/('windows-'+language+'.png'),language))
         reports.append(render(args.output/('windows-'+language+'-small.png'),language,1.25,560,HEIGHT-560))
         reports.append(render(args.output/('windows-settings-'+language+'.png'),language,settings=True))

@@ -54,7 +54,7 @@ Mac inputs: Xcode command-line tools; official Python 3.13.15 universal framewor
 
 Windows inputs: official Python 3.13.15 x64 embed ZIP, libusb 1.0.30 binary input, Android platform-tools, LLVM/lld, and the pinned libwdi preparation inputs. `build_windows_driver.py` documents and checks the libwdi 1.5.1 source and llvm-mingw 20260922 hashes, builds its restricted helper and includes modified libwdi source + license texts in the package. It does not install a driver on the build computer. The launcher requests administrator elevation; the helper only accepts the camera's supported composite factory interface, never a storage or parent device. ADB driver setup is separate.
 
-Windows UI test builds can pass `--output src/outputs/windows-ui-test` to keep them separate from published packages. With the optional desktop PySide6 test environment, `tests/preview_windows_ui.py --output src/outputs/windows-ui-preview` renders Chinese/English previews using the same layout, colors and vector geometry as native GDI. Those images verify layout only; they are not screenshots from a Windows execution.
+Mac test builds can also pass `--output` to keep generated test apps separate from published packages. Windows UI test builds can pass `--output src/outputs/windows-ui-test` to keep them separate from published packages. With the optional desktop PySide6 test environment, `tests/preview_windows_ui.py --output src/outputs/windows-ui-preview` renders Chinese/English previews using the same layout, colors and vector geometry as native GDI. Those images verify layout only; they are not screenshots from a Windows execution.
 
 ## Device actions
 
@@ -85,3 +85,7 @@ The display runtime loads into camera-system, samples CM32181 at 5 Hz and update
 The installation ledger retains both stock startup configurations. Both writes roll back on failure. Restore stops camera-system and waits for its exit before removing the display library. The published 0.4.2 and two earlier local auto-brightness manifests and exact old payload bytes are retained for interrupted old installations; desktop builders include all three manifests and the previous-payloads catalog.
 
 `tests/check_brightness_qml.py` checks the Tweaks switch and its controller with a local service substitute. `tests/check_display_brightness_qml.py --stock-qml /absolute/path/to/extracted/qml --payload /absolute/path/to/generated/package` checks the packaged Display delegate and original stock widgets, including real drags and separate knob/fill updates. Both use desktop Qt 6.4.1 and loopback-only HTTP fixtures; no camera is accessed.
+
+## Focus acceleration guidance
+
+`tests/check_focus_guidance_qml.py --payload /absolute/path/to/generated/package` checks the packaged Simplified/Traditional Chinese and English switch descriptions with Qt 6.4.1 and stock-style fixtures. It checks stock typography/opacity, wrapping at 1024/768/620 widths, real switch clicks and master-off gating. `previous-bundle-0.4.7.json` and its old per-file bytes must be included for upgrade/restoration after the page text changes; both builders include the catalog.

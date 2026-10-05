@@ -45,8 +45,6 @@
   "在相机菜单中分别开启 AF-C 与对焦加速 buff。": "Enable AF-C and the focus speed buff separately in the camera menu.",
   "安装已校验。相机菜单中可分别开启 AF-C 与对焦加速 buff。": "Installation verified. Enable AF-C and the focus speed buff in the camera menu.",
   "原厂界面与启动配置已恢复。": "Original interface and startup configuration restored.",
-  "开启对焦 buff 后切勿取下镜头。\n更换镜头前，请先关闭对焦加速 buff。": "Do not remove the lens while the focus buff is on.\nTurn off the focus speed buff before changing lenses.",
-  "开启对焦 buff 后切勿取下镜头。\r\n更换镜头前，请先关闭对焦加速 buff。": "Do not remove the lens while the focus buff is on.\r\nTurn off the focus speed buff before changing lenses.",
   "安装会自动保存原厂配置，并重启相机完成校验。恢复会撤回本应用的菜单与功能。请等待操作完成再拔线。": "Install saves the original configuration and restarts the camera for verification. Restore removes Tweaks's menu and features. Disconnect only after completion.",
   "安装会自动备份原厂配置，并重启校验。恢复会撤回本应用的菜单与功能。\r\n请等待操作完成再拔线；首次连接会自动准备相机工厂接口驱动。": "Install backs up the original setup and verifies it after restart. Restore removes Tweaks.\r\nWait for completion before disconnecting. The factory USB driver is prepared automatically.",
   "安装会自动备份原厂配置，并重启校验。恢复会撤回本应用的菜单与功能。请等待操作完成再拔线；首次连接会自动准备相机工厂接口驱动。": "Install saves the original setup and verifies it after restart. Restore removes Tweaks. Wait for completion before disconnecting; the factory USB driver is prepared automatically.",
@@ -344,5 +342,13 @@
   "无法管理 ADB 进程；相机安装尚未开始": "Could not manage the ADB process. Camera installation has not started",
   "ADB 独立本机端口无法使用，请检查系统网络权限后重试": "The private local ADB port is unavailable. Check system network permissions and retry",
   "ADB 本机通信参数不兼容，请更新至最新工具包后重试；相机安装尚未开始": "The local ADB connection parameters are incompatible. Update to the latest toolkit and retry; camera installation has not started",
-  "安装包缺少所选语言的相机界面文件": "The package is missing the selected camera language files"
+  "安装包缺少所选语言的相机界面文件": "The package is missing the selected camera language files",
+  "对焦加速": "Focus speed buff",
+  "主菜单末尾进入耍起功能。总开关控制 AF-C 与对焦加速。": "Open Tweaks at the end of the camera's main menu. The master switch controls AF-C and the focus buff.",
+  "在相机菜单中分别开启 AF-C 与对焦加速。": "Enable AF-C and the focus speed buff separately in the camera menu.",
+  "安装已校验。相机菜单中可分别开启 AF-C 与对焦加速。": "Installation verified. Enable AF-C and the focus speed buff in the camera menu.",
+  "操作已完成，可以拔掉相机的 USB 数据线。请在相机主菜单末尾进入“耍起功能”，先开启总开关，再选择 AF-C 或对焦加速。": "Operation complete. You may disconnect the USB cable. Open Tweaks at the end of the camera's main menu, turn on the master switch, then enable AF-C or the focus buff.",
+  "主菜单末尾进入耍起功能。总开关控制 AF-C、对焦加速和后屏自动亮度。": "Open Tweaks at the end of the camera menu. The master switch controls AF-C, focus boost and auto rear screen brightness.",
+  "操作已完成，可以拔掉相机的 USB 数据线。请在相机主菜单末尾进入“耍起功能”，先开启总开关，再选择 AF-C、对焦加速或后屏自动亮度。": "Operation complete. You may disconnect the USB cable. Open Tweaks at the end of the camera menu, turn on the master switch, then select AF-C, focus boost or auto rear screen brightness.",
+  "对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。": "Focus acceleration works by tripling lens motor speed. Not recommended for older lenses."
 }
