@@ -7,6 +7,13 @@ D=/tmp/x2d-speed-buff
 MASTER=/blackbox/x2d-speed-buff.master
 ENABLED=/blackbox/x2d-speed-buff.enabled
 AFC=/blackbox/x2d-play-afc.enabled
+FEATURE_MASK=${X2D_FEATURE_MASK:-7}
+case "$FEATURE_MASK" in 1|2|3|4|5|6|7) ;; *) exit 38;; esac
+action=${1:-status}
+case "$action" in
+ enable) [ "$((FEATURE_MASK & 2))" != 0 ] || exit 38;;
+ afc_on) [ "$((FEATURE_MASK & 1))" != 0 ] || exit 38;;
+esac
 mkdir -p "$D"; chmod 700 "$D"
 # The loopback server and the USB restore action share a single transaction lock.
 n=0
@@ -50,7 +57,6 @@ restore() {
  [ "$CURRENT" = "$ORIGINAL" ]
  active=false
 }
-action=${1:-status}
 case "$action" in
  master_on) [ "$ready" = true ]; : >"$MASTER"; master=true;;
  master_off)
@@ -108,4 +114,4 @@ RESTORE
 esac
 if [ "$active" = true ]; then message='对焦加速 buff 已开启：×3 / ×3 / ×2'
 elif [ "$master" = true ] && [ "$ready" = true ]; then message='原厂速度；可开启对焦加速 buff'; fi
-printf '{"ready":%s,"active":%s,"master":%s,"afc":%s,"prankIbis":%s,"message":"%s"}\n' "$ready" "$active" "$master" "$afc" "$prankIbis" "$message" >"$D/ui.json"
+printf '{"ready":%s,"active":%s,"master":%s,"afc":%s,"prankIbis":%s,"featureMask":%s,"message":"%s"}\n' "$ready" "$active" "$master" "$afc" "$prankIbis" "$FEATURE_MASK" "$message" >"$D/ui.json"

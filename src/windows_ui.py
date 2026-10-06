@@ -6,45 +6,38 @@ Only their painting and placement change. No USB or application workers here.
 import ctypes as C
 from ctypes import wintypes as W
 import math
+import json
+from pathlib import Path
 
-WIDTH, HEIGHT = 580, 804
-COLORS = dict(background='#ffffff', text='#252525', secondary='#808080',
-              border='#e3e3e5', surface='#eeeeef', disabled='#f4f4f5',
-              disabled_text='#bcbcc0', blue='#007aff', blue_hover='#006de3',
-              blue_pressed='#005ac1', orange='#ee8c32', focus='#8ebcff')
-
+LOOK = json.loads((Path(__file__).with_name('desktop-ui.json')).read_text(encoding='utf-8'))
+WIDTH, HEIGHT = LOOK['width'], LOOK['height']
+COLORS = LOOK['colors']
 
 def text_style(key, language='zh'):
-    if key=='title':return (19 if language=='en' else 22), True, COLORS['text']
-    if key=='state':return 16,True,COLORS['text']
+    if key=='title':return 21, True, COLORS['text']
+    if key in ('featureheading','settingsheading'):return 16,True,COLORS['text']
+    if key=='logheading':return 14,True,COLORS['text']
+    if key in ('version','state','featurecount','dependency','summarylabel'):return 12,False,COLORS['secondary']
+    if key in ('note','logstate'):return 11,False,COLORS['secondary']
+    if key=='selectionsummary':return 14,False,COLORS['text']
     if key=='buffdescription':return 12,False,COLORS['orange']
     if key in ('afc','buff','brightness'):return 14,True,COLORS['text']
-    if key=='subtitle':return 14,False,COLORS['secondary']
-    if key in ('detail','note','updatesdescription') or key.endswith('description'):return 12,False,COLORS['secondary']
+    if key=='subtitle':return 13,False,COLORS['secondary']
+    if key in ('detail','note','updatesdescription','selectionsummary') or key.endswith('description'):return 12,False,COLORS['secondary']
     return 14,False,COLORS['text']
 
 
-def main_layout(width=WIDTH):
+def main_layout(width=WIDTH, language='zh'):
     """Logical pixels, scaled once by the window's current monitor DPI."""
-    inner = width - 56
-    return dict(
-        title=(28, 28, inner-90, 34), settingsbutton=(width-102, 30, 74, 28),
-        subtitle=(28, 69, inner, 22), box=(28, 102, inner, 214),
-        afc=(77, 117, inner-64, 21), afcdescription=(77, 140, inner-64, 20),
-        buff=(77, 165, inner-64, 21), buffdescription=(77, 188, inner-64, 60),
-        brightness=(77, 261, inner-64, 21), brightnessdescription=(77, 284, inner-64, 20),
-        prank=(28, 328, inner, 26), state=(28, 370, inner, 27),
-        detail=(28, 409, inner, 54), progress=(28, 475, inner, 6),
-        statusbutton=(28, 499, 106, 32), installbutton=(146, 499, 118, 32),
-        restorebutton=(276, 499, 156, 32),
-        note=(28, 556, inner, 52), logs=(29, 626, inner-2, HEIGHT-651))
+    layout = dict(LOOK['layout']);layout.update(LOOK.get('languageLayout',{}).get(language,{}))
+    return {key:tuple(rect) for key,rect in layout.items()}
 
 
 def button_colors(primary=False, enabled=True, hovered=False, pressed=False):
-    if not enabled: return COLORS['disabled'], COLORS['disabled_text']
+    if not enabled: return ('#88bcfc','#ffffff') if primary else (COLORS['background'],COLORS['disabled_text'])
     if primary:
         return COLORS['blue_pressed' if pressed else 'blue_hover' if hovered else 'blue'], '#ffffff'
-    return ('#dedee1' if pressed else '#e6e6e8' if hovered else COLORS['surface']), COLORS['text']
+    return ('#dedee1' if pressed else '#e6e6e8' if hovered else COLORS['background']), COLORS['text']
 
 
 class Viewport:
@@ -67,17 +60,18 @@ class Viewport:
         elif y+height > self.offset+self.height: self.scroll(y+height-self.height+12)
 
 
-def decorations(width=WIDTH, offset=0):
+def decorations(width=WIDTH, offset=0, language='zh'):
     """Shared vector geometry for native painting and the offline preview."""
-    layout = main_layout(width)
-    x,y,w,h = layout['box']
-    result = [('round', (x,y-offset,w,h,10), '#ffffff', COLORS['border'])]
-    for kind, title, caption in (('focus','afc','afcdescription'),('bolt','buff','buffdescription'),('sun','brightness','brightnessdescription')):
-        top = layout[title][1]
-        bottom = layout[caption][1] + layout[caption][3]
-        result.append(('icon', (43,round((top+bottom-18)/2)-offset,18,18,kind), COLORS['secondary'], None))
-    x,y,w,h = layout['logs']
-    result.append(('round', (x-1,y-1-offset,w+2,h+2,5), '#ffffff', COLORS['border']))
+    layout = main_layout(width,language)
+    result = []
+    for key,radius,color,border in [('box',10,'background',True),('logbox',9,'background',True),('summarybox',8,'surface',False)]:
+        x,y,w,h = layout[key]
+        result.append(('round',(x,y-offset,w,h,radius),COLORS[color],COLORS['border'] if border else None))
+    for x,y,w in [(392,198,560),(392,288,560),(43,140,310),(43,546,310)]:
+        result.append(('line',(x,y-offset,w),COLORS['border'],None))
+    for kind,key in [('focus','afcchoice'),('bolt','buffchoice'),('sun','brightnesschoice')]:
+        result.append(('icon',(448,layout[key][1]-offset,18,18,kind),COLORS['secondary'],None))
+    result.append(('dot',(layout['state'][0]-13,434-offset,8,8),COLORS['orange'],None))
     return result
 
 
@@ -117,6 +111,8 @@ class NativeStyle:
         self.pens={}
         self.hovered=set()
         self.language='zh'
+        self.verified=False
+        self.busy=False
         def api(dll,name,result,*args):
             fn=getattr(dll,name);fn.restype=result;fn.argtypes=list(args);return fn
         self.begin=api(user,'BeginPaint',W.HDC,W.HWND,C.POINTER(Paint))
@@ -212,8 +208,13 @@ class NativeStyle:
         saved=self.save(hdc)
         try:
             self.fill(hdc,C.byref(paint.rect),self.resource('brush',COLORS['background']))
-            for kind,geometry,fill,border in decorations(width,offset) if main else []:
+            for kind,geometry,fill,border in decorations(width,offset,self.language) if main else []:
+                if kind=='dot':fill=COLORS['blue' if self.busy else 'green' if self.verified else 'orange']
                 if kind=='round':self.shape(hdc,geometry[:4],geometry[4],fill,border)
+                elif kind=='line':
+                    x,y,w=geometry;self.polyline(hdc,[(x,y),(x+w,y)],fill)
+                elif kind=='dot':
+                    x,y,w,h=geometry;self.select(hdc,self.resource('brush',fill));self.select(hdc,self.stock(8));self.ellipse(hdc,self.scale(x),self.scale(y),self.scale(x+w),self.scale(y+h))
                 else:
                     x,y,w,h,name=geometry
                     for points in icon_lines(name):self.polyline(hdc,[(x+px,y+py) for px,py in points],fill)
@@ -234,7 +235,7 @@ class NativeStyle:
         try:
             self.fill(hdc,C.byref(self.rect((0,0,w,h))),self.resource('brush',COLORS['background']))
             if spec['kind']=='progress':
-                self.shape(hdc,(0,0,w,h),h/2,'#ededee',COLORS['border'])
+                self.shape(hdc,(0,0,w,h),h/2,COLORS['surface'])
                 value=max(0,min(100,self.send(window,0x0408,0,0)))  # PBM_GETPOS
                 if value:self.shape(hdc,(0,0,max(h,w*value/100),h),h/2,COLORS['blue'])
                 return
@@ -244,13 +245,18 @@ class NativeStyle:
             if spec['kind']=='checkbox':
                 checked=self.send(window,0x00F0,0,0)==1
                 fill=COLORS['blue'] if checked and enabled else COLORS['surface']
-                self.shape(hdc,(0,(h-16)/2,16,16),4,fill,COLORS['border'] if enabled and not checked else None)
-                if checked:self.polyline(hdc,[(4,h/2),(7,h/2+3),(12,h/2-4)],'#ffffff' if enabled else COLORS['disabled_text'])
-                self.text(hdc,text.value,(23,0,w-23,h),14,COLORS['text'] if enabled else COLORS['disabled_text'])
+                self.shape(hdc,(0,(h-18)/2,18,18),4,fill,COLORS['border'] if enabled and not checked else None)
+                if checked:self.polyline(hdc,[(4,h/2),(7,h/2+3),(13,h/2-4)],'#ffffff' if enabled else COLORS['disabled_text'])
+                if not spec['key'].endswith('choice'):
+                    self.text(hdc,text.value,(23,0,w-23,h),14,COLORS['text'] if enabled else COLORS['disabled_text'])
+            elif spec['kind']=='dropdown':
+                self.shape(hdc,(1,1,w-2,h-2),8,'#ffffff',COLORS['border'])
+                self.text(hdc,text.value,(10,0,w-40,h),14,COLORS['text'] if enabled else COLORS['disabled_text'])
+                self.polyline(hdc,[(w-23,h/2-2),(w-18,h/2+3),(w-13,h/2-2)],COLORS['secondary'])
             else:
                 fill,color=button_colors(spec['primary'],enabled,window in self.hovered,bool(state&4))
-                self.shape(hdc,(1,1,w-2,h-2),min(15,h/2-1),fill)
-                self.text(hdc,text.value,(6,0,w-12,h),14,color,spec['primary'],center=True)
+                self.shape(hdc,(.5,.5,w-1,h-1),7,fill,fill if spec['primary'] else '#d8d8dc' if enabled else '#ededee')
+                self.text(hdc,text.value,(8,0,w-16,h),13,color,False,center=True)
             if enabled and self.focus()==window:
                 self.select(hdc,self.stock(5));self.select(hdc,self.resource('pen',COLORS['focus']))
                 self.roundrect(hdc,self.scale(1),self.scale(1),self.scale(w-1),self.scale(h-1),self.scale(10),self.scale(10))

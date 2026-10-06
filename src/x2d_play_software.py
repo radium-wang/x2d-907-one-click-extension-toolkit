@@ -20,6 +20,8 @@ PREVIOUS_BRIGHTNESS_SHA = '12a2c8b4785c349e13b03197b692ed1eb4d79cf291a059bf2ec07
 PREVIOUS_042_SHA = '34a32083a442cc667e56d311bcd9ea583a15e7f076c39f6cdc4c8e67c9024635'
 PREVIOUS_047_SHA = 'cb510721aabea62d35220a9e60aed23569195fdd1defab2a5c5f57a897c557c4'
 PREVIOUS_048_SHA = '70048064578e9cda6aed02934157769991ff8e1b2a353bfd54ca6310c9ee4a70'
+PREVIOUS_049_SHA = '9d2eb54beb6f4f11bf869ddd3930846d8a806a66a3cb8bf73008ccd6ba72f34a'
+FEATURES = ('afc', 'speed-buff', 'auto-rear-brightness')
 STOCK_RC = '1d6a8f9e41e269be38b3fb9ba53f4c47d18007f413c90893fdfa9d7542d1f688'
 STOCK_GUI = '16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0'
 STOCK_SERVICE_RC = '2aa2c06efcc2d7fac690f7fe5db324e12f02748fb7d368ee5f726c3d5b24f2a9'
@@ -396,7 +398,7 @@ def verify_installed_integrity(manifest=None):
     stock = read_bytes(ROOT + '/stockrc')
     if sha(stock) != STOCK_RC:
         raise RuntimeError(ROOT + '/stockrc: ' + NONSTOCK_GUIDANCE)
-    expected_rc = init_config(stock)
+    expected_rc = init_config(stock, manifest.get('featureMask'))
     if manifest.get('initBefore') != STOCK_RC or manifest.get('initAfter') != sha(expected_rc):
         raise RuntimeError(NONSTOCK_GUIDANCE)
     verify_file(RC, sha(expected_rc))
@@ -508,6 +510,19 @@ def same_release_files(files, package):
                for language in ('en', 'zh-Hant') if (package.get('uiLanguages') or {}).get(language))
 
 
+def select_features(manifest, features):
+    if not features or len(features) != len(set(features)) or set(features) - set(FEATURES):
+        raise RuntimeError('至少选择一项有效功能；每项功能只能选择一次')
+    selected = dict(manifest)
+    selected['selectedFeatures'] = [name for name in FEATURES if name in features]
+    selected['featureMask'] = sum(1 << FEATURES.index(name) for name in features)
+    selected['files'] = [entry for entry in manifest['files']
+                         if 'auto-rear-brightness' in features or entry['target'] != '/system/lib64/libx2d_play_brightness.so']
+    if 'auto-rear-brightness' not in features:
+        selected.pop('autoBrightness', None)
+    return selected
+
+
 def confirm_reinstall(language):
     if REINSTALL_CONFIRMED:
         return True
@@ -523,10 +538,24 @@ def recognized_bundle(manifest):
     current = prepare()
     if manifest.get('format') != 3 or manifest.get('guiSha256') != STOCK_GUI:
         raise RuntimeError('安装或恢复清单版本不匹配')
+    if 'featureMask' in manifest:
+        features = manifest.get('selectedFeatures')
+        if (type(manifest['featureMask']) is not int or not 1 <= manifest['featureMask'] <= 7
+                or not isinstance(features, list) or not features
+                or any(not isinstance(feature, str) for feature in features)
+                or len(features) != len(set(features)) or set(features) - set(FEATURES)):
+            return False
+        for language in ('zh', 'en', 'zh-Hant'):
+            expected = select_features(apply_ui_language(current, language), features)
+            if (manifest.get('files') == expected['files'] and manifest.get('featureMask') == expected['featureMask']
+                    and features == expected['selectedFeatures'] and manifest.get('autoBrightness') == expected.get('autoBrightness')):
+                return True
+        return False
     if same_release_files(manifest.get('files'), current):
         return manifest.get('autoBrightness') == current.get('autoBrightness')
     if manifest.get('autoBrightness'):
-        for name, expected in (('previous-bundle-0.4.8.json', PREVIOUS_048_SHA),
+        for name, expected in (('previous-bundle-0.4.9.json', PREVIOUS_049_SHA),
+                               ('previous-bundle-0.4.8.json', PREVIOUS_048_SHA),
                                ('previous-bundle-0.4.7.json', PREVIOUS_047_SHA),
                                ('previous-bundle-auto-brightness.json', PREVIOUS_BRIGHTNESS_SHA),
                                ('previous-bundle-brightness-display.json', PREVIOUS_DISPLAY_BRIGHTNESS_SHA)):
@@ -557,7 +586,7 @@ def recognized_bundle(manifest):
     return manifest.get('files') == json.loads(previous_data)['files']
 
 
-def init_config(raw):
+def init_config(raw, feature_mask=None):
     if sha(raw) != STOCK_RC: raise RuntimeError('启动配置不是已核验的原厂版本')
     first = b'service camera-gui /system/bin/camera-gui -platform wayland-egl --fullscreen\n'
     if raw.count(first) != 1: raise RuntimeError('未知相机启动配置')
@@ -572,6 +601,12 @@ service x2d-speed-buff /system/bin/camera-gui --x2d-speed-server
     setenv LD_PRELOAD /system/lib64/libx2d_speed_server.so
     oneshot
 '''
+    if feature_mask is not None:
+        if type(feature_mask) is not int or not 1 <= feature_mask <= 7:
+            raise RuntimeError('安装功能选择记录未通过校验')
+        line = f'    setenv X2D_FEATURE_MASK {feature_mask}\n'.encode()
+        rc = rc.replace(b'    setenv X2D_NATIVE_MENU 1\n', b'    setenv X2D_NATIVE_MENU 1\n' + line)
+        rc = rc.replace(b'    setenv X2D_SPEED_SERVER 1\n', b'    setenv X2D_SPEED_SERVER 1\n' + line)
     return rc
 
 
@@ -654,10 +689,12 @@ def backend(action):
     return json.loads(read_bytes('/tmp/x2d-speed-buff/ui.json'))
 
 
-def install(reboot=True, prank_ibis=False, language='zh'):
+def install(reboot=True, prank_ibis=False, language='zh', features=None):
     event('progress', message='正在检查相机与安装包', percent=5)
     verify_target()
     m = apply_ui_language(prepare(), language)
+    if features is not None:
+        m = select_features(m, features)
     if prank_ibis and camera_model() != '907X & CFV 100C':
         raise RuntimeError('防抖彩蛋仅适用于已识别的 907X / CFV 100C')
     m['prankIbis'] = prank_ibis
@@ -667,7 +704,8 @@ def install(reboot=True, prank_ibis=False, language='zh'):
         if phase != 'INSTALLED': raise RuntimeError('上次操作未完成，请点击恢复原状')
         if installed['files'] == m['files'] and installed.get('autoBrightness') != m.get('autoBrightness'):
             raise RuntimeError('自动亮度安装包校验失败')
-        if installed['files'] == m['files'] and bool(installed.get('prankIbis', False)) == prank_ibis:
+        if (installed['files'] == m['files'] and installed.get('featureMask') == m.get('featureMask')
+                and bool(installed.get('prankIbis', False)) == prank_ibis):
             verify_installed_integrity(installed)
             state = backend('status')
             if not state['ready']: raise RuntimeError('已安装的服务未就绪，请先恢复原状')
@@ -685,11 +723,11 @@ def install(reboot=True, prank_ibis=False, language='zh'):
                 return
             event('progress', message='检测到已知旧版，将先恢复原状再安装修正版；升级后请重新开启功能', percent=5)
             restore(True, report_result=False)
-            return install(reboot, prank_ibis, language)
+            return install(reboot, prank_ibis, language, features) if features is not None else install(reboot, prank_ibis, language)
         raise RuntimeError('相机存在其他版本，请先用对应版本恢复原状。' + NONSTOCK_GUIDANCE)
     verify_stock_installation()
     raw = read_bytes(RC)
-    rc = init_config(raw)
+    rc = init_config(raw, m.get('featureMask'))
     display = bool(m.get('autoBrightness'))
     if display:
         if shell('sha256sum /system/bin/camera-system').split()[0] != DISPLAY_SYSTEM_SHA:
@@ -745,6 +783,7 @@ mkdir -p /system/etc/x2d-speed-buff
 '''
     for f in m['files']:
         s += f'created="{f["target"]} $created"\necho "$created" >{ROOT}/created\ncat {STAGE}/{f["source"]} >{f["target"]}\nchmod 0644 {f["target"]}\nhashok {f["target"]} {f["sha256"]}\n'
+    s += 'rm -f /blackbox/x2d-speed-buff.master /blackbox/x2d-speed-buff.enabled /blackbox/x2d-play-afc.enabled\n'
     s += f'[ ! -L {PRANK_FLAG} ]\n'
     s += (f': >{PRANK_FLAG}\n' if prank_ibis else f'rm -f {PRANK_FLAG}\n')
     if display:
@@ -809,7 +848,8 @@ def restore(reboot=True, report_result=True):
     if not recognized_bundle(m):
         raise RuntimeError('恢复清单与本软件版本不一致')
     raw = read_bytes(ROOT + '/stockrc')
-    if sha(raw) != STOCK_RC or m['initAfter'] != sha(init_config(raw)):
+    expected_rc = init_config(raw, m.get('featureMask'))
+    if sha(raw) != STOCK_RC or m['initAfter'] != sha(expected_rc):
         raise RuntimeError('原厂备份或恢复配置校验失败')
     display = bool(m.get('autoBrightness'))
     if display:
@@ -841,7 +881,7 @@ def restore(reboot=True, report_result=True):
         s += f'hashok {RC} {m["initAfter"]}\n'
     else:
         current_rc = read_bytes(RC)
-        if current_rc not in (raw, init_config(raw)) and not init_config(raw).startswith(current_rc) and not raw.startswith(current_rc):
+        if current_rc not in (raw, expected_rc) and not expected_rc.startswith(current_rc) and not raw.startswith(current_rc):
             raise RuntimeError('中断后的启动配置不是本软件写入的内容')
         s += f'hashok {RC} {sha(current_rc)}\n'
     if display:
@@ -969,19 +1009,21 @@ def main():
     p.add_argument('--prank-ibis', action='store_true', help='Add the optional CFV-only joke menu')
     p.add_argument('--language', choices=['zh', 'zh-Hant', 'en'], default='zh',
                    help='Install Simplified Chinese, Traditional Chinese or English camera menu labels')
+    p.add_argument('--features', nargs='+', choices=FEATURES, help='Install only the selected independent features')
     confirmation = p.add_mutually_exclusive_group()
     confirmation.add_argument('--interactive-confirmation', action='store_true', help=argparse.SUPPRESS)
     confirmation.add_argument('--confirm-reinstall', action='store_true',
                               help='Confirm restoration before reinstalling an existing extension')
     args = p.parse_args()
     if args.prank_ibis and args.action != 'install': p.error('--prank-ibis requires install')
+    if args.features is not None and args.action != 'install': p.error('--features requires install')
     if args.language != 'zh' and args.action != 'install': p.error('--language requires install')
     if (args.interactive_confirmation or args.confirm_reinstall) and args.action != 'install':
         p.error('reinstall confirmation requires install')
     INTERACTIVE_CONFIRMATION = args.interactive_confirmation
     REINSTALL_CONFIRMED = args.confirm_reinstall
     try:
-        if args.action == 'install': install(not args.no_reboot, args.prank_ibis, args.language)
+        if args.action == 'install': install(not args.no_reboot, args.prank_ibis, args.language, args.features)
         elif args.action == 'restore': restore(not args.no_reboot)
         elif args.action == 'status': status()
         else:

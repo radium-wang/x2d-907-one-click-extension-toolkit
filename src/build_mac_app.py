@@ -4,7 +4,7 @@ import argparse, json, os, plistlib, shutil, subprocess, re
 from pathlib import Path
 D = Path(__file__).resolve().parent
 PAYLOAD = Path(os.environ.get('X2D_PAYLOAD_DIR', str(D/'native-package')))
-VERSION = '0.4.10'
+VERSION = '0.4.11'
 ARCHES = {'arm64', 'x86_64'}
 MINIMUM = (13, 0)
 
@@ -64,6 +64,7 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None, outpu
     for name in ('collect_x2d_af_usb.py',):
         shutil.copy2(transport/name,r/name)
     shutil.copy2(D/'x2d_play_software.py',r/'x2d_play_software.py')
+    shutil.copy2(D/'desktop-ui.json',r/'desktop-ui.json')
     shutil.copy2(D/'translations.json',r/'translations.json')
     shutil.copy2(D/'translations_zh_hant.json',r/'translations_zh_hant.json')
     shutil.copy2(D/'app_updates.py',r/'app_updates.py')
@@ -71,7 +72,7 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None, outpu
     native=r/'native-package'; native.mkdir()
     manifest=json.loads((PAYLOAD/'speed-bundle.json').read_text())
     localized={f['source'] for entries in (manifest.get('uiLanguages') or {}).values() for f in entries}
-    for source in {f['source'] for f in manifest['files']} | localized | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-0.4.7.json','previous-bundle-0.4.8.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
+    for source in {f['source'] for f in manifest['files']} | localized | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-0.4.7.json','previous-bundle-0.4.8.json','previous-bundle-0.4.9.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
         shutil.copy2(PAYLOAD/source,native/source)
     shutil.copytree(PAYLOAD/'previous-payloads',native/'previous-payloads')
     # Relocate every non-system Mach-O dependency. Never rely on Homebrew at runtime.
@@ -124,7 +125,7 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None, outpu
         'CFBundleName':'x2d/907一键扩展功能-工具包','CFBundleDisplayName':'x2d/907一键扩展功能-工具包',
         'CFBundleIdentifier':'local.x2d.play','CFBundleExecutable':'X2DPlay',
         'CFBundlePackageType':'APPL','CFBundleShortVersionString':VERSION,
-        'CFBundleVersion':'24','LSMinimumSystemVersion':'.'.join(map(str,minimum)),
+        'CFBundleVersion':'25','LSMinimumSystemVersion':'.'.join(map(str,minimum)),
         'NSHighResolutionCapable':True,'NSHumanReadableCopyright':'Local experimental X2D / 907X 100C 4.2.0 tool'}))
     licenses=r/'licenses'; licenses.mkdir()
     shutil.copy2(D.parent/'LICENSE',licenses/'X2D-907-Toolkit.txt')

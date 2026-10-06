@@ -1,0 +1,265 @@
+{
+  "width": 980,
+  "height": 610,
+  "colors": {
+    "background": "#ffffff",
+    "text": "#202124",
+    "secondary": "#6d6f76",
+    "border": "#e4e5e8",
+    "surface": "#f4f5f7",
+    "disabled": "#ffffff",
+    "disabled_text": "#a4a5a9",
+    "blue": "#0878f9",
+    "blue_hover": "#006de3",
+    "blue_pressed": "#005ac1",
+    "orange": "#a85b00",
+    "focus": "#8ebcff",
+    "green": "#247546"
+  },
+  "layout": {
+    "title": [
+      28,
+      24,
+      680,
+      30
+    ],
+    "version": [
+      790,
+      24,
+      78,
+      36
+    ],
+    "settingsbutton": [
+      880,
+      24,
+      72,
+      36
+    ],
+    "subtitle": [
+      28,
+      55,
+      924,
+      19
+    ],
+    "logbox": [
+      28,
+      94,
+      340,
+      490
+    ],
+    "logheading": [
+      43,
+      108,
+      190,
+      21
+    ],
+    "logstate": [
+      243,
+      108,
+      110,
+      21
+    ],
+    "logs": [
+      43,
+      151,
+      310,
+      391
+    ],
+    "note": [
+      43,
+      557,
+      310,
+      17
+    ],
+    "featureheading": [
+      392,
+      94,
+      170,
+      23
+    ],
+    "featurecount": [
+      572,
+      96,
+      220,
+      19
+    ],
+    "box": [
+      392,
+      127,
+      560,
+      232
+    ],
+    "afcchoice": [
+      408,
+      153,
+      18,
+      18
+    ],
+    "afc": [
+      482,
+      142,
+      454,
+      21
+    ],
+    "afcdescription": [
+      482,
+      166,
+      454,
+      18
+    ],
+    "buffchoice": [
+      408,
+      233,
+      18,
+      18
+    ],
+    "buff": [
+      482,
+      213,
+      454,
+      21
+    ],
+    "buffdescription": [
+      482,
+      238,
+      454,
+      36
+    ],
+    "brightnesschoice": [
+      408,
+      314,
+      18,
+      18
+    ],
+    "brightness": [
+      482,
+      303,
+      454,
+      21
+    ],
+    "brightnessdescription": [
+      482,
+      327,
+      454,
+      18
+    ],
+    "dependency": [
+      394,
+      369,
+      558,
+      18
+    ],
+    "prank": [
+      394,
+      369,
+      558,
+      22
+    ],
+    "summarybox": [
+      392,
+      405,
+      560,
+      65
+    ],
+    "summarylabel": [
+      407,
+      418,
+      300,
+      18
+    ],
+    "selectionsummary": [
+      407,
+      438,
+      355,
+      20
+    ],
+    "state": [
+      788,
+      429,
+      149,
+      18
+    ],
+    "progress": [
+      392,
+      482,
+      560,
+      5
+    ],
+    "statusbutton": [
+      392,
+      505,
+      80,
+      36
+    ],
+    "restorebutton": [
+      482,
+      505,
+      106,
+      36
+    ],
+    "installbutton": [
+      820,
+      505,
+      132,
+      36
+    ],
+    "detail": [
+      394,
+      551,
+      558,
+      44
+    ]
+  },
+  "languageLayout": {
+    "en": {
+      "featureheading": [
+        392,
+        94,
+        220,
+        23
+      ],
+      "featurecount": [
+        622,
+        96,
+        220,
+        19
+      ],
+      "logstate": [
+        212,
+        108,
+        141,
+        21
+      ],
+      "state": [
+        754,
+        429,
+        184,
+        18
+      ],
+      "selectionsummary": [
+        407,
+        438,
+        327,
+        20
+      ],
+      "statusbutton": [
+        392,
+        505,
+        96,
+        36
+      ],
+      "restorebutton": [
+        498,
+        505,
+        128,
+        36
+      ],
+      "installbutton": [
+        770,
+        505,
+        182,
+        36
+      ]
+    }
+  }
+}

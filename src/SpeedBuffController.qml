@@ -10,11 +10,15 @@ QtObject {
     property bool master: false
     property bool afcEnabled: false
     property bool prankIbis: false
+    property int featureMask: 0
+    readonly property bool afcInstalled: (featureMask & 1) !== 0
+    readonly property bool speedInstalled: (featureMask & 2) !== 0
+    readonly property bool brightnessInstalled: (featureMask & 4) !== 0
     property string statusMessage: "正在读取功能状态"
     property var currentRequest: null
     function syncAfcMenu() {
         if (afcMenu !== null && afcMenu.ready && !afcMenu.focusPopoverOpen)
-            afcMenu.setEnabled(master && afcEnabled)
+            afcMenu.setEnabled(afcInstalled && master && afcEnabled)
     }
     function request(action) {
         if (inFlight) return false
@@ -34,6 +38,7 @@ QtObject {
                 if (xhr.status !== 200) throw new Error("backend unavailable")
                 var state = JSON.parse(xhr.responseText)
                 prankIbis = state.prankIbis === true
+                featureMask = state.featureMask === undefined ? 7 : Number(state.featureMask)
                 if (state.ready === true) {
                     loaded = state.active === true
                     master = state.master === true
@@ -52,8 +57,8 @@ QtObject {
         xhr.send()
         return true
     }
-    function setEnabled(value) { return request(value ? "enable" : "disable") }
-    function setAfc(value) { return request(value ? "afc_on" : "afc_off") }
+    function setEnabled(value) { return !value || speedInstalled ? request(value ? "enable" : "disable") : false }
+    function setAfc(value) { return !value || afcInstalled ? request(value ? "afc_on" : "afc_off") : false }
     function setMaster(value) { return request(value ? "master_on" : "master_off") }
     property Timer poll: Timer { interval: 2500; running: true; repeat: true; onTriggered: root.request("status") }
     property Timer requestDeadline: Timer {

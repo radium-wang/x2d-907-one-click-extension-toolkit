@@ -70,13 +70,17 @@ Item {
     // Keep the stock Display model and submenu routing; replace only its rear slider.
     function routeDisplaySettings() {
         if (!attached || !originalLoader || !screen.viewModel.menu) return
-        if (screen.viewModel.menu.menuName === "displayMenu" &&
+        if (afcController.brightnessInstalled && screen.viewModel.menu.menuName === "displayMenu" &&
             originalLoader.source.toString() === "qrc:/app/qml/mainmenu/SettingsGeneric.qml")
             originalLoader.source = "file:///system/etc/X2dDisplaySettings.qml"
     }
     Connections {
         target: root.originalLoader
         function onSourceChanged() { root.routeDisplaySettings() }
+    }
+    Connections {
+        target: afcController
+        function onBrightnessInstalledChanged() { Qt.callLater(root.routeDisplaySettings) }
     }
     Connections {
         target: root.screen && root.screen.viewModel ? root.screen.viewModel.menu : null

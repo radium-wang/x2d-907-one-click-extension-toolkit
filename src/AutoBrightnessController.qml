@@ -3,6 +3,7 @@ QtObject {
  id: root
  property bool masterEnabled: false
  property bool followMaster: false
+ property bool installed: true
  property bool ready: false
  property bool enabledPreference: false
  property bool availablePreference: false
@@ -24,6 +25,7 @@ QtObject {
  }
  function finish(ok) {var fn=completion;completion=null;if(fn)fn(ok)}
  function request(action, callback) {
+  if (!installed) return false
   if (inFlight) {
    // A user command takes precedence over a status read or previous command.
    if(action === "status")return false
@@ -54,7 +56,8 @@ QtObject {
   if(!masterEnabled||(!ready&&!availablePreference))return false
   return request(availablePreference?"feature-disable":"feature-enable")
  }
- property Timer poll: Timer {interval: root.pageActive ? 200 : 1000; running: true; repeat: true; onTriggered: root.request("status")}
+ property Timer poll: Timer {interval: root.pageActive ? 200 : 1000; running: root.installed; repeat: true; onTriggered: root.request("status")}
+ onInstalledChanged: if (installed) request("status")
  Component.onCompleted: request("status")
  Component.onDestruction:{sequence++;if(pending)pending.abort()}
 }

@@ -10,7 +10,7 @@ from windows_ui import NativeStyle, Viewport, ScrollInfo, WIDTH, HEIGHT, COLORS,
 from windows_processes import UpdateCheck, stop_process
 
 D = Path(__file__).resolve().parent
-VERSION = '0.4.10'
+VERSION = '0.4.11'
 
 
 class Session:
@@ -159,9 +159,11 @@ def main():
         rect=W.RECT();clientrect(main_handle,C.byref(rect))
         content_width=(rect.right*96/dpi) if rect.right else WIDTH
         viewport.resize(rect.bottom*96/dpi if rect.bottom else viewport.height)
-        layout=main_layout(content_width)
+        layout=main_layout(content_width,language.language)
         for handle,spec in placements.items():
             geometry=layout.get(spec['key'],spec['rect']) if spec['parent']==main_handle else spec['rect']
+            if spec['key']=='updatebutton': geometry=(24,224,134 if language.language=='en' else 82,36)
+            if spec['key']=='downloadbutton': geometry=(168 if language.language=='en' else 116,224,238 if language.language=='en' else 134,36)
             x,y,w,h=geometry
             if spec['parent']==main_handle:y-=viewport.offset
             owner_dpi=window_dpis.get(spec['parent'],dpi)
@@ -171,6 +173,7 @@ def main():
             if not mono and 'language' not in spec:
                 size,bold,_=text_style(spec['key'],language.language)
             send(handle,0x0030,skin.font(size,bold,mono,dpi=owner_dpi,language=spec.get('language')),1)
+            if spec['key']=='language': send(handle,0x0153,C.c_size_t(-1).value,round(30*owner_dpi/96))
             if handle in skin.controls:skin.controls[handle]['dpi']=owner_dpi
         info=ScrollInfo(C.sizeof(ScrollInfo),0x7,0,scale(HEIGHT)-1,scale(viewport.height),scale(viewport.offset),0)
         scrollinfo(main_handle,1,C.byref(info),True)
@@ -180,7 +183,7 @@ def main():
     def show_settings():
         if session.busy or update_state['busy']: return
         if settings_state['window'] is None:
-            panel_width,panel_height=outer_size(450,246,0x00C80000)
+            panel_width,panel_height=outer_size(450,284,0x00C80000)
             panel = create(0, 'X2DPlayWindow', language.text('设置'), 0x02C80000,
                            max(0,(screenwidth-panel_width)//2), max(0,(screenheight-panel_height)//2),
                            panel_width,panel_height,hwnd,None,instance,None)
@@ -188,16 +191,18 @@ def main():
             settings_state['window'] = panel
             window_dpis[panel]=dpi
             localized_sources[panel] = '设置'
-            control('languagelabel','STATIC','语言',24,24,84,26,parent=panel)
-            control('language','COMBOBOX','',114,22,312,120,extra=0x10003,identity=104,parent=panel)
+            control('settingsheading','STATIC','设置',24,28,160,23,parent=panel)
+            control('settingsclose','BUTTON','关闭',370,24,56,36,extra=0x10000,identity=113,parent=panel)
+            control('languagelabel','STATIC','语言',24,85,100,22,parent=panel)
+            control('language','COMBOBOX','',278,78,148,120,extra=0x10003,identity=104,parent=panel)
             for name in ('简体中文','繁體中文','English'):
                 send(controls['language'],0x0143,0,C.cast(C.c_wchar_p(name),C.c_void_p).value)
             send(controls['language'],0x014E,1 if language.language=='zh-Hant' else 2 if language.language=='en' else 0,0)
-            control('automaticupdates','BUTTON','启动时自动检查更新',24,74,402,28,extra=0x10003,identity=108,parent=panel)
+            control('automaticupdates','BUTTON','启动时自动检查更新',24,132,402,22,extra=0x10003,identity=108,parent=panel)
             send(controls['automaticupdates'],0x00F1,1 if preferences.auto_check else 0,0)
-            control('updatesdescription','STATIC','自动检查只查找新版，不会自动下载或安装。',24,113,402,40,textfont=small,parent=panel)
-            control('updatebutton','BUTTON','手动检查更新',24,172,178,32,extra=0x10000,identity=106,parent=panel)
-            control('downloadbutton','BUTTON','下载并安装更新',214,172,212,32,extra=0x10000,identity=109,parent=panel)
+            control('updatesdescription','STATIC','自动检查只查找新版，不会自动下载或安装。',24,170,402,36,textfont=small,parent=panel)
+            control('updatebutton','BUTTON','检查更新',24,224,112,36,extra=0x10000,identity=106,parent=panel)
+            control('downloadbutton','BUTTON','下载并安装更新',148,224,238,36,extra=0x10000,identity=109,parent=panel)
         buttons()
         show(settings_state['window'],5); update(settings_state['window'])
 
@@ -243,8 +248,14 @@ def main():
             confirmation_state.update(window=None, answer=None)
             enable(hwnd, True)
 
+    def selected_features():
+        return [feature for feature,key in (('afc','afcchoice'),('speed-buff','buffchoice'),('auto-rear-brightness','brightnesschoice'))
+                if send(controls[key],0x00F0,0,0)==1]
+
     def buttons():
         busy = session.busy or update_state['busy']
+        skin.verified = session.verified; skin.busy = busy
+        if main_handle: invalidate(main_handle,None,False)
         for key in ('settingsbutton','updatebutton'):
             if key in controls: enable(controls[key],not busy)
         if 'downloadbutton' in controls: enable(controls['downloadbutton'],not busy and bool(update_state['version']))
@@ -252,8 +263,16 @@ def main():
         enable(controls['prank'], eligible and not busy)
         if not eligible: send(controls['prank'], 0x00F1, 0, 0)  # BM_SETCHECK
         enable(controls['statusbutton'], not busy)
-        for key in ('installbutton', 'restorebutton'):
-            enable(controls[key], not busy and session.verified)
+        for key in ('afcchoice','buffchoice','brightnesschoice'): enable(controls[key],not busy)
+        features = selected_features()
+        names = {'afc':'AF-C','speed-buff':'Focus speed','auto-rear-brightness':'Auto brightness'} if language.language=='en' else {'afc':'AF-C','speed-buff':'对焦加速','auto-rear-brightness':'后屏自动亮度'}
+        native_settext(controls['selectionsummary'], language.text('尚未选择功能') if not features else ('、' if language.language!='en' else ', ').join(language.text(names[f]) for f in features))
+        native_settext(controls['featurecount'], language.text('已选择 ') + str(len(features)) + language.text(' 项'))
+        native_settext(controls['logstate'], language.text('操作进行中' if busy else '检查通过' if session.verified else '等待连接'))
+        show(controls['prank'],5 if eligible else 0)
+        show(controls['dependency'],0 if eligible else 5)
+        enable(controls['installbutton'], not busy and session.verified and bool(features))
+        enable(controls['restorebutton'], not busy and session.verified)
 
     def render_logs():
         translated_lines = [language.text(line) for line in loglines]
@@ -277,6 +296,7 @@ def main():
         skin.refresh(language=language.language)
         refresh_layout()
         render_logs()
+        buttons()
 
     def consume(event):
         session.consume(event)
@@ -292,7 +312,7 @@ def main():
                     if event.get('installed') else '相机处于原厂状态，可以安装耍起功能。')
         elif kind == 'result':
             settext(controls['state'], text)
-            settext(controls['detail'], '在相机菜单中分别开启 AF-C 与对焦加速。'
+            settext(controls['detail'], '在相机菜单中开启已安装的功能。'
                     if event.get('installed') else '原厂界面与启动配置已恢复。')
             send(controls['progress'], 0x0402, 100, 0)
         elif kind == 'cancelled':
@@ -304,7 +324,7 @@ def main():
         log(text)
         if event.get('menuPending'): log(event.get('hint', ''))
 
-    def worker(action, prank=False, target_language='zh'):
+    def worker(action, prank=False, target_language='zh', features=()):
         code = 1
         child = None
         try:
@@ -320,6 +340,7 @@ def main():
                     str(D / 'x2d_play_software.py'), action]
             if action == 'install':
                 args += ['--language', target_language, '--interactive-confirmation']
+                args += ['--features', *features]
             if prank:
                 args.append('--prank-ibis')
             child = subprocess.Popen(args, cwd=str(D), env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -351,13 +372,15 @@ def main():
 
     def start(action):
         if update_state['busy']: return
+        features = tuple(selected_features())
+        if action == 'install' and not features: return
         if not session.start(action): return
         buttons()
         settext(controls['state'], {'status': '正在检查相机…', 'install': '准备安装…', 'restore': '准备恢复…'}[action])
         send(controls['progress'], 0x0402, 0, 0)
         prank = action == 'install' and session.model == '907X & CFV 100C' and send(controls['prank'], 0x00F0, 0, 0) == 1
         if prank: log('已选择 907 防抖彩蛋：第 11 格为彩蛋，第 12 格为耍起功能。')
-        threading.Thread(target=worker, args=(action, prank, language.language), daemon=True).start()
+        threading.Thread(target=worker, args=(action, prank, language.language, features), daemon=True).start()
 
     def update_worker(wanted):
         child = None
@@ -452,6 +475,12 @@ def main():
                     identity = wp & 0xFFFF
                     if identity in (2, 201, 202):
                         confirmation_state['answer'] = identity == 202; return 0
+            if window==main_handle and msg==0x0202 and not session.busy and not update_state['busy']:
+                x=C.c_short(lp&0xffff).value*96/dpi; y=C.c_short((lp>>16)&0xffff).value*96/dpi+viewport.offset
+                if 392<=x<=952:
+                    key='afcchoice' if 127<=y<198 else 'buffchoice' if 198<=y<288 else 'brightnesschoice' if 288<=y<359 else None
+                    if key:
+                        send(controls[key],0x00F1,0 if send(controls[key],0x00F0,0,0)==1 else 1,0);buttons();return 0
             if msg == 0x0010:  # WM_CLOSE
                 if session.busy or (update_state['busy'] and update_state['installing']):
                     messagebox(window, language.text('操作尚未结束，请等待完成后退出应用。'), language.text('操作进行中'), 0x40)
@@ -466,11 +495,13 @@ def main():
                 if lp in placements and (wp>>16) in (0x0100,6):  # EDIT/BUTTON focus: reveal tabbed controls.
                     spec=placements[lp]
                     if spec['parent']==main_handle:
-                        rect=main_layout(content_width).get(spec['key'],spec['rect'])
+                        rect=main_layout(content_width,language.language).get(spec['key'],spec['rect'])
                         viewport.reveal(rect[1],rect[3]);refresh_layout()
                 if (wp & 0xFFFF) == 104 and (wp >> 16) == 1:  # CBN_SELCHANGE
                     change_language(); return 0
                 if (wp >> 16) == 0:
+                    if (wp & 0xFFFF) == 113: show(settings_state['window'],0); return 0
+                    if (wp & 0xFFFF) in (110,111,112): buttons(); return 0
                     if (wp & 0xFFFF) == 107: show_settings(); return 0
                     if (wp & 0xFFFF) == 108:
                         if not preferences.set_auto_check(send(controls['automaticupdates'],0x00F0,0,0)==1):
@@ -516,11 +547,12 @@ def main():
                         buttons()
                 return 0
             if msg in (0x0138, 0x0133, 0x0135):  # static/edit/button backgrounds
-                setbk(wp, 0xFFFFFF)
                 key=placements.get(lp,{}).get('key','')
+                background=skin.rgb(COLORS['surface'] if key in ('summarylabel','selectionsummary','state') else COLORS['background'])
+                setbk(wp, background)
                 color=text_style(key,language.language)[2]
                 setcolor(wp,skin.rgb(color))
-                return white
+                return skin.resource('brush',COLORS['surface']) if key in ('summarylabel','selectionsummary','state') else white
         except Exception:
             # Keep the window alive and never enable writes on an unexpected UI error.
             session.verified = False
@@ -541,13 +573,13 @@ def main():
     viewport.resize(min(HEIGHT,available))
     frame_style=0x02CA0000 | (0x00200000 if viewport.maximum else 0)
     width,height=outer_size(WIDTH,viewport.height,frame_style)
-    hwnd = create(0, wc.name, language.text('x2d/907一键扩展功能-工具包 · ') + VERSION, frame_style,
+    hwnd = create(0, wc.name, language.text('x2d/907 扩展功能工具包') + ' · ' + VERSION, frame_style,
                   max(0, (screenwidth-width)//2), max(0, (screenheight-height)//2),
                   width, height, None, None, instance, None)
     if not hwnd: raise C.WinError(C.get_last_error())
     main_handle=hwnd
     window_dpis[hwnd]=dpi
-    localized_sources[hwnd] = 'x2d/907一键扩展功能-工具包 · ' + VERSION
+    localized_sources[hwnd] = 'x2d/907 扩展功能工具包' + ' · ' + VERSION
 
     def control(key, classname, text, x, y, w, h, extra=0, identity=0, textfont=None, ex=0, parent=None):
         owner=hwnd if parent is None else parent
@@ -561,29 +593,42 @@ def main():
         role=(12,False,True) if key=='logs' else (size,bold,False)
         placements[handle]=dict(key=key,parent=owner,rect=(x,y,w,h),font=role)
         send(handle,0x0030,skin.font(*role),1)
-        if classname=='BUTTON':skin.attach(handle,key,'checkbox' if (extra&15)==3 else 'button',primary=key=='statusbutton',size=(w,h),dpi=window_dpis.get(owner,dpi))
+        if classname=='BUTTON':skin.attach(handle,key,'checkbox' if (extra&15)==3 else 'button',primary=key=='installbutton',size=(w,h),dpi=window_dpis.get(owner,dpi))
+        elif classname=='COMBOBOX':skin.attach(handle,key,'dropdown',size=(w,28),dpi=window_dpis.get(owner,dpi))
         elif classname=='msctls_progress32':skin.attach(handle,key,'progress',size=(w,h))
         return handle
 
-    layout=main_layout()
+    layout=main_layout(language=language.language)
     def item(key,classname,text,**kwargs):return control(key,classname,text,*layout[key],**kwargs)
-    item('title','STATIC','x2d/907一键扩展功能-工具包',textfont=titlefont)
+    item('title','STATIC','x2d/907 扩展功能工具包',textfont=titlefont)
+    item('version','STATIC','v'+VERSION)
     item('settingsbutton','BUTTON','设置',extra=0x10000,identity=107)
     item('subtitle','STATIC','X2D 100C / 907X 100C · 固件 4.2.0')
+    item('logheading','STATIC','运行日志')
+    item('logstate','STATIC','等待连接',extra=2)
+    item('featureheading','STATIC','选择要安装的功能')
+    item('featurecount','STATIC','')
+    item('afcchoice','BUTTON','AF-C 连续自动对焦',extra=0x10003,identity=110)
+    item('buffchoice','BUTTON','对焦加速',extra=0x10003,identity=111)
+    item('brightnesschoice','BUTTON','后屏自动亮度',extra=0x10003,identity=112)
+    for key in ('afcchoice','buffchoice','brightnesschoice'): send(controls[key],0x00F1,1,0)
     item('afc','STATIC','AF-C 连续自动对焦',textfont=strong)
-    item('afcdescription','STATIC','在相机上开启连续自动对焦',textfont=small)
+    item('afcdescription','STATIC','在相机上开启连续自动对焦。',textfont=small)
     item('buff','STATIC','对焦加速',textfont=strong)
     item('buffdescription','STATIC','对焦加速通过将镜头转速提高三倍实现，可安装，但不建议老镜头用户在相机内开启该功能。',textfont=small)
     item('brightness','STATIC','后屏自动亮度',textfont=strong)
-    item('brightnessdescription','STATIC','根据环境光调节后屏亮度，可设置最高亮度',textfont=small)
+    item('brightnessdescription','STATIC','根据环境光调节后屏亮度，可设置最高亮度。',textfont=small)
+    item('dependency','STATIC','三项功能可分别选择。')
+    item('summarylabel','STATIC','本次安装')
+    item('selectionsummary','STATIC','')
     item('prank','BUTTON','添加防抖功能（907 彩蛋）',extra=0x10003,identity=105)
-    item('state','STATIC','等待连接相机',textfont=strong)
+    item('state','STATIC','等待连接检查',extra=0x4000)
     item('detail','STATIC','连接相机并开机，点击“已连接”自动准备驱动并检查状态。\r\n907X 100C 适配版待实机验证。',textfont=small)
     item('progress','msctls_progress32','')
     item('statusbutton','BUTTON','已连接',extra=0x10001,identity=101)
-    item('installbutton','BUTTON','一键安装',extra=0x10000,identity=102)
-    item('restorebutton','BUTTON','一键恢复原状',extra=0x10000,identity=103)
-    item('note','STATIC','安装会自动备份原厂配置，并重启校验。恢复会撤回本应用的菜单与功能。请等待操作完成再拔线；首次连接会自动准备相机工厂接口驱动。',textfont=small)
+    item('installbutton','BUTTON','安装所选功能',extra=0x10000,identity=102)
+    item('restorebutton','BUTTON','恢复原状',extra=0x10000,identity=103)
+    item('note','STATIC','日志保存在本地，便于查看操作进度。',textfont=small)
     item('logs','EDIT','',extra=0x00210844,textfont=small)
     refresh_layout()
     log('工具包 Windows 版本：' + VERSION)

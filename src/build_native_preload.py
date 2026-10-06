@@ -24,6 +24,17 @@ from elftools.elf.elffile import ELFFile
 O=Path(os.environ.get('X2D_PAYLOAD_DIR', str(D/'native-package')))
 O.mkdir(exist_ok=True)
 b=load_gui()
+resource_apis=[]
+for name,address,expected in [('_Z21qRegisterResourceDataiPKhS0_S0_',0x8a9c90,0xc9fc129776a01367),
+                              ('_Z23qUnregisterResourceDataiPKhS0_S0_',0x8a9f10,0x458e2d498ccb2da9)]:
+    matches=[s for s in b.symbols if s.name==name]
+    assert len(matches)==1 and matches[0]['st_value']==address
+    assert matches[0]['st_info']['bind']=='STB_LOCAL'
+    value=14695981039346656037
+    for byte in b.read(address,64): value=((value^byte)*1099511628211)&((1<<64)-1)
+    assert value==expected, 'Unrecognized Qt resource API code'
+    assert name not in {s.name for s in b.elf.get_section_by_name('.dynsym').iter_symbols()}
+    resource_apis.append(dict(symbol=name,address=address,prefixBytes=64,prefixFnv64=hex(expected),binding='STB_LOCAL'))
 symbol=next(s for s in b.symbols if s.name.endswith('32_app_qml_mainmenu_MainScreen_qml7qmlDataE'))
 stock=b.read(symbol['st_value'],symbol['st_size'])
 (O/'stock-unit.bin').write_bytes(stock)
@@ -144,6 +155,7 @@ for path in paths:
 assert english_files, 'English camera UI siblings were not produced'
 assert traditional_files, 'Traditional Chinese camera UI siblings were not produced'
 report=dict(guiSha256=GUI_SHA,files=files,uiLanguages={'en':english_files,'zh-Hant':traditional_files},dependencies=deps,
+            resourceApis=resource_apis,
             imports=sorted(imports),
             deployed=False,deviceValidated=False,bootConfigurationWritten=False,
             guard='exact four original units/cache pointers; private icon registration; opt-in; disable-file; once per boot; rollback all seven writes',

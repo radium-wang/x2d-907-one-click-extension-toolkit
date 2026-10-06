@@ -52,7 +52,7 @@ class NativeStyleTests(unittest.TestCase):
         self.api.pressed=True
         self.skin.paint_control(101,222)
         self.assertEqual(self.skin.dpi,96,'One window must not change another monitor DPI')
-        self.assertTrue(any(name=='CreateFontW' and args[0]==-28 for name,args in self.api.calls))
+        self.assertTrue(any(name=='CreateFontW' and args[0]==-26 for name,args in self.api.calls))
         colors=[args[0] for name,args in self.api.calls if name=='CreateSolidBrush']
         self.assertIn(self.skin.rgb(ui.COLORS['blue_pressed']),colors)
         self.api.enabled=False
@@ -102,9 +102,9 @@ class LayoutTests(unittest.TestCase):
 
     def test_short_monitor_scroll_and_keyboard_focus_keep_actions_reachable(self):
         viewport=ui.Viewport(560)
-        viewport.scroll(9999);self.assertEqual(viewport.offset,244)
+        viewport.scroll(9999);self.assertEqual(viewport.offset,ui.HEIGHT-560)
         viewport.reveal(28,34);self.assertEqual(viewport.offset,16)
-        viewport.reveal(626,153);self.assertEqual(viewport.offset,231)
+        viewport.reveal(551,44);self.assertEqual(viewport.offset,47)
         viewport.resize(ui.HEIGHT);self.assertEqual(viewport.offset,0)
         self.assertEqual(viewport.maximum,0)
 

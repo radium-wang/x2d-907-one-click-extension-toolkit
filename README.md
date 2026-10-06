@@ -27,16 +27,16 @@ Camera menu text follows the app language at install time: English installs **Tw
 
 ## Download / 下载软件
 
-**Latest version: 0.4.10 / 最新版本：0.4.10**
+**Latest version: 0.4.11 / 最新版本：0.4.11**
 
-- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.10/x2d-907-extension-toolkit-Windows-x64-0.4.10.zip)
-- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.10/x2d-907-extension-toolkit-macOS-Universal-0.4.10.zip)
+- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.11/x2d-907-extension-toolkit-Windows-x64-0.4.11.zip)
+- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.11/x2d-907-extension-toolkit-macOS-Universal-0.4.11.zip)
 
-Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.10) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.10/SHA256SUMS)
+Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.11) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.11/SHA256SUMS)
 
-Version 0.4.10 strengthens stock-file and installed-payload checks before installation, and reports unknown modifications with guidance to restore using the original modification tool. The orange focus-acceleration description now sits inside its feature row on Mac and Windows. Camera payloads are unchanged from 0.4.9; selectable installation is not included. See [release notes](CHANGELOG.md).
+Version 0.4.11 implements the confirmed Mac/Windows layout with a left log card, independent feature choices and an installation summary. It adds guarded lookup for the stock Qt resource functions behind the reported `FOCUS_RESOURCE_API_MISSING` menu-loading failure, and preserves the 0.4.9/0.4.10 recovery files. The corrected camera preload still needs physical device validation. See [release notes](CHANGELOG.md).
 
-0.4.10 加强安装前的原厂文件及已安装文件校验；未知修改会停止操作，并提示先用原修改工具恢复。Mac／Windows 的橙色对焦加速说明移入对应功能行。相机载荷与 0.4.9 相同，选择安装功能尚未接入，详见[更新说明](CHANGELOG.md)。
+0.4.11 正式采用已确认的 Mac／Windows 界面：左侧日志、独立勾选功能、安装摘要及统一圆角控件。针对 `FOCUS_RESOURCE_API_MISSING` 导致的菜单加载失败，补上原厂 Qt 资源函数定位与代码指纹校验；保留 0.4.9／0.4.10 恢复文件。新版相机预载仍待实机验证，详见[更新说明](CHANGELOG.md)。
 
 ## Features
 

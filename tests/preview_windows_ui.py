@@ -12,7 +12,7 @@ from localization import translate
 
 def labels():
     tree=ast.parse((Path(__file__).resolve().parents[1]/'src/windows_app.py').read_text())
-    return {call.args[0].value:(call.args[1].value,call.args[2].value) for call in ast.walk(tree)
+    return {call.args[0].value:(call.args[1].value,call.args[2].value if isinstance(call.args[2],ast.Constant) else 'v0.4.10') for call in ast.walk(tree)
             if isinstance(call,ast.Call) and isinstance(call.func,ast.Name) and call.func.id=='item'}
 
 
@@ -20,15 +20,17 @@ def render(path,language='zh',scale=2,height=HEIGHT,offset=0,connected=False,set
     from PySide6.QtCore import Qt,QRectF,QPointF
     from PySide6.QtGui import QImage,QPainter,QColor,QFont,QPen,QFontMetricsF
     width=450 if settings else WIDTH
-    if settings:height=246
-    layout=main_layout()
+    if settings:height=284
+    layout=main_layout(language=language)
     content=labels()
     if settings:
         tree=ast.parse((Path(__file__).resolve().parents[1]/'src/windows_app.py').read_text())
         calls=[call for call in ast.walk(tree) if isinstance(call,ast.Call) and isinstance(call.func,ast.Name) and call.func.id=='control' and len(call.args)>=7 and all(isinstance(arg,ast.Constant) for arg in call.args[:7])]
-        content={call.args[0].value:(call.args[1].value,call.args[2].value) for call in calls}
+        content={call.args[0].value:(call.args[1].value,call.args[2].value if isinstance(call.args[2],ast.Constant) else 'v0.4.10') for call in calls}
         layout={call.args[0].value:tuple(arg.value for arg in call.args[3:7]) for call in calls}
-        layout['language']=(*layout['language'][:3],28)
+        layout['language']=(*layout['language'][:3],36)
+        layout['updatebutton']=(24,224,134 if language=='en' else 82,36)
+        layout['downloadbutton']=(168 if language=='en' else 116,224,238 if language=='en' else 134,36)
     image=QImage(round(width*scale),round((height+36)*scale),QImage.Format_ARGB32)
     image.fill(QColor('white'))
     painter=QPainter(image);painter.scale(scale,scale)
@@ -57,8 +59,12 @@ def render(path,language='zh',scale=2,height=HEIGHT,offset=0,connected=False,set
     for index,glyph in enumerate(('−','□','×')):text(glyph,(width-138+46*index,0,46,36),15,COLORS['secondary'],center=True)
     painter.translate(0,36)
     painter.setClipRect(QRectF(0,0,width,height))
-    for kind,geometry,fill,border in [] if settings else decorations(WIDTH,offset):
+    for kind,geometry,fill,border in [] if settings else decorations(WIDTH,offset,language):
         if kind=='round':shape(geometry[:4],geometry[4],fill,border)
+        elif kind=='line':
+            x,y,w=geometry;painter.setPen(QPen(QColor(fill),1));painter.drawLine(QPointF(x,y),QPointF(x+w,y))
+        elif kind=='dot':
+            painter.setPen(Qt.NoPen);painter.setBrush(QColor(fill));painter.drawEllipse(QRectF(*geometry))
         else:
             x,y,w,h,name=geometry
             painter.setPen(QPen(QColor(fill),1));painter.setBrush(Qt.NoBrush)
@@ -68,9 +74,13 @@ def render(path,language='zh',scale=2,height=HEIGHT,offset=0,connected=False,set
     for key,(kind,source) in content.items():
         x,y,w,h=layout[key];y-=offset
         value=translate(source,language)
-        if key=='logs':continue
+        if key=='selectionsummary':value += ('、' if language!='en' else ', ').join(['AF-C','Focus speed','Auto brightness'] if language=='en' else ['AF-C',translate('对焦加速',language),translate('后屏自动亮度',language)])
+        if key=='prank':continue
+        if key=='featurecount':value=translate('已选择 ',language)+'3'+translate(' 项',language)
+        if key=='logs':
+            text(translate('工具包已启动。\n请将相机开机并连接 USB 数据线。\n连接好后，请点击“已连接”。',language),(x,y,w,h),12,COLORS['secondary'],wrap=True,check=False);continue
         if key=='progress':
-            shape((x,y,w,h),h/2,'#ededee',COLORS['border'])
+            shape((x,y,w,h),h/2,COLORS['surface'])
             if connected:shape((x,y,w*.4,h),h/2,COLORS['blue'])
         elif kind=='COMBOBOX':
             shape((x,y,w,h),4,'white',COLORS['border'])
@@ -78,17 +88,17 @@ def render(path,language='zh',scale=2,height=HEIGHT,offset=0,connected=False,set
             text('⌄',(x+w-28,y,20,h),16,COLORS['secondary'],center=True)
         elif kind=='BUTTON':
             enabled=key not in ('installbutton','restorebutton','prank','downloadbutton') or connected
-            if key in ('prank','automaticupdates'):
-                shape((x,y+(h-16)/2,16,16),4,COLORS['blue'] if key=='automaticupdates' else COLORS['surface'])
-                if key=='automaticupdates':
+            if key in ('prank','automaticupdates','afcchoice','buffchoice','brightnesschoice'):
+                shape((x,y+(h-18)/2,18,18),4,COLORS['blue'] if key!='prank' else COLORS['surface'])
+                if key!='prank':
                     painter.setPen(QPen(QColor('white'),1.5))
                     painter.drawLine(QPointF(x+4,y+h/2),QPointF(x+7,y+h/2+3))
-                    painter.drawLine(QPointF(x+7,y+h/2+3),QPointF(x+12,y+h/2-4))
-                text(value,(x+23,y,w-23,h),14,COLORS['text'] if enabled else COLORS['disabled_text'])
+                    painter.drawLine(QPointF(x+7,y+h/2+3),QPointF(x+13,y+h/2-4))
+                if value and not key.endswith('choice'): text(value,(x+23,y,w-23,h),14,COLORS['text'] if enabled else COLORS['disabled_text'])
             else:
-                fill,color=button_colors(key=='statusbutton',enabled)
-                shape((x+1,y+1,w-2,h-2),min(15,h/2-1),fill)
-                text(value,(x+6,y,w-12,h),14,color,key=='statusbutton',center=True)
+                fill,color=button_colors(key=='installbutton',enabled)
+                shape((x+.5,y+.5,w-1,h-1),7,fill,('#d8d8dc' if enabled else '#ededee') if key!='installbutton' else fill)
+                text(value,(x+8,y,w-16,h),13,color,False,center=True)
         else:
             size,bold,color=text_style(key,language)
             text(value,(x,y,w,h),size,color,bold,wrap=key in ('detail','note','buffdescription','updatesdescription'))

@@ -28,8 +28,9 @@ Item {
  property alias master:features.master
  property alias loaded:features.loaded
  property alias calls:features.calls
+ property alias featureMask:features.featureMask
  onUiScaleChanged:{Constants.scaleFactor=uiScale;Constants.scaleFactorX=uiScale;Constants.scaleFactorY=uiScale}
- QtObject {id:features;property bool master:true;property bool loaded:false;property bool busy:false;property bool ready:true;property bool faulted:false;property bool afcEnabled:false;property string statusMessage:"offline";property int calls:0
+ QtObject {id:features;property bool master:true;property int featureMask:7;readonly property bool afcInstalled:(featureMask&1)!==0;readonly property bool speedInstalled:(featureMask&2)!==0;readonly property bool brightnessInstalled:(featureMask&4)!==0;property bool loaded:false;property bool busy:false;property bool ready:true;property bool faulted:false;property bool afcEnabled:false;property string statusMessage:"offline";property int calls:0
  function setEnabled(value){loaded=value;calls++;return true}}
  X2dPlayPage {anchors.fill:parent;pageActive:true;featureController:features}
  StockMenu.SettingDescription {objectName:"StockDescriptionReference";text:"Reference";isEnabled:features.master;visible:false}
@@ -58,6 +59,12 @@ Item {
  point=row.mapToItem(win.contentItem(),QPointF(310,15));before=root.property('calls')
  QTest.mouseClick(win,Qt.LeftButton,Qt.NoModifier,QPoint(round(point.x()),round(point.y())));settle();assert root.property('calls')==before
  win.grabWindow().save(str(out/'disabled.png'))
+ for mask in range(1,8):
+  root.setProperty('featureMask',mask);settle()
+  for bit,name in [(1,'X2dPlayAfcSwitchRow'),(2,'X2dPlaySpeedSwitchRow'),(4,'X2dPlayAutoBrightnessSwitchRow')]:
+   selectedRow=root.findChild(QObject,name);assert selectedRow is not None,name
+   assert selectedRow.property('visible')==bool(mask&bit),(language,mask,name)
+   assert (selectedRow.height()>0)==bool(mask&bit),(language,mask,name)
  win.close();root.deleteLater();win.deleteLater();app.processEvents()
 (args.output/'focus-guidance-layout-validation.json').write_text(json.dumps(dict(passed=True,cameraAccessed=False,stockComponent='SettingDescription',layouts=reports),ensure_ascii=False,indent=2)+'\n')
 print(json.dumps(reports,ensure_ascii=False))

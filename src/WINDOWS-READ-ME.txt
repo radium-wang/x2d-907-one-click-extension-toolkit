@@ -1,4 +1,13 @@
-x2d/907一键扩展功能-工具包 0.4.10 · Windows x64 实验版
+x2d/907一键扩展功能-工具包 0.4.11 · Windows x64 实验版
+
+选择安装与新版界面 / Selected features and desktop interface
+左侧查看日志，右侧分别选择 AF-C、对焦加速和后屏自动亮度，再点击“安装所选功能”。未选择的功能不会出现在相机功能页中；默认开关均关闭。
+Select AF-C, focus acceleration and rear brightness independently, then click Install selected features. Unselected feature rows stay hidden in the camera; switches default to off.
+本版补上原厂 Qt 静态资源函数定位，针对 FOCUS_RESOURCE_API_MISSING 导致的菜单缺失；离线检查通过，实机重启及菜单加载仍待验证。
+This build addresses the resource-function lookup behind FOCUS_RESOURCE_API_MISSING. Offline checks passed; physical camera restart and menu loading remain pending.
+已遇到此错误的用户：保持连接，点击恢复原状完成原安装的撤回，再用新版检查并安装。未知修改需先用原修改工具恢复原厂。
+If the old install reported that error, keep the connection and use Restore original to revert it before checking and installing this version. Unknown modifications need the original modification tool's stock recovery.
+
 
 新版对焦界面
 对焦弹窗采用二代图标、底框尺寸及间距，字体和边框保留一代样式；实时取景右侧显示对应的 AF-S、AF-C 或 MF 图标。
@@ -33,7 +42,7 @@ The new app does not forcibly stop ADB left by an older version. If the old fold
 English quick start
 1. Extract the entire ZIP and double-click x2d-907一键扩展功能-工具包.exe. Allow the Windows administrator prompt.
 2. Turn on one supported camera, connect a USB data cable, then click Connected. The app prepares only the camera factory Interface 3 driver and checks the camera.
-3. Once checks pass, click Install or Restore original. Keep the camera powered and connected until completion is confirmed. Tap Skip on the camera if prompted.
+3. Once checks pass, select the wanted features and click Install selected features, or Restore original. Keep the camera powered and connected until completion is confirmed. Tap Skip on the camera if prompted.
 4. Open Tweaks (English install) or 耍起功能 (Chinese install) at the end of the camera's main menu. Turn on its master switch, then AF-C, the focus speed buff, or auto rear screen brightness. Select Traditional Chinese in Settings before Install for Traditional Chinese camera text.
 5. Focus acceleration works by tripling lens motor speed. Not recommended for older lenses.
 Windows 10 / 11 x64; original X2D 100C / 907X & CFV 100C firmware 4.2.0 only.
@@ -47,7 +56,7 @@ Automatic driver setup and the 907X menu update still await device verification.
 1. 完整解压 ZIP 到新文件夹，双击“x2d-907一键扩展功能-工具包.exe”。Windows 会请求管理员授权，请允许。不需要右键选择管理员启动，不要单独移动 EXE。
 2. 相机开机，用数据线连接电脑，只连接一台相机。相机屏幕提示连接方式时，可选择“大容量存储”。
 3. 点击“已连接”。程序先检查相机的工厂 Interface 3 驱动；已绑定 WinUSB 时直接使用，缺少时自动准备。此步骤仅准备电脑驱动，尚未安装相机功能。
-4. 等相机文件与状态检查通过，安装及恢复按钮才会启用。点击“一键安装”，等待备份、安装和重启校验完成。如相机屏幕出现“跳过”，请点击“跳过”，继续保持连接。
+4. 等相机文件与状态检查通过，安装及恢复按钮才会启用。选择所需功能后点击“安装所选功能”，等待备份、安装和重启校验完成。如相机屏幕出现“跳过”，请点击“跳过”，继续保持连接。
 5. App 报告安装完成后可以拔线。相机主菜单末尾进入“耍起功能”：X2D 默认第 12 项，907X / CFV 默认第 11 项。先开启总开关，再开启 AF-C、对焦加速 或“在亮度菜单中加入自动亮度”。自动亮度开关和显示屏最高亮度位于“显示 → 亮度”；圆球设置上限，白线显示当前输出。
 6. 需要撤回时，重新连接并点击“已连接”，检查通过后点击“一键恢复原状”，等待恢复和重启校验完成后再拔线。
 
@@ -126,11 +135,11 @@ Startup update checks default to on. Disable them in Settings; the choice surviv
 安装时按 App 语言选择相机菜单。需要恢复并重新安装时，按目标语言弹窗确认；取消不修改相机，完成后需重新开启所需功能。
 Install selects the camera menu language from the app. Restoration before reinstallation requires confirmation in the target language. Cancel leaves the camera unchanged; re-enable the features you need after completion.
 
-0.4.10 安装前检查
+0.4.11 安装前检查
 安装前会核验指定的原厂界面、对焦、显示文件及安装记录。检测到未知修改时停止操作，请先使用原修改工具恢复原厂 4.2.0，再重新检查；本应用不会覆盖或恢复未知修改。检测不代表整个固件或运行内存均为原厂。
 对焦加速可安装，但不建议老镜头用户在相机内开启该功能。
 本版相机载荷与 0.4.9 相同，选择安装功能尚未接入。
 
-0.4.10 pre-installation checks
+0.4.11 pre-installation checks
 The installer checks the specified stock UI, focus and display files and installation records. Unknown modifications stop the operation. Restore stock 4.2.0 with the original modification tool, then check again. This toolkit will not overwrite or restore unknown modifications. The check does not establish that the entire firmware or live memory is stock.
 Focus acceleration can be installed, but older-lens users are advised not to enable it in the camera. Camera payloads are unchanged from 0.4.9; selectable installation is not included.

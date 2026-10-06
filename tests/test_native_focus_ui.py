@@ -19,6 +19,10 @@ HARNESS = r'''
 #define __attribute__(value)
 #define __asm__
 #define __volatile__(...) ((void)0)
+extern void *test_resource_pointer(unsigned long,unsigned long);
+#define X2D_RESOURCE_POINTER(base,offset) test_resource_pointer(base,offset)
+#define X2D_REGISTER_PREFIX_HASH 0xb9b23f3a46fd0825UL
+#define X2D_UNREGISTER_PREFIX_HASH 0xb9b23f3a46fd0825UL
 #include "native_menu_preload.c"
 #undef __attribute__
 #undef __asm__
@@ -28,7 +32,8 @@ static int failure, writes, registrations, removals;
 static const char *mode;
 static uintptr_t destination;
 static char last_status[100];
-char *getenv(const char *name) { return !strcmp(name,"X2D_NATIVE_MENU") ? "1" : 0; }
+static char *selected_mask;
+char *getenv(const char *name) { return !strcmp(name,"X2D_NATIVE_MENU") ? "1" : !strcmp(name,"X2D_FEATURE_MASK") ? selected_mask : 0; }
 ssize_t readlink(const char *path,char *out,size_t size) {
     const char *text="/system/bin/camera-gui"; size_t n=strlen(text);
     if(size<n) return -1; memcpy(out,text,n); return (ssize_t)n;
@@ -44,10 +49,14 @@ static _Bool unregister_resources(int version,const unsigned char *a,const unsig
     ++removals; return 1;
 }
 void *dlsym(void *handle,const char *name) {
-    if(!strcmp(mode,"missing-api")) return 0;
+    if(!strcmp(mode,"missing-api") || !strcmp(mode,"local-api") || !strcmp(mode,"local-api-mismatch")) return 0;
     if(!strcmp(name,"_Z21qRegisterResourceDataiPKhS0_S0_")) return (void *)register_resources;
     if(!strcmp(name,"_Z23qUnregisterResourceDataiPKhS0_S0_")) return (void *)unregister_resources;
     return 0;
+}
+void *test_resource_pointer(unsigned long base,unsigned long offset) {
+    if(!strcmp(mode,"missing-api")) return 0;
+    return offset==0x8a9c90 ? (void *)register_resources : (void *)unregister_resources;
 }
 int open(const char *path,int flags,...) {
     if(!strcmp(path,"/blackbox/x2d-native-menu.disable")) return !strcmp(mode,"disabled") ? 9 : -1;
@@ -68,6 +77,7 @@ ssize_t write(int fd,const void *data,size_t size) {
 }
 int main(int argc,char **argv) {
     mode=argc>1 ? argv[1] : "ok"; failure=argc>2 ? atoi(argv[2]) : 0;
+    selected_mask=argc>3 ? argv[3] : 0;
     uintptr_t base=(uintptr_t)arena;
     struct cache *main_cache=(struct cache *)(base+0x20acc78);
     struct cache *control=(struct cache *)(base+0x20ac690);
@@ -83,11 +93,15 @@ int main(int argc,char **argv) {
     memcpy((void *)original_popup.data,popover_stock,13552);
     memcpy((void *)original_liveview.data,liveview_stock,6196);
     if(!strcmp(mode,"stock-mismatch")) arena[0x172c360]^=1;
+    if(!strcmp(mode,"local-api-mismatch")) arena[0x8a9c90]^=1;
     install();
-    if(!strcmp(mode,"ok")) {
+    if(!strcmp(mode,"ok") || !strcmp(mode,"local-api")) {
         if(strcmp(last_status,"MENU_AND_AFC_SWITCHABLE_READY\n") || registrations!=1 || removals || writes!=7) return 90;
         if(main_cache->data!=extended_unit || control->data!=control_stock || popup->data!=popover_afc || popup->aot ||
            liveview->data!=liveview_modes || liveview->aot || *(unsigned int *)(base+0x18a2a64)!=1) return 91;
+    } else if(!strcmp(mode,"menu-only")) {
+        if(strcmp(last_status,"MENU_AND_AFC_SWITCHABLE_READY\n") || writes!=1 || registrations || removals || main_cache->data!=extended_unit) return 97;
+        if(memcmp(control,&original_control,sizeof(*control)) || memcmp(popup,&original_popup,sizeof(*popup)) || memcmp(liveview,&original_liveview,sizeof(*liveview)) || *(unsigned int *)(base+0x18a2a64)) return 98;
     } else {
         if(memcmp(main_cache,&original_main,sizeof(*main_cache)) || memcmp(control,&original_control,sizeof(*control)) ||
            memcmp(popup,&original_popup,sizeof(*popup)) || memcmp(liveview,&original_liveview,sizeof(*liveview)) ||
@@ -95,7 +109,7 @@ int main(int argc,char **argv) {
         if(!strcmp(mode,"partial") && (strcmp(last_status,"WRITE_FAILED_RESTORED\n") || registrations!=1 || removals!=1)) return 93;
         if(!strcmp(mode,"open-failed") && (writes || registrations!=1 || removals!=1)) return 94;
         if((!strcmp(mode,"disabled") || !strcmp(mode,"retry") || !strcmp(mode,"stock-mismatch") ||
-            !strcmp(mode,"missing-api")) && (writes || registrations || removals)) return 95;
+            !strcmp(mode,"missing-api") || !strcmp(mode,"local-api-mismatch")) && (writes || registrations || removals)) return 95;
         if(!strcmp(mode,"register-failed") && (writes || registrations!=1 || removals)) return 96;
     }
     printf("%s",last_status); return 0;
@@ -130,13 +144,24 @@ class NativeFocusUITests(unittest.TestCase):
     def tearDownClass(cls):
         cls.directory.cleanup()
 
-    def run_probe(self,mode,failed_write=0):
-        result=subprocess.run([str(self.executable),mode,str(failed_write)],capture_output=True,text=True,timeout=5)
+    def run_probe(self,mode,failed_write=0,mask=None):
+        result=subprocess.run([str(self.executable),mode,str(failed_write)]+([] if mask is None else [str(mask)]),capture_output=True,text=True,timeout=5)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
         return result.stdout.strip()
 
+    def test_unselected_afc_keeps_stock_focus_caches_gate_and_resources(self):
+        for mask in (2,4,6):
+            with self.subTest(mask=mask): self.assertEqual(self.run_probe('menu-only',mask=mask),'MENU_AND_AFC_SWITCHABLE_READY')
+        for mask in ('0','8','x','12'):
+            self.assertEqual(self.run_probe('invalid-mask',mask=mask),'FEATURE_MASK_INVALID')
+        self.assertEqual(self.run_probe('partial-menu',failed_write=1,mask=2),'WRITE_FAILED_RESTORED')
+
     def test_success_registers_private_icons_and_clears_both_old_aot_tables(self):
         self.assertEqual(self.run_probe('ok'),'MENU_AND_AFC_SWITCHABLE_READY')
+
+    def test_static_local_qt_symbols_use_verified_code_addresses(self):
+        self.assertEqual(self.run_probe('local-api'),'MENU_AND_AFC_SWITCHABLE_READY')
+        self.assertEqual(self.run_probe('local-api-mismatch'),'FOCUS_RESOURCE_API_MISSING')
 
     def test_each_partial_write_restores_all_original_fields_and_unregisters_icons(self):
         for write in range(1,8):

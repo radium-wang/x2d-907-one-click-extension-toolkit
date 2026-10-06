@@ -38,7 +38,8 @@ FocusScope {
         return featureController.setEnabled(!featureLoaded)
     }
 
-    AutoBrightnessController { id: brightness; masterEnabled: root.masterEnabled; pageActive: root.pageActive }
+    AutoBrightnessController { id: brightness; masterEnabled: root.masterEnabled; pageActive: root.pageActive
+        installed: root.featureController !== null && root.featureController.brightnessInstalled }
     function requestBrightnessToggle() {
         if (!pageActive || !masterEnabled || requestPending || featureBusy) return false
         return brightness.toggleFeature()
@@ -110,7 +111,8 @@ FocusScope {
             Item {
                 objectName: "X2dPlayAfcSwitchRow"
                 width: parent.width
-                height: Constants.menuListItemDefaultHeight
+                visible: root.featureController !== null && root.featureController.afcInstalled
+                height: visible ? Constants.menuListItemDefaultHeight : 0
                 StockMenu.MenuBoolSelector {
                     anchors.left: parent.left
                     anchors.right: parent.right
@@ -137,9 +139,10 @@ FocusScope {
             Item {
                 objectName: "X2dPlaySpeedSwitchRow"
                 width: parent.width
+                visible: root.featureController !== null && root.featureController.speedInstalled
                 readonly property real topOffset: 16 * 1.6 * Constants.scaleFactorY
                 readonly property real bottomOffset: 8 * 1.6 * Constants.scaleFactorY
-                height: speedColumn.height + topOffset + bottomOffset
+                height: visible ? speedColumn.height + topOffset + bottomOffset : 0
                 Column {
                     id: speedColumn
                     anchors.top: parent.top
@@ -178,10 +181,11 @@ FocusScope {
             Item {
                 objectName: "X2dPlayAutoBrightnessSwitchRow"
                 width: parent.width
+                visible: root.featureController !== null && root.featureController.brightnessInstalled
                 // Match the stock SwitchDelegate description layout and typography.
                 readonly property real topOffset: 16 * 1.6 * Constants.scaleFactorY
                 readonly property real bottomOffset: 8 * 1.6 * Constants.scaleFactorY
-                height: brightnessColumn.height + topOffset + bottomOffset
+                height: visible ? brightnessColumn.height + topOffset + bottomOffset : 0
                 Column {
                     id: brightnessColumn
                     anchors.top: parent.top

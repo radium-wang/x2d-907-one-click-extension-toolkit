@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.11](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.11) — 2026-10-06
+
+- Implement the confirmed desktop design on Mac and Windows: a log card on the left, independently selectable feature rows with dividers, a selection count, a gray installation summary and matching rounded controls. Both use a shared layout/color specification; Settings retains rounded language selection.
+- Carry selected AF-C, focus acceleration and rear brightness through the installation manifest and boot configuration. Hide unselected camera rows, reject unavailable worker commands, omit the brightness runtime when unselected, and leave stock focus caches/resources untouched when AF-C is unselected. Preserve the exact 0.4.9/0.4.10 recovery manifest and language bytes.
+- Address user-reported `FOCUS_RESOURCE_API_MISSING`: the pinned stock GUI's Qt resource functions are local static symbols absent from its dynamic symbol table. Verify their exact code prefixes and use the pinned addresses when dynamic lookup fails. A fingerprint mismatch still stops loading. The reported device failure is not a successful install; the corrected preload remains pending physical camera validation.
+- Publish Mac universal and Windows x64 packages. 201 tests pass with local payloads; a clean source copy passes 172 and skips 29. Native Mac selection/Settings checks, nine Windows shared-layout previews, three-language/seven-mask Qt page checks, package/dependency/recovery audits and updater extraction checks pass. Native Windows execution and camera installation/restart/menu loading remain pending.
+
+
 ## [0.4.10](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.10) — 2026-10-06
 
 - Strengthen the shared Mac/Windows preflight: verify stock focus/display binaries and the camera-service startup configuration, check both stock startup configurations and orphan extension targets before a first install, and verify a recognized installation's backup/configuration hashes, file ledger and actual payload hashes before accepting its service or menu receipt. Unknown modifications stop before ADB setup, upload or reboot.
@@ -137,6 +145,13 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## [0.4.11](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.11) — 2026-10-06
+
+- Mac 与 Windows 正式采用已确认的界面：左侧日志卡片、可独立勾选的功能行与分隔线、选择数量、浅灰安装摘要和统一圆角按钮。两端共用尺寸与配色配置，设置里的语言选择保持圆角。
+- 选择结果进入安装记录及开机配置；未选择的相机功能行隐藏，服务拒绝开启未安装功能。不选择自动亮度时不安装亮度运行库；不选择 AF-C 时保留原厂对焦缓存及资源。保留 0.4.9／0.4.10 的精确恢复记录和三种语言字节。
+- 针对用户反馈的 `FOCUS_RESOURCE_API_MISSING` 补上原厂 Qt 本地静态函数定位及代码指纹核验。指纹不匹配继续停止加载。用户反馈的失败安装不能视为成功，新预载修复仍待实机验证。
+- 发布 Mac 通用与 Windows x64 包。201 项本地载荷测试通过，纯源码 172 项通过、29 项跳过。Mac 原生勾选与设置、Windows 九份共用布局、三种语言七种掩码的 Qt 功能行、安装包依赖／恢复文件／更新解压检查通过；Windows 原生运行与相机安装、重启和实际菜单仍待验证。
 
 ## [0.4.10](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.10) — 2026-10-06
 

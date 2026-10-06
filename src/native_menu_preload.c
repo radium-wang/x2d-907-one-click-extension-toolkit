@@ -25,6 +25,22 @@ extern const unsigned char focus_tree[], focus_tree_end[], focus_names[], focus_
 typedef _Bool (*resource_function)(int, const unsigned char *, const unsigned char *, const unsigned char *);
 struct cache { const unsigned char *data; const void *aot; const void *unused; };
 struct patch { void *address; const void *before; const void *after; size_t size; };
+#ifndef X2D_RESOURCE_POINTER
+#define X2D_RESOURCE_POINTER(base,offset) ((void *)((base)+(offset)))
+#endif
+#ifndef X2D_REGISTER_PREFIX_HASH
+#define X2D_REGISTER_PREFIX_HASH 0xc9fc129776a01367UL
+#define X2D_UNREGISTER_PREFIX_HASH 0x458e2d498ccb2da9UL
+#endif
+static uintptr_t resource_prefix_hash(const unsigned char *code) {
+    uintptr_t hash=14695981039346656037UL;
+    for(size_t i=0;i<64;++i) hash=(hash^code[i])*1099511628211UL;
+    return hash;
+}
+static resource_function local_resource_api(uintptr_t base, uintptr_t offset, uintptr_t expected) {
+    if(!expected || resource_prefix_hash((const unsigned char *)(base+offset))!=expected) return 0;
+    return (resource_function)X2D_RESOURCE_POINTER(base,offset);
+}
 
 static int write_word(int fd, const struct patch *p, int restore) {
     const void *value=restore ? p->before : p->after;
@@ -62,6 +78,24 @@ __attribute__((constructor)) static void install(void) {
        memcmp(original,stock_unit,15084)) {status("BUILD_MISMATCH\n");return;}
     if((size_t)(extended_unit_end-extended_unit)!=EXTENDED_UNIT_SIZE ||
        memcmp(extended_unit,"qv4cdata",8)) {status("PAYLOAD_MISMATCH\n");return;}
+    const char *mask=getenv("X2D_FEATURE_MASK");
+    if(mask && (mask[0]<'1' || mask[0]>'7' || mask[1])) {status("FEATURE_MASK_INVALID\n");return;}
+    if(mask && !((mask[0]-'0')&1)) {
+        /* Non-AF-C installs only attach the shared menu. Keep stock focus UI. */
+        int attempt=open("/tmp/x2d-native-menu-attempt",1|64|128,0600);
+        if(attempt<0) {status("SKIPPED_RETRY\n");return;}
+        close(attempt);
+        const unsigned char *next=extended_unit;
+        struct patch menu={&c->data,&original,&next,sizeof(next)};
+        int fd=open("/proc/self/mem",2);
+        if(fd<0) {status("OPEN_FAILED\n");return;}
+        if(!write_word(fd,&menu,0)) {
+            int restored=write_word(fd,&menu,1);close(fd);
+            status(restored ? "WRITE_FAILED_RESTORED\n" : "RESTORE_FAILED\n");return;
+        }
+        close(fd);__asm__ __volatile__("dmb ish" ::: "memory");
+        status("MENU_AND_AFC_SWITCHABLE_READY\n");return;
+    }
     struct cache *control=(struct cache *)(base+0x20ac690UL);
     struct cache *popover=(struct cache *)(base+0x20ad2c0UL);
     struct cache *liveview=(struct cache *)(base+0x20ac978UL);
@@ -89,6 +123,11 @@ __attribute__((constructor)) static void install(void) {
     close(attempt);
     resource_function register_icons=(resource_function)dlsym((void *)0,"_Z21qRegisterResourceDataiPKhS0_S0_");
     resource_function unregister_icons=(resource_function)dlsym((void *)0,"_Z23qUnregisterResourceDataiPKhS0_S0_");
+    /* Qt is statically linked with STB_LOCAL symbols in the pinned camera GUI.
+     * Dynamic lookup alone cannot find these two APIs. Verify code fingerprints
+     * before using their fixed offsets; never guess offsets on another build. */
+    if(!register_icons) register_icons=local_resource_api(base,0x8a9c90UL,X2D_REGISTER_PREFIX_HASH);
+    if(!unregister_icons) unregister_icons=local_resource_api(base,0x8a9f10UL,X2D_UNREGISTER_PREFIX_HASH);
     if(!register_icons || !unregister_icons) {status("FOCUS_RESOURCE_API_MISSING\n");return;}
     if(!register_icons(3,focus_tree,focus_names,focus_data)) {status("FOCUS_RESOURCE_REGISTER_FAILED\n");return;}
     const unsigned char *next=extended_unit;

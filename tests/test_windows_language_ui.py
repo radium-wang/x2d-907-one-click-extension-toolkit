@@ -30,6 +30,8 @@ class WindowAPI:
         if name=='GetDpiForSystem': return 96
         if name=='GetSystemMetrics': return 1440 if args[0]==0 else 1200
         if name=='SendMessageW':
+            if args[1]==0x00F1: self.controls[args[0]]['checked']=args[2]
+            if args[1]==0x00F0: return self.controls[args[0]].get('checked',0)
             if args[1]==0x014E: self.selection=args[2]
             if args[1]==0x0147: return self.selection
             return 0
@@ -49,6 +51,36 @@ class WindowsLanguageUITests(unittest.TestCase):
     def setUp(self):
         preferences=patch.object(app,'UpdatePreferences',return_value=SimpleNamespace(auto_check=False,set_auto_check=lambda value:True))
         preferences.start();self.addCleanup(preferences.stop)
+
+    def test_empty_selection_blocks_install_and_row_click_freezes_only_selected_features(self):
+        pending=[]
+        class SelectionAPI(WindowAPI):
+            def call(self,name,*args):
+                if name=='GetMessageW':
+                    self.session.verified=True
+                    choices={item['id']:handle for handle,item in self.controls.items() if item['id'] in (110,111,112)}
+                    for handle in choices.values():self.controls[handle]['checked']=0
+                    self.proc(101,0x0111,110,choices[110])
+                    install=next(h for h,item in self.controls.items() if item['id']==102)
+                    assert not self.enabled[install]
+                    self.proc(101,0x0111,102,install);assert not pending
+                    # The speed row is clickable outside its checkbox.
+                    self.proc(101,0x0202,0,(243<<16)|500)
+                    assert self.controls[choices[111]]['checked']==1 and self.enabled[install]
+                    self.proc(101,0x0111,102,install)
+                    assert len(pending)==1 and pending[0][1][3]==('speed-buff',)
+                    assert all(not self.enabled[h] for h in choices.values())
+                    return 0
+                return super().call(name,*args)
+        api=SelectionAPI()
+        class Session(app.Session):
+            def __init__(self):super().__init__();api.session=self
+        class Thread:
+            def __init__(self,target,args,daemon):self.target,self.args=target,args
+            def start(self):pending.append((self.target,self.args))
+        with tempfile.TemporaryDirectory() as folder:
+            with patch.object(app,'os',SimpleNamespace(name='nt',environ={'LOCALAPPDATA':folder})),patch.object(app.C,'WinDLL',side_effect=lambda *a,**k:api,create=True),patch.object(app.C,'WINFUNCTYPE',C.CFUNCTYPE,create=True),patch.object(app,'Session',Session),patch.object(app.threading,'Thread',Thread),patch.object(app.subprocess,'Popen') as worker:
+                app.main();worker.assert_not_called()
 
     def test_window_close_cancels_real_blocked_update_child_without_camera_work(self):
         ready = threading.Event(); children = []
@@ -117,7 +149,7 @@ class WindowsLanguageUITests(unittest.TestCase):
             fonts=[]
             def call(self,name,*args):
                 if name=='GetClientRect':
-                    rect=args[1]._obj;rect.right=round(580*self.dpi/96);rect.bottom=round(self.height*self.dpi/96)
+                    rect=args[1]._obj;rect.right=round(980*self.dpi/96);rect.bottom=round(self.height*self.dpi/96)
                     return 1
                 if name=='CreateFontW':self.fonts.append((args[0],args[-1]))
                 if name=='MoveWindow':self.moves[args[0]]=args[1:5];return 1
@@ -132,11 +164,11 @@ class WindowsLanguageUITests(unittest.TestCase):
                     self.dpi=144
                     frame=C.wintypes.RECT(10,10,910,910)
                     self.proc(101,0x02E0,144|(144<<16),C.addressof(frame))
-                    assert self.moves[install][0]==round(146*1.5)
-                    assert any(size==-33 for size,face in self.fonts)
+                    assert self.moves[install][0]==round(820*1.5)
+                    assert any(size==-32 for size,face in self.fonts)
                     self.proc(101,0x0111,107,0)
                     self.selection=2;self.proc(101,0x0111,(1<<16)|104,0)
-                    assert any(size==-28 and face=='Segoe UI' for size,face in self.fonts)
+                    assert any(size==-32 and face=='Segoe UI' for size,face in self.fonts)
                     assert not self.session.verified and not self.session.busy
                     return 0
                 return super().call(name,*args)
@@ -231,7 +263,8 @@ class WindowsLanguageUITests(unittest.TestCase):
                         self.selection=0 if target_language=='en' else 2
                         self.proc(101,0x0111,(1<<16)|104,0)
                         fn,arguments=pending.pop()
-                        assert arguments[-1]==target_language
+                        assert arguments[2]==target_language
+                        assert arguments[3]==('afc','speed-buff','auto-rear-brightness')
                         fn(*arguments)
                         assert not self.session.busy and self.session.verified
                         return 0
@@ -293,12 +326,12 @@ class WindowsLanguageUITests(unittest.TestCase):
                 app.main()
                 worker.assert_not_called()
             initial,english=api.snapshots
-            self.assertTrue(any(x['text']=='x2d/907一键扩展功能-工具包' for x in initial.values()))
-            self.assertTrue(any(x['text']=='X2D/907 One-Click Extension Toolkit' for x in english.values()))
+            self.assertTrue(any(x['text']=='x2d/907 扩展功能工具包' for x in initial.values()))
+            self.assertTrue(any(x['text']=='x2d/907 Extension Toolkit' for x in english.values()))
             for item in english.values(): self.assertFalse(re.search('[\u3400-\u9fff]',item['text']),item)
             labels={item['id']:item['text'] for item in english.values() if item['id']}
             self.assertEqual(labels[106],'Check for Updates');
-            self.assertEqual(labels[101],'Connected');self.assertEqual(labels[102],'Install');self.assertEqual(labels[103],'Restore original')
+            self.assertEqual(labels[101],'Connected');self.assertEqual(labels[102],'Install selected features');self.assertEqual(labels[103],'Restore original')
             for handle,item in english.items():
                 if item['id'] in (102,103): self.assertFalse(api.enabled[handle])
             self.assertEqual(json.loads((Path(folder)/'X2DPlay/language.json').read_text()),{'language':'en'})

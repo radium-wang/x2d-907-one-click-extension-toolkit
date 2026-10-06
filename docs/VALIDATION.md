@@ -1,4 +1,17 @@
-# Validation boundaries — 0.4.10
+# Validation boundaries — 0.4.11
+
+## Selectable desktop interface and static Qt resource lookup (0.4.11)
+
+All 201 tests pass with exact local camera payloads; a clean source copy passes 172 and skips 29 requiring excluded generated inputs. New checks cover all seven feature combinations, manifest tampering, feature masks shared by GUI/service boot environments, unavailable worker actions stopping before file access, preserving stock focus caches/gates/resources when AF-C is unselected, rollback of the menu-only write and the stock local-symbol fallback with a mismatched-code refusal. Windows callback substitutes exercise empty-selection installation protection, clicking a full feature row, frozen selected worker arguments and busy controls. They do not establish native Windows execution.
+
+The native builder reads the pinned stock GUI ELF and confirms that the two Qt resource functions are STB_LOCAL symbols absent from `.dynsym`, at the pinned executable addresses with exact 64-byte instruction-prefix fingerprints. The previous `dlsym`-only path could not find them and stopped before the menu was attached. A user screenshot reports `FOCUS_RESOURCE_API_MISSING`; that failure is not an installation success. The corrected lookup has not been tested inside a physical camera's GUI process.
+
+Both packages pass 76 Mac Mach-O and 38 Windows PE dependency audits, all 32 current payload variants and 66 recovery byte files match their hashes, and updater extraction validates both versions and the extracted Mac signature. The shared UI specification is present in both ZIPs.
+
+Mac and Windows share a checked-in layout/color specification derived from the confirmed mockup. Three native Mac main/Settings snapshots pass selection/empty-selection/busy-state checks and warning-text bounds. Nine Windows shared-layout/Settings previews pass text-fit checks. Qt 6.4.1 fixtures load the real packaged pages in three languages, check all seven masks for row visibility/zero height, exercise actual switch clicks and master gating, and retain stock-style guidance at three widths. The menu-model fixture still appends/clicks the 12th X2D or 11th CFV item; these are host substitutes rather than camera menu evidence.
+
+Mac 通用包的 76 个 Mach-O、Windows 包的 38 个 PE 及两份 ZIP 解压、版本、资源与签名检查通过。32 份当前载荷与 66 份旧版恢复文件均符合哈希，原厂 GUI 未被替换。201 项本地精确载荷测试通过；纯源码 172 项通过、29 项因缺少生成输入跳过。三种语言的 Mac 原生主界面与设置窗口、空选择保护、实际勾选及忙碌状态检查通过；Windows 九份共用布局预览无文字截断，尚未执行 Windows 实机运行。七种功能组合、安装记录防篡改、开机功能掩码、未安装功能的服务拒绝、AF-C 未选择时保留原厂对焦资源及菜单写入回滚均有回归覆盖。原厂 ELF 的 Qt 注册／注销资源函数是本地静态符号，旧 `dlsym` 路径无法找到；新版按固定地址及 64 字节代码指纹定位。截图中的启动失败不能视为安装成功，修正后的相机 GUI 进程加载、重启与实际菜单仍待实机验证。本次没有安装、恢复或重启任何相机。
+
 
 ## Camera integrity checks and desktop guidance (0.4.10)
 
