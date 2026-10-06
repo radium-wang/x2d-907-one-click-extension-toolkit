@@ -1,8 +1,10 @@
 # Changelog
 
-## Unreleased
+## [0.4.16](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.16) — 2026-10-06
 
+- Address user-reported restoration timeouts in the latest app, with reported success using 0.4.12. Long recovery/restoration steps now use the verified, serial-bound ADB channel with a 180-second budget instead of the factory RPC's 15-second capture. Preserve exact backup/payload gates, actual-state verification and strict completion receipts; failures, disconnects and unexpected output cannot report success. Camera payloads are unchanged; update the desktop app before restoring. The affected user's physical result remains pending.
 - Remove obsolete installer/checksum release assets, retaining only the latest packages with the free-project notice. Preserve historical release entries, tags and changelogs.
+- Publish Mac universal and Windows x64 packages. All 263 offline tests pass with local payloads; clean source passes 227 and skips 36. Seven restoration transport regressions cover a real 16-second shell task, unavailable factory RPC, script failure, symlink/FIFO logs, unverified targets, disconnection/timeout/bad receipts and private ADB timeout overrides. Mac native launch, 76 Mach-O / 38 PE dependency audits, all 33 current variants / 95 previous-byte catalog entries and both updater extraction checks pass. Camera payload bytes are identical to 0.4.15. The reported camera's new restoration path and native Windows execution remain pending.
 
 ## [0.4.15](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.15) — 2026-10-06
 
@@ -177,9 +179,11 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 
 # 中文更新日志
 
-## 未发布
+## [0.4.16](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.16) — 2026-10-06
 
+- 针对用户反馈最新版恢复通信超时、0.4.12 恢复成功的问题，将耗时撤回／恢复步骤改走已校验并绑定相机的 ADB 通道，等待上限 180 秒，避免旧工厂通信 15 秒限制。保留精确备份／载荷核验、实际状态回读及严格完成回执，失败、断线或异常输出不报告成功。相机载荷不变，先更新桌面 App 再恢复即可；受影响用户的实际结果仍待确认。
 - 下架旧版本安装包及校验附件，仅保留带免费项目提示的最新版本下载；保留历史发布页、标签和更新日志。
+- 发布 Mac 通用及 Windows x64 安装包。263 项带本地载荷的离线测试通过；纯源码通过 227 项、跳过 36 项。七项恢复通信回归覆盖真实 16 秒 shell 任务、工厂接口不可用、脚本失败、符号链接／FIFO 日志、未校验目标、断线／超时／异常回执及独立 ADB 等待参数。Mac 原生启动、76 个 Mach-O／38 个 PE 依赖审计、33 个当前载荷版本／95 个旧字节条目及两平台更新解压检查通过。相机载荷字节与 0.4.15 完全一致；反馈相机的新恢复流程及 Windows 原生运行仍待验证。
 
 ## [0.4.15](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.15) — 2026-10-06
 

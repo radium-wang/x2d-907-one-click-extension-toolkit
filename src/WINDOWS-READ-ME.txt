@@ -1,4 +1,8 @@
-x2d/907一键扩展功能-工具包 0.4.15 · Windows x64 实验版
+x2d/907一键扩展功能-工具包 0.4.16 · Windows x64 实验版
+
+恢复通信修复 / Restoration transport fix
+耗时恢复步骤改走经过校验、绑定当前相机的 ADB 通道，等待上限 180 秒，避免超过旧工厂通信的 15 秒限制。完成回执、实际功能状态、原厂备份及文件校验继续检查；连接中断或回执异常不会报告成功。先更新桌面 App 再点击恢复原状，无需先重装相机功能。离线测试通过，受影响用户的实机恢复仍待确认。
+Long restoration steps now use verified, camera-bound ADB with a 180-second limit instead of the 15-second factory RPC. Completion receipts, actual feature states, stock backups and file checks remain required; disconnects or invalid receipts cannot report success. Update the desktop app before Restore original; no camera reinstall is needed. Offline checks pass; the affected user's physical restoration remains pending.
 
 选择安装与新版界面 / Selected features and desktop interface
 左侧查看日志，右侧分别选择四项功能，再点击“安装所选功能”。默认选择 AF-C、对焦加速和后屏自动亮度，人眼识别为第四项可选功能；未选择的功能行不会出现在相机功能页中。安装人眼项不会启用或清除原厂设置，机内开关显示实际回读状态。

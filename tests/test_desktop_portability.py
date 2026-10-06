@@ -55,10 +55,12 @@ class DesktopTests(unittest.TestCase):
     def test_windows_still_checks_uploaded_script_on_camera(self):
         data = b'#!/system/bin/sh\nset -eu\necho SAFE\n'
         responses = ['SAFE', app.sha(data)+' file', 'SYNTAX_OK']
-        with patch.object(app, 'shell', side_effect=responses) as shell, \
-             patch.object(app, 'adb_call', return_value=MagicMock(returncode=0)):
-            app.upload('install', data)
-        self.assertIn('sh -n ', shell.call_args.args[0])
+        for name in ('install', 'recover', 'restore'):
+            with self.subTest(name=name), \
+                 patch.object(app, 'shell', side_effect=responses) as shell, \
+                 patch.object(app, 'adb_call', return_value=MagicMock(returncode=0)):
+                app.upload(name, data)
+            self.assertIn('sh -n ', shell.call_args.args[0])
 
     def test_explicit_error_survives_failed_worker_exit(self):
         session = windows_app.Session(); session.start('status')

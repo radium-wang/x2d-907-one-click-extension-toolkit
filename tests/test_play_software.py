@@ -73,11 +73,8 @@ class SoftwareTests(unittest.TestCase):
             def shell(command):
                 if command.startswith('test -e '):
                     return 'YES' if '/installed' in command or any(path in command for path in (partial or {})) else 'NO'
-                if command=='sh '+app.STAGE+'/recover && echo ACTION_FINISHED || echo RECOVERY_FAILED':
-                    return 'ACTION_FINISHED' if recovery_ok else 'RECOVERY_FAILED'
-                if command=='sh '+app.STAGE+'/restore': return 'PLAY_SOFTWARE_RESTORED'
                 raise AssertionError(command)
-            with patch.object(app,'verify_target'),patch.object(app,'ensure_adb'),patch.object(app,'shell',side_effect=shell),patch.object(app,'read_bytes',side_effect=lambda p:data[p]),patch.object(app,'upload',side_effect=lambda n,b:uploads.update({n:b})),patch.object(app,'event'),patch.object(app,'reboot_and_verify') as reboot:
+            with patch.object(app,'run_restore_stage',side_effect=lambda name:('ACTION_FINISHED' if recovery_ok else 'RECOVERY_FAILED') if name=='recover' else 'PLAY_SOFTWARE_RESTORED'),patch.object(app,'verify_target'),patch.object(app,'ensure_adb'),patch.object(app,'shell',side_effect=shell),patch.object(app,'read_bytes',side_effect=lambda p:data[p]),patch.object(app,'upload',side_effect=lambda n,b:uploads.update({n:b})),patch.object(app,'event'),patch.object(app,'reboot_and_verify') as reboot:
                 app.restore()
                 if m.get('autoBrightness'): reboot.assert_called_once_with(False,auto_brightness=True)
                 else: reboot.assert_called_once_with(False)

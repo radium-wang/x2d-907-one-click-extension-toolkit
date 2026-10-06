@@ -27,14 +27,18 @@ Camera menu text follows the app language at install time: English installs **Tw
 
 ## Download / 下载软件
 
-**Latest version: 0.4.15 / 最新版本：0.4.15**
+**Latest version: 0.4.16 / 最新版本：0.4.16**
 
-- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.15/x2d-907-extension-toolkit-Windows-x64-0.4.15.zip)
-- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.15/x2d-907-extension-toolkit-macOS-Universal-0.4.15.zip)
+- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.16/x2d-907-extension-toolkit-Windows-x64-0.4.16.zip)
+- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.16/x2d-907-extension-toolkit-macOS-Universal-0.4.16.zip)
 
 Only the latest installer packages containing the free-project notice are retained for download; historical release notes remain available. 仅保留带免费项目提示的最新安装包供下载，历史更新说明继续保留。
 
-Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.15) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.15/SHA256SUMS)
+Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.16) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.16/SHA256SUMS)
+
+0.4.16 moves long restoration steps from the 15-second factory RPC to the verified, camera-bound ADB channel with a 180-second limit and checked completion receipts. Update the desktop app before Restore original; no camera reinstall is needed for this fix. The affected user's physical restoration remains to be confirmed.
+
+0.4.16 将耗时恢复步骤从 15 秒工厂通信改为经过校验、绑定当前相机的 ADB 通道，允许等待 180 秒并核验完成回执。先更新桌面 App，再点击恢复原状；此修复无需先重装相机功能。受影响用户的实际恢复结果仍待确认。
 
 Version 0.4.15 adds optional Eye Recognition using the stock debug switch, plus disabled Coming soon cards for Pixel Shift and Face Tracking Autofocus on Mac and Windows. Enable stock face detection for eye boxes; this does not add tracking autofocus. The first-use free-project notice remains in all three languages. See [firmware audit](docs/EYE-AUDIT.md) and [release notes](CHANGELOG.md). The new Eye switch has not been tested on a physical camera.
 
@@ -113,7 +117,7 @@ If this toolkit helps you, you can support its development via [PayPal](https://
 
 相机菜单文案随安装时的 App 语言：简体、繁体中文安装为“耍起功能”（功能名称与提示使用所选字形），英文安装为 Tweaks。
 
-**下载安装包：**[Windows 10/11（64 位）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.15/x2d-907-extension-toolkit-Windows-x64-0.4.15.zip) · [macOS 13 及以上（Apple 芯片 / Intel）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.15/x2d-907-extension-toolkit-macOS-Universal-0.4.15.zip)。下载后请完整解压，再启动软件。
+**下载安装包：**[Windows 10/11（64 位）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.16/x2d-907-extension-toolkit-Windows-x64-0.4.16.zip) · [macOS 13 及以上（Apple 芯片 / Intel）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.16/x2d-907-extension-toolkit-macOS-Universal-0.4.16.zip)。下载后请完整解压，再启动软件。
 
 ### 当前功能
 

@@ -50,6 +50,7 @@ class BrightnessTests(unittest.TestCase):
         (self.folder/'speed-worker').write_bytes(b'fixture worker')
         with patch.object(app,'O',self.folder),patch.object(app,'verify_target'),patch.object(app,'recognized_bundle',return_value=True), \
              patch.object(app,'read_bytes',side_effect=lambda p:data[p]),patch.object(app,'ensure_adb'), \
+             patch.object(app,'run_restore_stage',side_effect=lambda name:'ACTION_FINISHED' if name=='recover' else 'PLAY_SOFTWARE_RESTORED'), \
              patch.object(app,'shell',side_effect=lambda cmd:'PLAY_SOFTWARE_RESTORED' if cmd=='sh '+app.STAGE+'/restore' else 'ACTION_FINISHED' if 'ACTION_FINISHED' in cmd else 'YES'), \
              patch.object(app,'upload',side_effect=lambda n,b:self.uploads.update({n:b})),patch.object(app,'event'):
             if foreign:

@@ -128,7 +128,31 @@ def read_bytes(path):
 def adb_call(args, **options):
     prefix = adb_prefix() + (['-s', ADB_SERIAL] if ADB_SERIAL else [])
     options.setdefault('stdin', subprocess.DEVNULL)
-    return subprocess.run(prefix + args, capture_output=True, timeout=30, **PROCESS_OPTIONS, **options)
+    options.setdefault('timeout', 30)
+    return subprocess.run(prefix + args, capture_output=True, **PROCESS_OPTIONS, **options)
+
+
+def run_restore_stage(name):
+    # The recovery script can wait 30 s for each old owner to stop, while
+    # factory command-65 only captures 15 s. Run through the already verified,
+    # serial-bound ADB channel so waiting/setters do not occupy that RPC.
+    markers = {'recover': 'ACTION_FINISHED', 'restore': 'PLAY_SOFTWARE_RESTORED'}
+    if name not in markers or ADB_SERIAL is None:
+        raise RuntimeError('恢复通道尚未校验，请重新检查连接后重试')
+    marker = markers[name]
+    log = STAGE + '/' + name + '.log'
+    command = (f'[ ! -L {log} ] && {{ [ ! -e {log} ] || [ -f {log} ]; }} && '
+               f'sh {STAGE}/{name} >{log} 2>&1 && echo {marker} || echo RECOVERY_FAILED')
+    try:
+        result = adb_call(['shell', command], timeout=180)
+    except subprocess.TimeoutExpired:
+        raise RuntimeError('等待恢复步骤完成超时，尚未确认恢复结果；请保持连接，重新检查状态后再重试。') from None
+    if result.returncode:
+        raise RuntimeError('ADB 恢复通道中断，尚未确认恢复结果；请保持连接并重新检查状态。')
+    output = result.stdout.decode('ascii', errors='replace').strip()
+    if output not in (marker, 'RECOVERY_FAILED'):
+        raise RuntimeError('恢复步骤回执无效，尚未确认恢复结果；请保持连接并重新检查状态。')
+    return output
 
 
 def adb_prefix():
@@ -359,7 +383,7 @@ def upload(name, data):
             raise RuntimeError('USB 文件传输失败，请检查数据线后重试')
     if shell('sha256sum ' + STAGE + '/' + name).split()[0] != sha(data):
         raise RuntimeError('上传文件校验失败')
-    if name in ('install', 'restore'):
+    if name in ('install', 'restore', 'recover'):
         if shell('sh -n ' + STAGE + '/' + name + ' && echo SYNTAX_OK') != 'SYNTAX_OK':
             raise RuntimeError('相机端安装脚本未通过语法检查')
 
@@ -1014,7 +1038,7 @@ def restore(reboot=True, report_result=True):
     validate_script(control)
     upload('recover', control.encode())
     event('progress', message='正在撤回已安装的功能', percent=20)
-    output = shell('sh ' + STAGE + '/recover && echo ACTION_FINISHED || echo RECOVERY_FAILED')
+    output = run_restore_stage('recover')
     if output != 'ACTION_FINISHED':
         if output == 'RECOVERY_FAILED' and eye_installed:
             try:
@@ -1090,7 +1114,7 @@ hashok {RC} {STOCK_RC}
     validate_script(s)
     upload('restore', s.encode())
     event('progress', message='正在恢复原厂启动配置', percent=60)
-    if shell(f'sh {STAGE}/restore') != 'PLAY_SOFTWARE_RESTORED':
+    if run_restore_stage('restore') != 'PLAY_SOFTWARE_RESTORED':
         raise RuntimeError('恢复事务未确认，请保持连接')
     if reboot:
         if report_result:

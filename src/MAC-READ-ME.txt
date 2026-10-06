@@ -1,4 +1,8 @@
-x2d/907一键扩展功能-工具包 0.4.15 · macOS 通用实验版
+x2d/907一键扩展功能-工具包 0.4.16 · macOS 通用实验版
+
+恢复通信修复 / Restoration transport fix
+耗时恢复步骤改走经过校验、绑定当前相机的 ADB 通道，等待上限 180 秒，避免超过旧工厂通信的 15 秒限制。完成回执、实际功能状态、原厂备份及文件校验继续检查；连接中断或回执异常不会报告成功。先更新桌面 App 再点击恢复原状，无需先重装相机功能。离线测试通过，受影响用户的实机恢复仍待确认。
+Long restoration steps now use verified, camera-bound ADB with a 180-second limit instead of the 15-second factory RPC. Completion receipts, actual feature states, stock backups and file checks remain required; disconnects or invalid receipts cannot report success. Update the desktop app before Restore original; no camera reinstall is needed. Offline checks pass; the affected user's physical restoration remains pending.
 
 选择安装与新版界面 / Selected features and desktop interface
 左侧查看日志，右侧分别选择四项功能，再点击“安装所选功能”。默认选择 AF-C、对焦加速和后屏自动亮度，人眼识别为第四项可选功能；未选择的功能行不会出现在相机功能页中。安装人眼项不会启用或清除原厂设置，机内开关显示实际回读状态。
@@ -49,7 +53,7 @@ X2D 已有实机安装、重启常驻与恢复验收。
 907X 用户已反馈连接及服务安装通过，但原版未出现菜单入口。本版按其 10 项原厂菜单修正入口追加，实际菜单仍待用户确认；仅在 907X 机身搭配自动对焦 XCD 镜头时测试。
 不适用于 X2D II、907X 50C 或其他固件。
 
-完整解压“x2d-907-extension-toolkit-macOS-Universal-0.4.15.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
+完整解压“x2d-907-extension-toolkit-macOS-Universal-0.4.16.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
 请使用新解压的应用，避免继续打开旧版副本。
 运行库已自带，不需要安装 Python 或 Homebrew。
 0.2.7 在日志中按操作阶段显示连接、按钮操作、相机“跳过”和完成后拔线提示。

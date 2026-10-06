@@ -401,5 +401,9 @@
   "人眼识别设置未通过回读，请让相机回到空闲状态后重试。": "Eye detection could not be confirmed. Let the camera return to idle, then retry.",
   "调试选项另有改动，请先将其他调试选项恢复到开启人眼识别时的状态，再关闭或恢复。": "Other debug options have changed. Restore them to their state when eye detection was enabled, then disable or restore.",
   "人眼识别设置撤回尚未确认，请让相机回到空闲状态后重试恢复。": "Eye detection restoration is not confirmed. Let the camera return to idle, then retry restoration.",
-  "人眼识别设置撤回尚未确认，请保持连接并重试恢复。": "Eye detection restoration is not confirmed. Keep the camera connected and retry restoration."
+  "人眼识别设置撤回尚未确认，请保持连接并重试恢复。": "Eye detection restoration is not confirmed. Keep the camera connected and retry restoration.",
+  "恢复通道尚未校验，请重新检查连接后重试": "The restoration channel is not verified. Check the connection again, then retry.",
+  "等待恢复步骤完成超时，尚未确认恢复结果；请保持连接，重新检查状态后再重试。": "The restoration step timed out; its outcome is unconfirmed. Keep the camera connected, check its status, then retry.",
+  "ADB 恢复通道中断，尚未确认恢复结果；请保持连接并重新检查状态。": "The ADB restoration channel was interrupted; its outcome is unconfirmed. Keep the camera connected and check its status again.",
+  "恢复步骤回执无效，尚未确认恢复结果；请保持连接并重新检查状态。": "The restoration receipt is invalid; its outcome is unconfirmed. Keep the camera connected and check its status again."
 }
