@@ -1,4 +1,4 @@
-x2d/907一键扩展功能-工具包 0.4.12 · Windows x64 实验版
+x2d/907一键扩展功能-工具包 0.4.13 · Windows x64 实验版
 
 选择安装与新版界面 / Selected features and desktop interface
 左侧查看日志，右侧分别选择 AF-C、对焦加速和后屏自动亮度，再点击“安装所选功能”。未选择的功能不会出现在相机功能页中；默认开关均关闭。
@@ -147,3 +147,7 @@ Focus acceleration can be installed, but older-lens users are advised not to ena
 0.4.12 对焦界面修复 / Focus UI fix
 关闭耍起功能或 AF-C 时使用原厂对焦弹窗和图标；两个开关都开启后同步主页、取景和弹窗的 AF-S／AF-C／MF。三语言离线回归已覆盖，仍待实机验证。
 Stock focus popup and icons remain when either switch is off. With both switches on, control-screen/liveview/popup mode icons agree. Physical camera validation remains pending.
+
+0.4.13 免费项目提示 / Free project notice
+每次进入耍起功能菜单后显示免费提示，点击“好的，我没被骗”关闭弹窗。提供简体中文、繁体中文及英文。
+The Tweaks menu shows the free-project notice each time it opens. The confirmation button dismisses the notice. Simplified Chinese, Traditional Chinese and English are included.

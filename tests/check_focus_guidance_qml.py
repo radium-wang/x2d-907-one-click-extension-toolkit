@@ -39,11 +39,35 @@ Item {
  root=c.create();assert root is not None,[str(e) for e in c.errors()]
  win=QQuickWindow();win.resize(1024,768);root.setParentItem(win.contentItem());win.show()
  hint=root.findChild(QObject,'X2dFocusSpeedHint');row=root.findChild(QObject,'X2dPlaySpeedSwitchRow');ref=root.findChild(QObject,'StockDescriptionReference');list_=root.findChild(QObject,'X2dPlaySettingsList')
+ page=root.findChild(QObject,'PlayPageRoot')
+ notice=root.findChild(QObject,'X2dFreeProjectNotice')
+ noticeFrame=root.findChild(QObject,'X2dFreeProjectNoticeFrame')
+ message=root.findChild(QObject,'X2dFreeProjectNoticeMessage')
+ button=root.findChild(QObject,'X2dFreeProjectNoticeButton')
+ buttonText=root.findChild(QObject,'X2dFreeProjectNoticeButtonText')
+ copy={
+  'zh':('本项目完全免费，如果有人收你钱了，那你纯是被骗了','好的，我没被骗'),
+  'zh-Hant':('本項目完全免費，如果有人收你錢了，那你純是被騙了','好的，我沒被騙'),
+  'en':('This project is completely free. If someone charged you for it, you were scammed.',"Okay, I wasn't scammed")}
  def settle():
   end=time.monotonic()+.15
   while time.monotonic()<end:app.processEvents();time.sleep(.003)
  for index,(scale,width) in enumerate([(1,1024),(.75,768),(1,620)]):
   root.setProperty('uiScale',scale);root.setProperty('width',width);win.resize(width,768);settle()
+  if index:
+   page.setProperty('pageActive',False);page.setProperty('pageActive',True);settle()
+  assert notice.isVisible() and not page.property('settingsActive')
+  assert message.property('text')==copy[language][0] and buttonText.property('text')==copy[language][1]
+  assert not message.property('truncated') and message.property('contentWidth')<=message.width()+.5
+  assert not buttonText.property('truncated') and buttonText.property('contentHeight')<=button.height()
+  assert noticeFrame.height()<=win.height() and noticeFrame.width()<=win.width()
+  before=root.property('calls')
+  QTest.mouseClick(win,Qt.LeftButton,Qt.NoModifier,QPoint(20,120));settle()
+  assert notice.isVisible() and root.property('calls')==before
+  win.grabWindow().save(str(out/('notice-'+str(width)+'.png')))
+  point=button.mapToItem(win.contentItem(),QPointF(button.width()/2,button.height()/2))
+  QTest.mouseClick(win,Qt.LeftButton,Qt.NoModifier,QPoint(round(point.x()),round(point.y())));settle()
+  assert not notice.isVisible() and page.property('settingsActive') and root.property('calls')==before
   assert hint.property('font').pixelSize()==ref.property('font').pixelSize()==round(32*scale)
   assert hint.property('opacity')==ref.property('opacity')==.7
   assert not hint.property('truncated')
@@ -53,7 +77,7 @@ Item {
   point=row.mapToItem(win.contentItem(),QPointF(width/2,15))
   QTest.mouseClick(win,Qt.LeftButton,Qt.NoModifier,QPoint(round(point.x()),round(point.y())));settle()
   assert root.property('calls')==index+1,(language,root.property('calls'))
-  reports.append(dict(language=language,width=width,scale=scale,fontPixels=hint.property('font').pixelSize(),lines=hint.property('lineCount'),rowHeight=row.height(),text=hint.property('text'),realSwitchClickPassed=True))
+  reports.append(dict(language=language,width=width,scale=scale,fontPixels=hint.property('font').pixelSize(),lines=hint.property('lineCount'),rowHeight=row.height(),text=hint.property('text'),realSwitchClickPassed=True,noticeText=message.property('text'),noticeButton=buttonText.property('text'),noticeInputBlocked=True,noticeRepeatAndButtonClosePassed=True))
  win.grabWindow().save(str(out/'enabled.png'))
  root.setProperty('master',False);settle();assert hint.property('opacity')==ref.property('opacity')
  point=row.mapToItem(win.contentItem(),QPointF(310,15));before=root.property('calls')

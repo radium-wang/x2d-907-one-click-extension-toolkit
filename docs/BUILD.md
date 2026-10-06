@@ -94,7 +94,7 @@ The installation ledger retains both stock startup configurations. Both writes r
 
 ## Focus acceleration guidance
 
-`tests/check_focus_guidance_qml.py --payload /absolute/path/to/generated/package` checks the packaged Simplified/Traditional Chinese and English switch descriptions with Qt 6.4.1 and stock-style fixtures. It checks stock typography/opacity, wrapping at 1024/768/620 widths, real switch clicks and master-off gating. `previous-bundle-0.4.7.json` and its old per-file bytes must be included for upgrade/restoration after the page text changes; both builders include the catalog.
+`tests/check_focus_guidance_qml.py --payload /absolute/path/to/generated/package` checks the packaged Simplified/Traditional Chinese and English switch descriptions with Qt 6.4.1 and stock-style fixtures. It checks stock typography/opacity, wrapping at 1024/768/620 widths, real switch clicks and master-off gating. It also checks the free-project notice's exact translated message/button, fitting layout, blocked background input, repeated menu entry and real button dismissal. `tests/check_menu_qml.py` checks Escape/Back dismissal of the notice before leaving the menu and the resident page across 100 entries. These are desktop fixtures, not camera screenshots. Preserve the 0.4.7 through 0.4.12 manifests and old per-file bytes for recognized upgrades/restoration; both builders include the catalog.
 
 ## Focus popup and liveview icons
 

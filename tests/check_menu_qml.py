@@ -137,6 +137,13 @@ Window {
     def settle():
         QTest.qWait(15)
 
+    def acknowledge_notice():
+        button = window.findChild(QQuickItem, 'X2dFreeProjectNoticeButton')
+        assert button is not None and button.isVisible()
+        point = button.mapToItem(window.contentItem(), button.boundingRect().center())
+        QTest.mouseClick(window, Qt.LeftButton, Qt.NoModifier, QPoint(round(point.x()), round(point.y())))
+        settle()
+
     assert window.property('modelCount') == 12, (window.property('modelCount'), warnings)
     assert [r['name'] for r in rows()[:11]] == ORDER
     assert rows()[11]['name'] == 'x2dPlayUi'
@@ -186,6 +193,7 @@ Window {
     assert [r['name'] for r in rows()] == [k for k in ORDER if k != 'ibisMenu'] + ['x2dPlayUi']
     QTest.mouseClick(window, Qt.LeftButton, Qt.NoModifier, QPoint(640, 640)); settle()
     assert window.property('playShowing')
+    acknowledge_notice()
     window.back(); settle()
     window.setProperty('prankEnabled',True); settle()
     assert window.property('modelCount') == 12
@@ -220,10 +228,16 @@ Window {
     assert window.property('playShowing')
     assert len(window.property('clicks').toVariant()) == 11
     QTest.keyClick(window, Qt.Key_Escape)
+    assert window.property('playShowing')
+    assert not page.property('freeNoticeVisible')
+    QTest.keyClick(window, Qt.Key_Escape)
     assert not window.property('playShowing')
     for _ in range(100):
         window.go('x2dPlayUi', '', False, False)
         assert window.property('playShowing')
+        assert page.property('freeNoticeVisible')
+        window.back()
+        assert window.property('playShowing') and not page.property('freeNoticeVisible')
         window.back()
         assert not window.property('playShowing')
         assert getCppPointer(page)[0] == address

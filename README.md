@@ -27,16 +27,16 @@ Camera menu text follows the app language at install time: English installs **Tw
 
 ## Download / 下载软件
 
-**Latest version: 0.4.12 / 最新版本：0.4.12**
+**Latest version: 0.4.13 / 最新版本：0.4.13**
 
-- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/x2d-907-extension-toolkit-Windows-x64-0.4.12.zip)
-- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/x2d-907-extension-toolkit-macOS-Universal-0.4.12.zip)
+- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.13/x2d-907-extension-toolkit-Windows-x64-0.4.13.zip)
+- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.13/x2d-907-extension-toolkit-macOS-Universal-0.4.13.zip)
 
-Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.12) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/SHA256SUMS)
+Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.13) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.13/SHA256SUMS)
 
-Version 0.4.12 fixes focus UI state: when either Tweaks or AF-C is off, the stock popup and icons remain. With both enabled, control-screen, liveview and popup icons follow AF-S/AF-C/MF together. It retains the Mac/Windows design and all 0.4.11 feature-selection recovery records. Offline and Qt regressions pass; physical camera validation remains pending. See [release notes](CHANGELOG.md).
+Version 0.4.13 adds a free-project notice whenever the Tweaks menu opens, with Simplified Chinese, Traditional Chinese and English copy and a confirmation button to close it. It retains the 0.4.12 focus UI fix and upgrade/restoration records. Offline and Qt checks pass; physical camera validation remains pending. See [release notes](CHANGELOG.md).
 
-0.4.12 修复对焦界面状态：关闭耍起功能或 AF-C 时保留原厂弹窗与图标；两者都开启后，主页、取景和弹窗的 AF-S／AF-C／MF 同步显示。沿用 Mac／Windows 新界面，保留 0.4.11 所有功能组合的恢复记录。离线及 Qt 回归通过，仍待实机验证，详见[更新说明](CHANGELOG.md)。
+0.4.13 在每次进入“耍起功能”菜单时显示免费项目提示，点击“好的，我没被骗”关闭弹窗；提供简体中文、繁体中文和英文。保留 0.4.12 对焦界面修复及升级、恢复记录。离线与 Qt 检查通过，仍待实机验证，详见[更新说明](CHANGELOG.md)。
 
 ## Features
 

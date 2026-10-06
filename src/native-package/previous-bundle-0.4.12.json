@@ -31,8 +31,8 @@
     {
       "source": "X2dNativeMenuHost.qml",
       "target": "/system/etc/X2dNativeMenuHost.qml",
-      "bytes": 1579,
-      "sha256": "7f86149b2ef91e2ca83846b4f24a6c69f310ecadf90f90577c233994d68e8890"
+      "bytes": 1542,
+      "sha256": "7e75e91cc66ef906d83a8ff60aecc393c0f57cca46b8fdc682cd7f97b5fc29c9"
     },
     {
       "source": "X2dPrankIbisPage.qml",
@@ -43,8 +43,8 @@
     {
       "source": "X2dPlayPage.qml",
       "target": "/system/etc/X2dPlayPage.qml",
-      "bytes": 16759,
-      "sha256": "f49454c8b0fc7b4795aecb8bc3214fa5e6db8c5a782c76aef12b77dbc55ed30c"
+      "bytes": 12139,
+      "sha256": "e7819245dabd776d24016515ee168b818ecc54af6a122735482de6ab66d4f2e9"
     },
     {
       "source": "X2dAfcMenuController.qml",
@@ -192,8 +192,8 @@
       {
         "source": "X2dPlayPage.en.qml",
         "target": "/system/etc/X2dPlayPage.qml",
-        "bytes": 16761,
-        "sha256": "7a75188cb92b2051fec679fa2310529405ab07a0de713136b9decf3e61a80ed1"
+        "bytes": 12131,
+        "sha256": "9279a7ae60137dd02936177507890260ed1613f0b00f5c29eddb9816432da67e"
       },
       {
         "source": "X2dAfcMenuController.en.qml",
@@ -218,8 +218,8 @@
       {
         "source": "X2dPlayPage.zh-Hant.qml",
         "target": "/system/etc/X2dPlayPage.qml",
-        "bytes": 16762,
-        "sha256": "906650d2a8946c08e8598fa258cfaacd1f7deab1ac1251ecf542037458392445"
+        "bytes": 12142,
+        "sha256": "d05663410044ce68710b0931f31512a3399cd7a6c8af944bebdb637090d58b80"
       },
       {
         "source": "X2dAfcMenuController.zh-Hant.qml",

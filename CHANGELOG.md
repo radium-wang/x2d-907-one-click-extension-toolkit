@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.13](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.13) — 2026-10-06
+
+- Show the free-project notice every time the Tweaks menu opens. The confirmation button dismisses the notice and keeps the menu open; the notice blocks underlying settings input. Include Simplified Chinese, Traditional Chinese and English copy.
+- Forward unhandled camera keys to the stock route. Preserve the exact 0.4.12 manifest and all language bytes for every feature selection's upgrade/restoration. Focus, speed and brightness native runtimes are unchanged.
+- Publish Mac universal and Windows x64 packages. All 203 offline tests pass with local payloads; clean source passes 172 and skips 31. Nine Qt 6.4.1 notice layouts verify translated copy, wrapping, background input blocking, repeat entry and button dismissal; menu routing/Back/Escape checks pass across 100 resident-page entries. Mac native launch, 76 Mach-O / 38 PE audits, package/recovery hashes and updater extraction checks pass. Camera installation/visual behavior and native Windows execution remain pending.
+
 ## [0.4.12](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.12) — 2026-10-06
 
 - Keep the original focus popup, model objects, liveview indicator and control-screen badge while the master or AF-C switch is off. Stop replacing stock focus compiled caches/AOT tables at GUI startup. Load the private three-mode popup and reversible icon bindings only when both switches are on; update AF-S/AF-C/MF and disabled icons together, and restore the original dynamic bindings when disabled.
@@ -151,6 +157,12 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## [0.4.13](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.13) — 2026-10-06
+
+- 每次进入“耍起功能”菜单时显示免费项目提示，点击“好的，我没被骗”关闭弹窗并留在菜单；弹窗显示期间阻挡底下的设置操作。补齐简体中文、繁体中文和英文。
+- 未处理的相机按键继续交给原厂路由；保留 0.4.12 精确清单及三语言字节，支持所有功能组合的升级与恢复。对焦、加速和亮度的原生运行库不变。
+- 发布 Mac 通用和 Windows x64 安装包。完整离线测试 203 项通过；干净源码 172 项通过、31 项跳过。九组 Qt 6.4.1 弹窗检查验证翻译、换行、底层输入阻挡、重复进入和按钮关闭；菜单路由、返回及 Escape 检查通过 100 次常驻页面进出。Mac 原生启动、76 个 Mach-O／38 个 PE 审计、安装包及恢复哈希、更新解压检查通过。相机安装及视觉行为、Windows 原生运行仍待验证。
 
 ## [0.4.12](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.12) — 2026-10-06
 

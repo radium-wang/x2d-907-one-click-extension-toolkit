@@ -1,4 +1,4 @@
-x2d/907一键扩展功能-工具包 0.4.12 · macOS 通用实验版
+x2d/907一键扩展功能-工具包 0.4.13 · macOS 通用实验版
 
 选择安装与新版界面 / Selected features and desktop interface
 左侧查看日志，右侧分别选择 AF-C、对焦加速和后屏自动亮度，再点击“安装所选功能”。未选择的功能不会出现在相机功能页中；默认开关均关闭。
@@ -47,7 +47,7 @@ X2D 已有实机安装、重启常驻与恢复验收。
 907X 用户已反馈连接及服务安装通过，但原版未出现菜单入口。本版按其 10 项原厂菜单修正入口追加，实际菜单仍待用户确认；仅在 907X 机身搭配自动对焦 XCD 镜头时测试。
 不适用于 X2D II、907X 50C 或其他固件。
 
-完整解压“x2d-907-extension-toolkit-macOS-Universal-0.4.12.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
+完整解压“x2d-907-extension-toolkit-macOS-Universal-0.4.13.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
 请使用新解压的应用，避免继续打开旧版副本。
 运行库已自带，不需要安装 Python 或 Homebrew。
 0.2.7 在日志中按操作阶段显示连接、按钮操作、相机“跳过”和完成后拔线提示。
@@ -118,3 +118,7 @@ Focus acceleration can be installed, but older-lens users are advised not to ena
 0.4.12 对焦界面修复 / Focus UI fix
 关闭耍起功能或 AF-C 时使用原厂对焦弹窗和图标；两个开关都开启后同步主页、取景和弹窗的 AF-S／AF-C／MF。三语言离线回归已覆盖，仍待实机验证。
 Stock focus popup and icons remain when either switch is off. With both switches on, control-screen/liveview/popup mode icons agree. Physical camera validation remains pending.
+
+0.4.13 免费项目提示 / Free project notice
+每次进入耍起功能菜单后显示免费提示，点击“好的，我没被骗”关闭弹窗。提供简体中文、繁体中文及英文。
+The Tweaks menu shows the free-project notice each time it opens. The confirmation button dismisses the notice. Simplified Chinese, Traditional Chinese and English are included.

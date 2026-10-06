@@ -19,6 +19,11 @@ QtObject {
  property color mainBackgroundColor: "black"
  property color menuBackgroundColor: "black"
  property color popupTextColor: "white"
+ property color popupFadeoutColor: "black"
+ property color popupBackgroundColor: "black"
+ property color popupBorderColor: "gray"
+ property real popupBorderWidth: 3.2
+ property real fadeOutOpacity: 0.8
  property color colorWhite: "white"
  property color highlightColor: "red"
  property color settingsMenuHeaderSuffixFontColor: "white"

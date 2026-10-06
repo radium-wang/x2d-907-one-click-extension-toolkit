@@ -21,6 +21,7 @@ FocusScope {
             return false
         playOpen = true
         forceActiveFocus()
+        Qt.callLater(play.focusPage)
         return true
     }
     function dismiss() { playOpen = false }

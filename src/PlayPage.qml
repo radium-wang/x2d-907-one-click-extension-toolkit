@@ -8,6 +8,8 @@ FocusScope {
     id: root
     objectName: "PlayPageRoot"
     property bool pageActive: false
+    property bool freeNoticeVisible: false
+    readonly property bool settingsActive: pageActive && !freeNoticeVisible
     readonly property bool masterEnabled: featureController !== null && featureController.master
     property var featureController: null
     property bool requestPending: false
@@ -21,27 +23,40 @@ FocusScope {
                                             featureController.statusMessage
     signal backRequested()
 
-    function requestBack() { backRequested() }
+    onPageActiveChanged: freeNoticeVisible = pageActive
+    function focusPage() {
+        if (!pageActive) return
+        if (freeNoticeVisible) freeNotice.forceActiveFocus()
+        else root.forceActiveFocus()
+    }
+    function dismissFreeNotice() {
+        freeNoticeVisible = false
+        if (pageActive) root.forceActiveFocus()
+    }
+    function requestBack() {
+        if (freeNoticeVisible) dismissFreeNotice()
+        else backRequested()
+    }
 
     function requestMasterToggle() {
-        if (!pageActive || requestPending || featureBusy)
+        if (!settingsActive || requestPending || featureBusy)
             return false
         return featureController !== null && featureController.setMaster(!masterEnabled)
     }
 
     function requestAfcToggle() {
-        if (!pageActive || !masterEnabled || !backendAvailable || featureBusy) return false
+        if (!settingsActive || !masterEnabled || !backendAvailable || featureBusy) return false
         return featureController.setAfc(!featureController.afcEnabled)
     }
     function requestSpeedToggle() {
-        if (!pageActive || !masterEnabled || !backendAvailable || featureBusy) return false
+        if (!settingsActive || !masterEnabled || !backendAvailable || featureBusy) return false
         return featureController.setEnabled(!featureLoaded)
     }
 
     AutoBrightnessController { id: brightness; masterEnabled: root.masterEnabled; pageActive: root.pageActive
         installed: root.featureController !== null && root.featureController.brightnessInstalled }
     function requestBrightnessToggle() {
-        if (!pageActive || !masterEnabled || requestPending || featureBusy) return false
+        if (!settingsActive || !masterEnabled || requestPending || featureBusy) return false
         return brightness.toggleFeature()
     }
 
@@ -54,9 +69,10 @@ FocusScope {
         anchors.left: parent.left
         anchors.right: parent.right
         showSeparator: !settingsList.atYBeginning
+        enabled: root.settingsActive
         text: [{ context: "MENUS", text: "耍起功能",
                  color: Constants.settingsMenuHeaderSuffixFontColor }]
-        onClose: root.backRequested()
+        onClose: root.requestBack()
     }
 
     Flickable {
@@ -67,7 +83,8 @@ FocusScope {
         anchors.left: parent.left
         anchors.right: parent.right
         clip: true
-        interactive: root.pageActive && contentHeight > height
+        enabled: root.settingsActive
+        interactive: root.settingsActive && contentHeight > height
         boundsBehavior: Flickable.StopAtBounds
         contentWidth: width
         contentHeight: settingsColumn.height
@@ -89,7 +106,7 @@ FocusScope {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "耍起功能"
                     value: root.masterEnabled
-                    itemEnabled: root.pageActive && !root.featureBusy && !root.requestPending
+                    itemEnabled: root.settingsActive && !root.featureBusy && !root.requestPending
                     highlighted: masterTouch.pressed
                     showSwitch: true
                     fontWeight: Font.Medium
@@ -97,7 +114,7 @@ FocusScope {
                 MouseArea {
                     id: masterTouch
                     anchors.fill: parent
-                    enabled: root.pageActive
+                    enabled: root.settingsActive
                     onClicked: root.requestMasterToggle()
                 }
             }
@@ -121,7 +138,7 @@ FocusScope {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "开启 AF-C"
                     value: root.featureController !== null && root.featureController.afcEnabled
-                    itemEnabled: root.pageActive && root.masterEnabled && root.backendAvailable &&
+                    itemEnabled: root.settingsActive && root.masterEnabled && root.backendAvailable &&
                                  !root.featureBusy && !root.requestPending
                     highlighted: afcTouch.pressed
                     showSwitch: true
@@ -130,7 +147,7 @@ FocusScope {
                 MouseArea {
                     id: afcTouch
                     anchors.fill: parent
-                    enabled: root.pageActive && root.masterEnabled && root.backendAvailable
+                    enabled: root.settingsActive && root.masterEnabled && root.backendAvailable
                     onClicked: root.requestAfcToggle()
                 }
             }
@@ -156,7 +173,7 @@ FocusScope {
                         width: parent.width
                         text: "对焦加速"
                         value: root.featureLoaded
-                        itemEnabled: root.pageActive && root.masterEnabled && root.backendAvailable &&
+                        itemEnabled: root.settingsActive && root.masterEnabled && root.backendAvailable &&
                                      !root.featureBusy && !root.requestPending
                         highlighted: speedTouch.pressed
                         showSwitch: true
@@ -172,7 +189,7 @@ FocusScope {
                 MouseArea {
                     id: speedTouch
                     anchors.fill: parent
-                    enabled: root.pageActive && root.masterEnabled && root.backendAvailable
+                    enabled: root.settingsActive && root.masterEnabled && root.backendAvailable
                     onClicked: root.requestSpeedToggle()
                 }
             }
@@ -198,7 +215,7 @@ FocusScope {
                         width: parent.width
                         text: "在亮度菜单中加入自动亮度"
                         value: root.masterEnabled && brightness.availablePreference
-                        itemEnabled: root.pageActive && root.masterEnabled && (brightness.ready || brightness.availablePreference) &&
+                        itemEnabled: root.settingsActive && root.masterEnabled && (brightness.ready || brightness.availablePreference) &&
                                      !root.featureBusy && !root.requestPending
                         highlighted: brightnessTouch.pressed
                         showSwitch: true
@@ -215,7 +232,7 @@ FocusScope {
                 MouseArea {
                     id: brightnessTouch
                     anchors.fill: parent
-                    enabled: root.pageActive && root.masterEnabled && (brightness.ready || brightness.availablePreference)
+                    enabled: root.settingsActive && root.masterEnabled && (brightness.ready || brightness.availablePreference)
                     onClicked: root.requestBrightnessToggle()
                 }
             }
@@ -233,7 +250,7 @@ FocusScope {
         anchors.top: header.bottom
         anchors.bottom: parent.bottom
         width: Math.min(64, root.width * 0.12)
-        enabled: root.pageActive
+        enabled: root.settingsActive
         property real startX: 0
         property real startY: 0
         onPressed: (mouse) => { startX = mouse.x; startY = mouse.y }
@@ -241,13 +258,17 @@ FocusScope {
             var dx = mouse.x - startX
             var dy = mouse.y - startY
             if (dx >= Math.max(60, root.width * 0.12) && Math.abs(dy) < root.height * 0.15)
-                root.backRequested()
+                root.requestBack()
         }
     }
 
     Keys.onPressed: (event) => {
+        if (root.freeNoticeVisible) {
+            event.accepted = false
+            return
+        }
         if (event.key === Qt.Key_Escape || event.key === Qt.Key_Back) {
-            root.backRequested()
+            root.requestBack()
             event.accepted = true
         } else if (event.key === Qt.Key_Up) {
             settingsList.contentY = Math.max(0, settingsList.contentY - 80)
@@ -258,6 +279,88 @@ FocusScope {
             event.accepted = true
         } else {
             event.accepted = false
+        }
+    }
+
+    FocusScope {
+        id: freeNotice
+        objectName: "X2dFreeProjectNotice"
+        anchors.fill: parent
+        z: 100
+        visible: root.pageActive && root.freeNoticeVisible
+        enabled: visible
+        focus: visible
+        onVisibleChanged: { if (visible) forceActiveFocus() }
+        Rectangle {
+            anchors.fill: parent
+            color: Constants.popupFadeoutColor
+            opacity: Constants.fadeOutOpacity
+        }
+        MouseArea { anchors.fill: parent; onClicked: {} }
+        Rectangle {
+            id: noticeFrame
+            objectName: "X2dFreeProjectNoticeFrame"
+            anchors.centerIn: parent
+            width: Math.min(parent.width - 64 * Constants.scaleFactorX, 760 * Constants.scaleFactorX)
+            height: noticeContent.height + 88 * Constants.scaleFactorY
+            color: Constants.popupBackgroundColor
+            border.width: Constants.popupBorderWidth
+            border.color: Constants.popupBorderColor
+            Column {
+                id: noticeContent
+                anchors.centerIn: parent
+                width: parent.width - 80 * Constants.scaleFactorX
+                spacing: 32 * Constants.scaleFactorY
+                Text {
+                    objectName: "X2dFreeProjectNoticeMessage"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: Math.min(parent.width, 560 * Constants.scaleFactorX)
+                    text: "本项目完全免费，如果有人收你钱了，那你纯是被骗了"
+                    color: Constants.popupTextColor
+                    font.family: Constants.menuItemFontName
+                    font.pixelSize: 32 * Constants.scaleFactor
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                }
+                Rectangle {
+                    objectName: "X2dFreeProjectNoticeButton"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: Math.min(parent.width, 560 * Constants.scaleFactorX)
+                    height: 80 * Constants.scaleFactorY
+                    color: noticeTouch.pressed ? Constants.highlightColor : Constants.popupBackgroundColor
+                    border.width: Constants.popupBorderWidth
+                    border.color: Constants.popupBorderColor
+                    Text {
+                        objectName: "X2dFreeProjectNoticeButtonText"
+                        anchors.centerIn: parent
+                        width: parent.width - 32 * Constants.scaleFactorX
+                        text: "好的，我没被骗"
+                        color: Constants.popupTextColor
+                        font.family: Constants.menuItemFontName
+                        font.pixelSize: 30 * Constants.scaleFactor
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.WordWrap
+                    }
+                    MouseArea {
+                        id: noticeTouch
+                        anchors.fill: parent
+                        onClicked: root.dismissFreeNotice()
+                    }
+                }
+            }
+        }
+        Keys.onPressed: (event) => {
+            if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space ||
+                    event.key === Qt.Key_Escape || event.key === Qt.Key_Back) {
+                root.dismissFreeNotice()
+                event.accepted = true
+            } else if (event.key === Qt.Key_Up || event.key === Qt.Key_Down ||
+                       event.key === Qt.Key_Left || event.key === Qt.Key_Right) {
+                event.accepted = true
+            } else {
+                // Preserve stock handling of unrelated camera keys, including half press.
+                event.accepted = false
+            }
         }
     }
 }
