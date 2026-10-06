@@ -21,6 +21,7 @@ Item {
     property var drawerList: null
     property var playButton: null
     property var prankButton: null
+    property var focusPopup: null
     property bool attached: false
     readonly property bool menuActive: attached && drawer.mainState === "main_menu"
                                       && drawer.mainViewState === "main_menu" && !drawer.drawerAtTop
@@ -62,6 +63,10 @@ Item {
         console.info("X2D_NATIVE_MENU_ATTACHED")
     }
     function dispatch(name, sub, open, shortcut) { route.dispatch(name, sub, open, shortcut) }
+    function refreshFocusPopup() {
+        focusPopup = drawer && drawer.mainState === "focus_mode"
+                   ? findItem(drawer, "PopoverFocusMode_root") : null
+    }
     // Keep the stock Display model and submenu routing; replace only its rear slider.
     function routeDisplaySettings() {
         if (!attached || !originalLoader || !screen.viewModel.menu) return
@@ -157,6 +162,7 @@ Item {
         id: nativeAfcMenu
         controlViewModel: root.drawer ? root.drawer.controlScreenViewModel : null
         focusPopoverOpen: root.drawer !== null && root.drawer.mainState === "focus_mode"
+        focusPopover: root.focusPopup
     }
     SpeedBuffController {
         id: afcController
@@ -175,6 +181,7 @@ Item {
     }
     Connections {
         target: root.drawer
+        function onMainStateChanged() { Qt.callLater(root.refreshFocusPopup) }
         function onMainMenuExited() { route.dismiss() }
     }
     Connections {

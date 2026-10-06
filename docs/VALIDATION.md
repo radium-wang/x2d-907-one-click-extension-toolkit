@@ -1,4 +1,16 @@
-# Validation boundaries — 0.4.8
+# Validation boundaries — 0.4.9
+
+## Focus popup and liveview mode icons (0.4.9)
+
+184 offline tests pass with the locally generated payload. The real native preload transaction is run against substituted memory and Qt resource APIs: success, each of seven partial-write rollbacks, stock mismatch, disable/retry markers, missing resource APIs, resource registration failure and memory-open failure are covered. Unknown file opens fail the harness. Public manifest tests reject policy files, vendor/raw partition targets and stock GUI replacement in the base payload and both language overlays, before payload file access and without USB access. Exact published 0.4.8 manifests and all per-language bytes remain recognized and recoverable.
+
+Qt 6.4.1 registers and verifies all 18 private icon aliases and loads the actual compiled popup through its cache hook while the resource source is empty. Simplified Chinese, Traditional Chinese and English checks cover headings/captions, two/three-mode switching, the reviewed frame geometry, retaining the selected mode when enabling, refusing disable while AF-C is selected and emitting the MF selection signal. An image provider and camera services are substituted; pixels are not rendered. The liveview unit and icon bytes match the separately accepted GUI candidate.
+
+Clean source passes 155 tests and skips 29 requiring excluded generated inputs. The Mac universal package passes 76 Mach-O audits and the Windows x64 package passes 38 PE audits. Archive checks verify all 32 current payload variants, the exact 59-file recovery byte catalog and the absence of extra native-package files. A Mac ZIP extraction roundtrip passes strict deep signature verification, embedded Python/USB runtime loading and packaged 0.4.8 recovery recognition in all three languages. These are package checks, not camera installation tests.
+
+Public packages retain the old startup preload approach and do not replace the stock GUI executable. No camera was accessed for this App change. The direct-GUI installation was accepted separately on an X2D, but the new App preload route, native SVG provider, cold boot, hardware rendering, AF-C backend and CFV behavior still need device checks.
+
+The stock GUI hash gate remains enforced. A camera with the separate research GUI installed is rejected; this App does not overwrite that GUI or restore its vendor partition.
 
 ## Traditional Chinese desktop and camera menus (0.4.7)
 
@@ -42,6 +54,10 @@ Previews render with desktop Qt and host font fallback; they are not evidence of
 Screenshots in this repository show the actual Mac application, not a Windows mockup or camera validation result. No camera was accessed while preparing this source push.
 
 # 验证边界
+
+0.4.9 新版 UI 采用 App 原有预载流程。带本地载荷的 184 项离线测试通过，覆盖七次内存写入的部分失败回滚、私有资源注册失败、公开版写入范围及 0.4.8 各语言恢复识别。Qt 6.4.1 检查实际编译弹窗的空源码加载、18 个图标、三种语言和两项/三项切换；图像提供器和相机服务使用替身，未渲染相机像素。本次 App 开发未访问相机，新的预载路径和硬件行为仍待实机验证，此前直接 GUI 替换的验收不能替代这项检查。
+
+纯源码为 155 项通过、29 项因缺少私有输入跳过；Mac 的 76 个 Mach-O 与 Windows 的 38 个 PE 文件检查通过。两份压缩包核对全部 32 个当前语言载荷及 59 份恢复字节；Mac 解压后的签名、内置运行库和三种语言旧版识别通过。原厂 GUI 哈希门槛保留，研究直写版不能叠加安装；App 不会替换研究 GUI。
 
 0.4.2 已通过 134 项完整离线 Python 用例、Qt 桌面菜单与原厂网格路由测试，并实际检查 Mac 中英文窗口。桌面替身成功不等于实机成功。907 彩蛋与菜单、AF-S 关机后保持、Windows 自动驱动安装仍待用户实机确认；本次未连接或修改相机。
 

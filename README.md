@@ -8,12 +8,16 @@ Camera menu text follows the app language at install time: English installs **Tw
 
 ## Download / 下载软件
 
-**Latest version: 0.4.8 / 最新版本：0.4.8**
+**Latest version: 0.4.9 / 最新版本：0.4.9**
 
-- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.8/x2d-907-extension-toolkit-Windows-x64-0.4.8.zip)
-- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.8/x2d-907-extension-toolkit-macOS-Universal-0.4.8.zip)
+- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.9/x2d-907-extension-toolkit-Windows-x64-0.4.9.zip)
+- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.9/x2d-907-extension-toolkit-macOS-Universal-0.4.9.zip)
 
-Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.8) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.8/SHA256SUMS)
+Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.9) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.9/SHA256SUMS)
+
+Version 0.4.9 brings the reviewed focus popup and liveview AF-S / AF-C / MF icons to the App's existing preload route, with first-generation fonts and borders and all three menu languages. Offline checks pass; the new preload route still needs device verification. See [release notes](CHANGELOG.md).
+
+0.4.9 已将新版对焦弹窗和实时取景 AF-S / AF-C / MF 图标接入 App 原有预载流程，保留一代字体、边框及三种菜单语言。离线检查通过，新的预载路径仍待实机验证，详见[更新说明](CHANGELOG.md)。
 
 ## Features
 
@@ -80,7 +84,7 @@ If this toolkit helps you, you can support its development via [PayPal](https://
 
 相机菜单文案随安装时的 App 语言：简体、繁体中文安装为“耍起功能”（功能名称与提示使用所选字形），英文安装为 Tweaks。
 
-**下载安装包：**[Windows 10/11（64 位）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.8/x2d-907-extension-toolkit-Windows-x64-0.4.8.zip) · [macOS 13 及以上（Apple 芯片 / Intel）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.8/x2d-907-extension-toolkit-macOS-Universal-0.4.8.zip)。下载后请完整解压，再启动软件。
+**下载安装包：**[Windows 10/11（64 位）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.9/x2d-907-extension-toolkit-Windows-x64-0.4.9.zip) · [macOS 13 及以上（Apple 芯片 / Intel）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.9/x2d-907-extension-toolkit-macOS-Universal-0.4.9.zip)。下载后请完整解压，再启动软件。
 
 ### 当前功能
 

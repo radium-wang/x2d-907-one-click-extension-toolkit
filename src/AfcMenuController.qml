@@ -16,6 +16,10 @@ Item {
 
     property var controlViewModel: null
     property bool focusPopoverOpen: false
+    property var focusPopover: null
+    property string focusTitle: "对焦模式"
+    property string afsCaption: "单次自动对焦"
+    property string mfCaption: "手动对焦"
     property var stockAfs: null
     property var stockMf: null
     property var afcItem: null
@@ -31,10 +35,36 @@ Item {
         StockComponents.FocusModeListItem {
             focusMode: HblmTypes.E_FocusModes_Afc
             valid: CameraUI.canChangeAfc
-            icon: "image://svg/ic_controlscreen_focus_mode_AF-C"
+            icon: "image://svg/ic_x2d2_focus_control_AF-C"
             text: "连续自动对焦"
         }
     }
+
+    function applyAppearance() {
+        if (!controlViewModel) return
+        var model = controlViewModel.focusModeModel
+        if (model.length !== 2 && model.length !== 3) return
+        var afs = null, mf = null
+        for (var i = 0; i < model.length; ++i) {
+            if (model[i].focusMode === HblmTypes.E_FocusModes_Afs) afs = model[i]
+            else if (model[i].focusMode === HblmTypes.E_FocusModes_Man) mf = model[i]
+            else if (model[i].focusMode !== HblmTypes.E_FocusModes_Afc) return
+        }
+        if (!afs || !mf) return
+        afs.icon = "image://svg/ic_x2d2_focus_control_AF-S"
+        afs.text = afsCaption
+        mf.icon = "image://svg/ic_x2d2_focus_control_MF"
+        mf.text = mfCaption
+    }
+
+    function applyHeading() {
+        if (focusPopover && typeof focusPopover.heading === "string")
+            focusPopover.heading = focusTitle
+    }
+
+    onControlViewModelChanged: applyAppearance()
+    onFocusPopoverChanged: applyHeading()
+    Component.onCompleted: { applyAppearance(); applyHeading() }
 
     function sameModel(items) {
         if (!controlViewModel || controlViewModel.focusModeModel.length !== items.length)

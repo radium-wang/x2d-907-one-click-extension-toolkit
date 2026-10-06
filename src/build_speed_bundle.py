@@ -64,6 +64,9 @@ manifest['compatibleModels']=['X2D 100C','907X & CFV 100C']
 manifest['validation']={'X2D 100C':'prior-menu-and-buff-device-tested; startup-focus-mode-fix-awaiting-device-test','907X & CFV 100C':'USB-and-service-installation-user-reported; ten-item-menu-fix-awaiting-device-test'}
 manifest['autoBrightness']=dict(systemSha256='bf854a21881148565ff2cc00376426c37a2b82fed94c653abf024e23ed4ceda6',stockConfigSha256='d43b8b26282f9e1da5825b96699658d444a58a83cda94b622e7da8aa1c35202b',library='/system/lib64/libx2d_play_brightness.so',default='off',masterControlled=True)
 manifest['uiLanguages']={'en':english,'zh-Hant':traditional}
+manifest['focusUi']=package['focusUi']
+manifest['validation']['X2D 100C']+='; new-focus-ui-preload-device-test-pending'
+manifest['validation']['907X & CFV 100C']+='; new-focus-ui-device-test-pending'
 (O/'speed-bundle.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
 archive_names={f['source'] for f in files}|{f['source'] for f in english}|{f['source'] for f in traditional}
 with tarfile.open(O/'speed-bundle.tar.gz','w:gz') as tar:

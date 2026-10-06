@@ -14,6 +14,9 @@ LABELS = (
     ('自动亮度', 'Auto Brightness'),
     ('显示屏最高亮度', 'Maximum Screen Brightness'),
     ('连续自动对焦', 'AF-C'),
+    ('对焦模式', 'Focus Mode'),
+    ('单次自动对焦', 'Single Autofocus'),
+    ('手动对焦', 'Manual Focus'),
     ('防抖', 'IBIS'),
 )
 
@@ -33,7 +36,10 @@ def traditional_qml(text):
     # Only source-language, quoted camera copy is replaced. QML identifiers and
     # non-Chinese protocol strings remain byte-for-byte identical.
     result = text
-    for chinese, traditional in TRADITIONAL.items():
+    translations = dict(TRADITIONAL, **{'对焦模式': '對焦模式',
+                        '单次自动对焦': '單次自動對焦', '连续自动对焦': '連續自動對焦',
+                        '手动对焦': '手動對焦'})
+    for chinese, traditional in translations.items():
         if chinese != traditional:
             result = result.replace(f'"{chinese}"', f'"{traditional}"')
     return result

@@ -19,8 +19,34 @@ PREVIOUS_DISPLAY_BRIGHTNESS_SHA = '73d13e8fe5d8295121b47a76fc4c553a71ae1c66cee7b
 PREVIOUS_BRIGHTNESS_SHA = '12a2c8b4785c349e13b03197b692ed1eb4d79cf291a059bf2ec077e50191310e'
 PREVIOUS_042_SHA = '34a32083a442cc667e56d311bcd9ea583a15e7f076c39f6cdc4c8e67c9024635'
 PREVIOUS_047_SHA = 'cb510721aabea62d35220a9e60aed23569195fdd1defab2a5c5f57a897c557c4'
+PREVIOUS_048_SHA = '70048064578e9cda6aed02934157769991ff8e1b2a353bfd54ca6310c9ee4a70'
 STOCK_RC = '1d6a8f9e41e269be38b3fb9ba53f4c47d18007f413c90893fdfa9d7542d1f688'
 STOCK_GUI = '16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0'
+# Public packages use the existing preload route under the stock policy.
+# Keep this exact: a broad /system/etc prefix would also admit policy files.
+PUBLIC_PAYLOAD_TARGETS = frozenset({
+    '/system/lib64/libx2d_native_menu.so',
+    '/system/etc/X2dNativeMenuBootstrap.qml',
+    '/system/etc/X2dNativeMenuModel.qml',
+    '/system/etc/X2dNativeMenuRoute.qml',
+    '/system/etc/X2dNativeMenuHost.qml',
+    '/system/etc/X2dPrankIbisPage.qml',
+    '/system/etc/X2dPlayPage.qml',
+    '/system/etc/X2dAfcMenuController.qml',
+    '/system/etc/X2dSpeedBuffController.qml',
+    '/system/etc/X2dAutoBrightnessController.qml',
+    '/system/etc/X2dDisplaySettings.qml',
+    '/system/etc/X2dDisplayRearBrightness.qml',
+    '/system/etc/X2dBrightnessSlider.qml',
+    '/system/etc/X2dPlayIcon.svg',
+    '/system/lib64/libx2d_play_brightness.so',
+    '/system/lib64/libx2d_speed_server.so',
+    '/system/etc/x2d-speed-buff/worker',
+    '/system/etc/x2d-speed-buff/backend',
+    '/system/etc/x2d-speed-buff/transaction',
+    '/system/etc/x2d-speed-buff/original',
+    '/system/etc/x2d-speed-buff/candidate',
+})
 ADB_NAME = 'adb.exe' if os.name == 'nt' else 'adb'
 ADB = str(D / 'bin' / ADB_NAME) if (D / 'bin' / ADB_NAME).exists() else ADB_NAME
 PROCESS_OPTIONS = dict(creationflags=0x08000000) if os.name == 'nt' else {}
@@ -361,10 +387,34 @@ case "$original_mount" in '/dev/block/mmcblk0p16 ext4 ro,'*|'/dev/block/mmcblk0p
 '''
 
 
+def validate_public_payload_scope(manifest):
+    files = manifest.get('files') or []
+    targets = [entry.get('target') for entry in files]
+    if (not targets or any(target not in PUBLIC_PAYLOAD_TARGETS for target in targets)
+            or len(set(targets)) != len(targets)):
+        raise RuntimeError('公开版安装包包含不允许的写入路径')
+    languages = manifest.get('uiLanguages') or {}
+    if set(languages) - {'en', 'zh-Hant'}:
+        raise RuntimeError('公开版安装包语言清单不匹配')
+    for entries in languages.values():
+        overlay_targets = [entry.get('target') for entry in entries]
+        if (any(target not in targets or not target.endswith('.qml') for target in overlay_targets)
+                or len(set(overlay_targets)) != len(overlay_targets)):
+            raise RuntimeError('公开版安装包包含不允许的写入路径')
+    for entry in files + [entry for entries in languages.values() for entry in entries]:
+        if (not re.fullmatch(r'[A-Za-z0-9_.-]+', entry.get('source', ''))
+                or not re.fullmatch(r'[0-9a-f]{64}', entry.get('sha256', ''))):
+            raise RuntimeError('公开版安装包文件清单不匹配')
+    focus_ui = manifest.get('focusUi')
+    if focus_ui is not None and focus_ui.get('diskGuiChanged') is not False:
+        raise RuntimeError('公开版安装包包含不允许的修改')
+
+
 def prepare():
     manifest = json.loads((O / 'speed-bundle.json').read_text())
     if manifest.get('format') != 3 or manifest.get('guiSha256') != STOCK_GUI:
         raise RuntimeError('安装包版本不匹配')
+    validate_public_payload_scope(manifest)
     for f in manifest['files']:
         if sha((O / f['source']).read_bytes()) != f['sha256']:
             raise RuntimeError('本地安装包校验失败')
@@ -425,7 +475,8 @@ def recognized_bundle(manifest):
     if same_release_files(manifest.get('files'), current):
         return manifest.get('autoBrightness') == current.get('autoBrightness')
     if manifest.get('autoBrightness'):
-        for name, expected in (('previous-bundle-0.4.7.json', PREVIOUS_047_SHA),
+        for name, expected in (('previous-bundle-0.4.8.json', PREVIOUS_048_SHA),
+                               ('previous-bundle-0.4.7.json', PREVIOUS_047_SHA),
                                ('previous-bundle-auto-brightness.json', PREVIOUS_BRIGHTNESS_SHA),
                                ('previous-bundle-brightness-display.json', PREVIOUS_DISPLAY_BRIGHTNESS_SHA)):
             previous = (O / name).read_bytes()

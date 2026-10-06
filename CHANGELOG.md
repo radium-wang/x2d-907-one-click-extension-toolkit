@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.9](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.9) — 2026-10-06
+
+- Port the reviewed focus popup and liveview mode icons into the existing App preload route. Use the second-generation focus icons, popup frame size and spacing while retaining first-generation fonts and borders. The popup adapts to AF-S/MF or AF-S/AF-C/MF according to the AF-C availability switch; installing or enabling the extension does not select AF-C.
+- Preserve Simplified Chinese, Traditional Chinese and English headings and mode captions. Retain the accepted AF badge appearance in liveview, including the S without an extra white background.
+- Keep public installation within the existing extension file targets and startup configuration changes. Reject vendor/raw partition targets and stock GUI replacement. Keep the exact 0.4.8 manifests and all language bytes for recognized upgrade/restoration.
+- Publish Mac universal and Windows x64 packages. 184 tests pass with private payloads; clean source passes 155 and skips 29. Qt 6.4.1 checks load the new compiled popup from an empty-source resource and verify three languages, 18 private icon aliases, two/three-mode switching and mode-selection guards. Both packages pass dependency and archive audits; the Mac ZIP extraction also passes signature/runtime checks. The new App preload route has not been tested on a physical camera; the separately accepted direct-GUI installation does not establish that result.
+
 ## [0.4.8](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.8) — 2026-10-05
 
 - Replace the desktop lens-change warning with guidance that focus acceleration works by tripling lens motor speed and is not recommended for older lenses. Update both bundled instructions and the README in Simplified Chinese, Traditional Chinese and English.
@@ -117,6 +124,13 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## 未发布 — 0.4.9 候选
+
+- 将已验收的对焦弹窗和实时取景模式图标接入 App 原有预载流程。采用二代对焦图标、弹窗底框尺寸和间距，保留一代字体和边框。AF-C 功能开关控制 AF-S/MF 两项与 AF-S/AF-C/MF 三项切换；安装或开启扩展不会自动选择 AF-C。
+- 保留简体中文、繁体中文和英文标题、模式说明。实时取景沿用已验收的 AF 底框样式，S 后没有额外白底。
+- 公开版只允许现有扩展文件和启动配置的修改，拒绝 vendor/原始分区及原厂 GUI 替换。保留 0.4.8 精确清单与全部语言字节，用于识别旧版、升级及恢复。
+- 发布 Mac 通用版和 Windows x64 安装包。带本地载荷的 184 项测试通过；纯源码为 155 项通过、29 项跳过。Qt 6.4.1 从空源码资源加载新编译弹窗，检查三种语言、18 个私有图标、两项/三项切换及模式选择保护。两份安装包的依赖及包内文件检查通过，Mac 解压后的签名和运行库检查也通过。新的 App 预载路径尚未在相机上验证；此前直接替换 GUI 的实机验收不能替代这项验证。
 
 ## [0.4.8](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.8) — 2026-10-05
 

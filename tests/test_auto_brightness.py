@@ -122,6 +122,7 @@ cat() { case " $FAIL_SOURCE " in *" ${1##*/} "*) head -c 10 "$1"; return 1;; *) 
         (self.folder/'previous-bundle-auto-brightness.json').write_bytes(data)
         (self.folder/'previous-bundle-brightness-display.json').write_bytes((D/'src/native-package/previous-bundle-brightness-display.json').read_bytes())
         (self.folder/'previous-bundle-0.4.7.json').write_bytes((D/'src/native-package/previous-bundle-0.4.7.json').read_bytes())
+        (self.folder/'previous-bundle-0.4.8.json').write_bytes((D/'src/native-package/previous-bundle-0.4.8.json').read_bytes())
         old=json.loads(data)
         current=copy.deepcopy(self.m);current['uiLanguages']=dict(en=current['files'])
         with patch.object(app,'O',self.folder),patch.object(app,'prepare',return_value=current):

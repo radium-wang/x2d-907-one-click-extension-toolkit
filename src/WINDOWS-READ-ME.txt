@@ -1,4 +1,14 @@
-x2d/907一键扩展功能-工具包 0.4.8 · Windows x64 实验版
+x2d/907一键扩展功能-工具包 0.4.9 · Windows x64 实验版
+
+新版对焦界面
+对焦弹窗采用二代图标、底框尺寸及间距，字体和边框保留一代样式；实时取景右侧显示对应的 AF-S、AF-C 或 MF 图标。
+AF-C 功能关闭时显示 AF-S/MF 两项，开启时显示三项。安装及开启功能不会自动选择 AF-C。
+沿用 App 原有安装方式，不覆盖原厂 GUI 程序。本版新预载路径已通过离线检查，仍待实机验证。
+
+Updated focus interface
+The popup uses the reviewed focus icons and spacing with first-generation fonts and borders; liveview shows the corresponding AF-S, AF-C or MF icon.
+AF-C availability controls the two/three-mode list. Installation and enabling do not select AF-C.
+This version uses the existing App installation route and leaves the stock GUI executable intact. Offline checks passed; device validation of the new preload route is pending.
 
 语言选择
 点击窗口右上角“设置”，可选择“简体中文”、“繁體中文”或“English”，默认简体中文，选择会保存到本机，重新启动仍沿用。

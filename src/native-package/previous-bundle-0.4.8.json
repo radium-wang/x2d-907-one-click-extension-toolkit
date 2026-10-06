@@ -7,14 +7,14 @@
     {
       "source": "libx2d_native_menu.so",
       "target": "/system/lib64/libx2d_native_menu.so",
-      "bytes": 330664,
-      "sha256": "1c7deeaf2a738169ea39334253620e1e7d23eea76ec44d183d562f1692344df3"
+      "bytes": 212528,
+      "sha256": "e6da5e05ddc6f9ff819d3e4175cbf66b5c92feaf4396118b6ae740cb50ba1cfb"
     },
     {
       "source": "X2dNativeMenuBootstrap.qml",
       "target": "/system/etc/X2dNativeMenuBootstrap.qml",
-      "bytes": 9306,
-      "sha256": "1039dd14398de1caadcb2820ccea681c2f771f971756c9d2262e790ce73e1013"
+      "bytes": 8979,
+      "sha256": "7bed4fff9b67e9498ccef3d13efefbbf00159473ecba404a1b50cbcc1300303d"
     },
     {
       "source": "X2dNativeMenuModel.qml",
@@ -49,8 +49,8 @@
     {
       "source": "X2dAfcMenuController.qml",
       "target": "/system/etc/X2dAfcMenuController.qml",
-      "bytes": 6341,
-      "sha256": "5c5c78f480652f79443d86652688eb961f1a4cac45d6a6b3f6b0b6e10210e18c"
+      "bytes": 5117,
+      "sha256": "ad65e440325bce59898fd844880c503174fb44ede9c38a0b7410a7699ad8fc16"
     },
     {
       "source": "X2dSpeedBuffController.qml",
@@ -91,14 +91,14 @@
     {
       "source": "libx2d_play_brightness.so",
       "target": "/system/lib64/libx2d_play_brightness.so",
-      "sha256": "fe305bc2c4ddb78708a5c05ad1760979b2bc9238dfe648438d2ddd37083594bb",
+      "sha256": "5a3a38aa9ad114296f729ad5212bb778f43bd33d5152649eae96e6e898b30f69",
       "bytes": 20616
     },
     {
       "source": "libx2d_speed_server.so",
       "target": "/system/lib64/libx2d_speed_server.so",
-      "sha256": "ca597d9b888a4c5f649b3a1220c171aa53495710d891062eef61e2938b697eb4",
-      "bytes": 7104
+      "sha256": "079823d429141dbe00cabea9875f7ed90457221aaaf51a99f19ce2d05f082509",
+      "bytes": 7072
     },
     {
       "source": "speed-worker",
@@ -153,8 +153,8 @@
     "907X & CFV 100C"
   ],
   "validation": {
-    "X2D 100C": "prior-menu-and-buff-device-tested; startup-focus-mode-fix-awaiting-device-test; new-focus-ui-preload-device-test-pending",
-    "907X & CFV 100C": "USB-and-service-installation-user-reported; ten-item-menu-fix-awaiting-device-test; new-focus-ui-device-test-pending"
+    "X2D 100C": "prior-menu-and-buff-device-tested; startup-focus-mode-fix-awaiting-device-test",
+    "907X & CFV 100C": "USB-and-service-installation-user-reported; ten-item-menu-fix-awaiting-device-test"
   },
   "autoBrightness": {
     "systemSha256": "bf854a21881148565ff2cc00376426c37a2b82fed94c653abf024e23ed4ceda6",
@@ -168,8 +168,8 @@
       {
         "source": "X2dNativeMenuBootstrap.en.qml",
         "target": "/system/etc/X2dNativeMenuBootstrap.qml",
-        "bytes": 9300,
-        "sha256": "002539046eaca4a4e8a9a0db1aa819be0b9830741693c5ec75db3d72002e61a1"
+        "bytes": 8973,
+        "sha256": "89a7673136e40bd7218e55a570ae20a86da4d410f471a235972b532e0b7b3880"
       },
       {
         "source": "X2dNativeMenuModel.en.qml",
@@ -192,8 +192,8 @@
       {
         "source": "X2dAfcMenuController.en.qml",
         "target": "/system/etc/X2dAfcMenuController.qml",
-        "bytes": 6323,
-        "sha256": "961d3f69d13a1968e8637dca4fbd4d99af976906c15da48ed5a24d528d50b276"
+        "bytes": 5103,
+        "sha256": "b6fc06539b11e63b3f2a9213d588cce3dec5d17a3c410e8ba17b2e1b527761fd"
       },
       {
         "source": "X2dDisplayRearBrightness.en.qml",
@@ -218,8 +218,8 @@
       {
         "source": "X2dAfcMenuController.zh-Hant.qml",
         "target": "/system/etc/X2dAfcMenuController.qml",
-        "bytes": 6341,
-        "sha256": "a0a8821b1528d296c9786c0355ef956e2e544870f97a3f4c1ccbf189470d25c8"
+        "bytes": 5117,
+        "sha256": "eb30a1471acb5b5ffb764066795ea35247567f75b7f434b0cad88ce0c829c32b"
       },
       {
         "source": "X2dSpeedBuffController.zh-Hant.qml",
@@ -234,14 +234,5 @@
         "sha256": "97fdeecd72b5d32369782e9203600029007b5ae35267b6b9bfbd2f8a465d2706"
       }
     ]
-  },
-  "focusUi": {
-    "privateIcons": 18,
-    "popupModelCountAdaptive": true,
-    "originalTypographyAndBorders": true,
-    "popupOldAotDisabled": true,
-    "liveviewOldAotDisabled": true,
-    "diskGuiChanged": false,
-    "deviceValidated": false
   }
 }

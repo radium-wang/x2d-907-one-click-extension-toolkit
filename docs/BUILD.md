@@ -37,7 +37,9 @@ Do not point this at an arbitrary firmware bundle. The application requires its 
 
 This repository deliberately does not redistribute camera firmware or vendor-derived compiled QML. Camera payload construction requires locally extracted stock 4.2.0 material and reviewed offline tools from the research project. [The research repository](https://github.com/radium-wang/Hasselblad-X-System-CIM-Firmware-Research-Feature-Extensions) explains the firmware-analysis boundaries; its public tree does not supply a ready-to-install payload.
 
-The native menu builder needs `X2D_BUILD_SUPPORT` (a local tool directory containing `inspect_menu_resources.py` and its documented `firmware_image` dependencies), `X2D_SYSTEM_ROOT`, and `X2D_QML_UNIT_DIR`. The latter must contain `main-screen-bootstrap-device.bin`, `control-stock.bin`, `control-afc.bin`, `popover-stock.bin`, and `popover-afc.bin` generated against the pinned GUI. AArch64 clang + lld or Zig is needed. `src/brightness/build.py` builds only the independent display runtime, using the pinned stock camera-system, camera-gui, libc, libdl and libm from `X2D_SYSTEM_ROOT`. It regenerates display trampolines locally; none are committed. `build_speed_bundle.py` invokes it and additionally needs the independently verified `speed-original` and `speed-candidate` instruction ranges and older restoration inputs. These are missing external build inputs, not downloadable attachments here.
+The native menu builder needs `X2D_BUILD_SUPPORT` (a local tool directory containing `inspect_menu_resources.py` and its documented `firmware_image` dependencies), `X2D_SYSTEM_ROOT`, `X2D_QML_UNIT_DIR` and `X2D_FOCUS_UI_DIR`. The original unit directory must contain `main-screen-bootstrap-device.bin`, `control-stock.bin`, `control-afc.bin` and `popover-stock.bin` generated against the pinned GUI. AArch64 clang + lld or Zig is needed. `src/brightness/build.py` builds only the independent display runtime, using the pinned stock camera-system, camera-gui, libc, libdl and libm from `X2D_SYSTEM_ROOT`. It regenerates display trampolines locally; none are committed. `build_speed_bundle.py` invokes it and additionally needs the independently verified `speed-original` and `speed-candidate` instruction ranges and older restoration inputs. These are missing external build inputs, not downloadable attachments here.
+
+For the focus UI, `src/prepare_focus_ui.py --verified-port /absolute/path/to/reviewed-port --stock-gui /absolute/path/to/stock-camera-gui --output /absolute/path/to/private-focus-inputs` verifies the accepted port and stock GUI hashes, prepares 18 private resource aliases, retains the reviewed liveview unit and adapts the popup to two/three model entries. Compile that prepared popup with the reviewed research project's `check_x2d2_focus_port_host.py --resources /absolute/path/to/private-focus-inputs` in its Qt 6.4.1 environment. Set `X2D_FOCUS_UI_DIR` to the resulting directory containing `focus-popup.qt64.bin`, `liveview-stock.bin`, `liveview-modes.bin`, `focus.tree`, `focus.names` and `focus.data`. The native builder pins every input hash and checks the popup compiled-unit header and checksum. These vendor-derived inputs remain private and ignored.
 
 ```sh
 python3 -B src/build_native_preload.py
@@ -45,6 +47,8 @@ python3 -B src/build_speed_bundle.py
 ```
 
 Stock GUI SHA-256: `16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0`.
+
+The public installer checks an exact extension target allowlist, including every language overlay. Vendor/raw partitions and replacement GUI executables are excluded. The native module registers its private icon bank using the stock Qt resource API and changes only process-local cache fields; it clears the old popup/liveview AOT callbacks and reverses all seven memory writes on failure. It retains the disable marker and once-per-boot retry guard.
 
 ## Desktop packaging
 
@@ -89,3 +93,9 @@ The installation ledger retains both stock startup configurations. Both writes r
 ## Focus acceleration guidance
 
 `tests/check_focus_guidance_qml.py --payload /absolute/path/to/generated/package` checks the packaged Simplified/Traditional Chinese and English switch descriptions with Qt 6.4.1 and stock-style fixtures. It checks stock typography/opacity, wrapping at 1024/768/620 widths, real switch clicks and master-off gating. `previous-bundle-0.4.7.json` and its old per-file bytes must be included for upgrade/restoration after the page text changes; both builders include the catalog.
+
+## Focus popup and liveview icons
+
+`tests/check_focus_ui_qml.py --inputs /absolute/path/to/private-focus-inputs --payload /absolute/path/to/generated/package --output /absolute/path/to/new-test-output` uses Qt 6.4.1 to register and hash-check all private icons, load the actual compiled popup from an empty-source resource and exercise the packaged controller in three languages. It checks two/three-mode models, popup geometry, retained mode on enable, refusal to remove active AF-C and the MF selection signal. The image provider is substituted; this check does not render camera pixels or test the App's Android loader. `tests/test_native_focus_ui.py` exercises the real native transaction with substituted memory/Qt APIs, including each partial-write rollback. `tests/test_public_payload_scope.py` checks that policy, raw partition and GUI write targets are rejected without camera access.
+
+Both desktop builders must include `previous-bundle-0.4.8.json` and the exact preceding release bytes for every language in `previous-payloads`. Direct GUI installation and policy experiments are not public App build inputs or device validation of this preload route.

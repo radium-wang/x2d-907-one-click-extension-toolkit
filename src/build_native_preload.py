@@ -28,15 +28,35 @@ symbol=next(s for s in b.symbols if s.name.endswith('32_app_qml_mainmenu_MainScr
 stock=b.read(symbol['st_value'],symbol['st_size'])
 (O/'stock-unit.bin').write_bytes(stock)
 inputs=Path(os.environ['X2D_QML_UNIT_DIR'])
+focus_inputs=Path(os.environ['X2D_FOCUS_UI_DIR'])
+focus_hashes={'focus-popup.qt64.bin':'18f591e1ce551ed2f74f993d46989aa9fa1849f9f77306565a2440e9cbab2c8b',
+              'liveview-stock.bin':'ae2ee04e839f03f4a28cf29e74d4d50a828058f84adb49eeab179a6722417207',
+              'focus.tree':'4813c021519fd420159eb2b15cfa29fa1dfdd569ddcddb3eb8af3a1676d1fe28',
+              'focus.names':'8bf867963f07e48676a5d8cbdd8353d53047f501d9caba6572fc27d9fdc4ed54',
+              'focus.data':'653a8a134ffaa22567ae25898efefe43e56bcc8b95a0ed4d3eb1511caebb200d'}
+for name,expected in focus_hashes.items():
+    if hashlib.sha256((focus_inputs/name).read_bytes()).hexdigest()!=expected:
+        raise ValueError('Unrecognized focus UI input: '+name)
 clone=(inputs/'main-screen-bootstrap-device.bin').read_bytes()
-for name in ('control-stock.bin','control-afc.bin','popover-stock.bin','popover-afc.bin'):
+for name in ('control-stock.bin','control-afc.bin','popover-stock.bin'):
     shutil.copy2(inputs/name,O/name)
+for source,target in [('focus-popup.qt64.bin','popover-afc.bin'),
+                      ('liveview-stock.bin','liveview-stock.bin'),('liveview-modes.bin','liveview-modes.bin'),
+                      ('focus.tree','focus.tree'),('focus.names','focus.names'),('focus.data','focus.data')]:
+    shutil.copy2(focus_inputs/source,O/target)
+assert (O/'liveview-stock.bin').stat().st_size == 6196
+assert hashlib.sha256((O/'liveview-modes.bin').read_bytes()).hexdigest() == 'f4cca4d51eb53f19b7267e49e5c3a1e93a26c191db98bd711afef5aad938f7eb'
+popup=(O/'popover-afc.bin').read_bytes()
+assert popup[:16] == b'qv4cdata' + bytes.fromhex('3600000001040600')
+assert popup[76:92] == hashlib.md5(popup[92:]).digest()
 assert 15084 < len(clone) < 20000
 (O/'extended-unit.bin').write_bytes(clone)
 assembly='.section .rodata\n.balign 8\n'
 for label,file in [('stock_unit','stock-unit.bin'),('extended_unit','extended-unit.bin'),
                    ('control_stock','control-stock.bin'),('control_afc','control-afc.bin'),
-                   ('popover_stock','popover-stock.bin'),('popover_afc','popover-afc.bin')]:
+                   ('popover_stock','popover-stock.bin'),('popover_afc','popover-afc.bin'),
+                   ('liveview_stock','liveview-stock.bin'),('liveview_modes','liveview-modes.bin'),
+                   ('focus_tree','focus.tree'),('focus_names','focus.names'),('focus_data','focus.data')]:
     assembly+=f'.global {label}, {label}_end\n{label}:\n.incbin "{(O/file).as_posix()}"\n{label}_end:\n.balign 8\n'
 (O/'units.S').write_text(assembly)
 exports=set()
@@ -126,10 +146,14 @@ assert traditional_files, 'Traditional Chinese camera UI siblings were not produ
 report=dict(guiSha256=GUI_SHA,files=files,uiLanguages={'en':english_files,'zh-Hant':traditional_files},dependencies=deps,
             imports=sorted(imports),
             deployed=False,deviceValidated=False,bootConfigurationWritten=False,
-            guard='exact three units/cache pointers; opt-in; disable-file; once per boot; rollback all four writes',
+            guard='exact four original units/cache pointers; private icon registration; opt-in; disable-file; once per boot; rollback all seven writes',
             menuOnly=False,
             featureScope=['main-menu-play-entry','stock-style-play-settings','master-switch',
-                          'afc-runtime-model-switch','afc-three-item-popover','afc-gate'],
+                          'afc-runtime-model-switch','afc-three-item-popover','afc-gate',
+                          'x2d2-focus-popup','liveview-focus-mode-icons'],
+            focusUi=dict(privateIcons=18,popupModelCountAdaptive=True,originalTypographyAndBorders=True,
+                         popupOldAotDisabled=True,liveviewOldAotDisabled=True,
+                         diskGuiChanged=False,deviceValidated=False),
             afcRuntimeModelMutationValidated=False,
             playPressedHighlightCorrected=True)
 (O/'package.json').write_text(json.dumps(report,indent=2)+'\n')
