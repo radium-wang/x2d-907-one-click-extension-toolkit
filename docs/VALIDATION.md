@@ -1,4 +1,8 @@
-# Validation boundaries — 0.4.11
+# Validation boundaries — 0.4.14
+
+## First-use notice and stock eye-debug diagnostic (0.4.14)
+
+The notice retains one acknowledgement on the camera independently of installed feature switches, menu language and routine upgrades. Offline file-I/O and Qt checks exercise persistence, failed acknowledgement retry and UI input gates. The new Mac/Windows connection diagnostic only reads current stock DebugMode/EyeDetection flags and treats unreadable replies as unknown. The [0.4.8 audit](EYE-AUDIT.md) found no debug writes or added eye-tracking runtime. The reported camera has not been inspected; residual debug configuration and indirect stock AF-C behavior still require device verification. Camera restart/install behavior and native Windows execution remain pending. All 212 offline tests pass with exact local payloads; clean source passes 180 and skips 32. Nine notice layouts, three-language real-XHR/C-marker persistence/retry checks, 100 reentries per language, menu/brightness checks, native Mac launch, 76 Mach-O / 38 PE audits, archive/recovery checks and updater extraction pass.
 
 ## Selectable desktop interface and static Qt resource lookup (0.4.11)
 

@@ -27,16 +27,16 @@ Camera menu text follows the app language at install time: English installs **Tw
 
 ## Download / 下载软件
 
-**Latest version: 0.4.13 / 最新版本：0.4.13**
+**Latest version: 0.4.14 / 最新版本：0.4.14**
 
-- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.13/x2d-907-extension-toolkit-Windows-x64-0.4.13.zip)
-- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.13/x2d-907-extension-toolkit-macOS-Universal-0.4.13.zip)
+- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.14/x2d-907-extension-toolkit-Windows-x64-0.4.14.zip)
+- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.14/x2d-907-extension-toolkit-macOS-Universal-0.4.14.zip)
 
-Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.13) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.13/SHA256SUMS)
+Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.14) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.14/SHA256SUMS)
 
-Version 0.4.13 adds a free-project notice whenever the Tweaks menu opens, with Simplified Chinese, Traditional Chinese and English copy and a confirmation button to close it. It retains the 0.4.12 focus UI fix and upgrade/restoration records. Offline and Qt checks pass; physical camera validation remains pending. See [release notes](CHANGELOG.md).
+Version 0.4.14 shows the free-project notice until its first acknowledgement, retaining the camera preference across restart and routine updates in all three languages. Connected reads the current stock eye-detection debug flags on Mac and Windows. The 0.4.8 audit found no eye/debug writes or new eye-tracking runtime; reported eye boxes still need camera-state verification. See [audit](docs/EYE-AUDIT.md) and [release notes](CHANGELOG.md). Physical camera validation remains pending.
 
-0.4.13 在每次进入“耍起功能”菜单时显示免费项目提示，点击“好的，我没被骗”关闭弹窗；提供简体中文、繁体中文和英文。保留 0.4.12 对焦界面修复及升级、恢复记录。离线与 Qt 检查通过，仍待实机验证，详见[更新说明](CHANGELOG.md)。
+0.4.14 免费提示仅在首次确认前显示，三语言共用相机端记录，重启和常规更新后不再重复。“已连接”在 Mac、Windows 上只读检查原厂人眼调试选项。0.4.8 核查未发现人眼调试写入或新增人眼跟随运行库；用户眼框来源仍需结合相机状态确认，见[核查说明](docs/EYE-AUDIT.md)及[更新说明](CHANGELOG.md)。仍待实机验证。
 
 ## Features
 
@@ -79,7 +79,7 @@ Native macOS 0.4.3 window rendered in an offline UI check with a disconnected st
 
 Earlier X2D installations, menu behavior and restoration have device/user evidence. Version 0.4.8 passed 173 offline tests with local payloads and three-language focus-guidance layout/touch checks. Traditional Chinese desktop text, confirmation and camera overlays have offline checks; native Windows display and physical camera installation in Traditional Chinese remain unverified. The 0.4.3 camera functionality has Qt menu/brightness checks and native Mac layout evidence. Native Windows ADB startup, shutdown/directory release, rendering and accessibility, auto brightness on the physical display, X2D/CFV boot and restoration, the 907 menu/Easter egg, AF-S retention across power cycles and automatic Windows driver preparation still require native/device validation. A desktop test is not a camera test. See [the evidence boundaries](docs/VALIDATION.md).
 
-This is an independent project, not an official Hasselblad product. Eye recognition is not included. Other camera generations and firmware versions are unsupported.
+This is an independent project, not an official Hasselblad product. The toolkit does not add eye-tracking autofocus or change stock eye-detection debug settings. Eye boxes alone do not establish tracking autofocus; see the [0.4.8 audit](docs/EYE-AUDIT.md). Other camera generations and firmware versions are unsupported.
 
 ## License
 
@@ -103,7 +103,7 @@ If this toolkit helps you, you can support its development via [PayPal](https://
 
 相机菜单文案随安装时的 App 语言：简体、繁体中文安装为“耍起功能”（功能名称与提示使用所选字形），英文安装为 Tweaks。
 
-**下载安装包：**[Windows 10/11（64 位）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.9/x2d-907-extension-toolkit-Windows-x64-0.4.9.zip) · [macOS 13 及以上（Apple 芯片 / Intel）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.9/x2d-907-extension-toolkit-macOS-Universal-0.4.9.zip)。下载后请完整解压，再启动软件。
+**下载安装包：**[Windows 10/11（64 位）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.14/x2d-907-extension-toolkit-Windows-x64-0.4.14.zip) · [macOS 13 及以上（Apple 芯片 / Intel）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.14/x2d-907-extension-toolkit-macOS-Universal-0.4.14.zip)。下载后请完整解压，再启动软件。
 
 ### 当前功能
 
@@ -146,7 +146,7 @@ X2D 的功能入口在第 **12** 格；907 默认第 **11** 格，勾选彩蛋�
 
 本库只收录应用源码、测试和软件截图，不包含原厂固件、提取的编译 QML、运行库、生成的相机载荷或桌面安装压缩包。桌面安装包见 [GitHub Releases](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/latest)。更新需要应用目录可写；如提示权限不足，请将完整 App 移到自己的可写目录后重试。Mac 使用临时签名、未经公证；Windows 启动器未经代码签名。构建输入见 [构建说明](docs/BUILD.md)。
 
-本项目为独立研究工具，非哈苏官方软件。目前不含眼部识别；不适配其他代机型或固件。
+本项目为独立研究工具，非哈苏官方软件。本工具未加入人眼跟随对焦，也不修改原厂人眼调试选项；眼部框不等于跟随对焦，见 [0.4.8 核查](docs/EYE-AUDIT.md)。不适配其他代机型或固件。
 
 ### 许可
 

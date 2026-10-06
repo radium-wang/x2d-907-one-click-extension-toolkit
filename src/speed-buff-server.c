@@ -5,12 +5,29 @@ extern int socket(int,int,int),bind(int,const void*,unsigned),listen(int,int),ac
 extern ssize_t read(int,void*,size_t),write(int,const void*,size_t);
 extern int open(const char*,int,...),strcmp(const char*,const char*),strncmp(const char*,const char*,size_t),system(const char*);
 extern char *getenv(const char*);
-extern int unsetenv(const char*),unlink(const char*);
+extern int unsetenv(const char*),unlink(const char*),fsync(int);
 extern void _exit(int);
 extern int snprintf(char*,size_t,const char*,...);
 struct addr {unsigned short family,port;unsigned int ip;char pad[8];};
 struct timeval {long sec,usec;};
 static const char *fallback="{\"ready\":false,\"active\":false,\"master\":false,\"message\":\"加速服务拒绝操作，请恢复原状\"}";
+/* Independent UI preference. Preserve it across menu/master changes and upgrades.
+ * Exclusive creation never truncates a foreign file; NOFOLLOW rejects symlinks. */
+static const char *notice_path="/blackbox/.x2d-play-software/free-notice-seen";
+static int notice_seen(void) {
+ char value[3];
+ int f=open(notice_path,131072|2048);if(f<0)return 0;
+ ssize_t n=read(f,value,sizeof(value));close(f);
+ return n==2 && value[0]=='1' && value[1]=='\n';
+}
+static int notice_ack(void) {
+ if(notice_seen())return 0;
+ int f=open(notice_path,1|64|128|131072,0600);if(f<0)return -1;
+ int ok=write(f,"1\n",2)==2 && fsync(f)==0;
+ close(f);
+ if(!ok){unlink(notice_path);return -1;}
+ return notice_seen()?0:-1;
+}
 static int menu_ack(const char *action) {
  const char *value = !strcmp(action,"menu_ready_11") ? "MENU_ENTRY_READY_11" :
                      !strcmp(action,"menu_ready_12") ? "MENU_ENTRY_READY_12" : 0;
@@ -46,6 +63,8 @@ __attribute__((constructor)) static void serve(void) {
   char req[512]={0};ssize_t n=read(c,req,sizeof(req)-1);const char *action=0;
   if(n>0){
    if(!strncmp(req,"GET /status HTTP/1.",19))action="status";
+   else if(!strncmp(req,"GET /notice_status HTTP/1.",26))action="notice_status";
+   else if(!strncmp(req,"POST /notice_seen HTTP/1.",25))action="notice_seen";
    else if(!strncmp(req,"POST /menu_ready_11 HTTP/1.",27))action="menu_ready_11";
    else if(!strncmp(req,"POST /menu_ready_12 HTTP/1.",27))action="menu_ready_12";
    else if(!strncmp(req,"POST /menu_unavailable HTTP/1.",30))action="menu_unavailable";
@@ -58,9 +77,11 @@ __attribute__((constructor)) static void serve(void) {
   }
   char body[1024];int len=0;
   int menu_action=action && !strncmp(action,"menu_",5);
-  int ok=action && (menu_action ? menu_ack(action) : run(action))==0;
+  int notice_action=action && !strncmp(action,"notice_",7);
+  int ok=action && (notice_action ? (!strcmp(action,"notice_status") ? 0 : notice_ack()) : menu_action ? menu_ack(action) : run(action))==0;
+  if(notice_action) len=snprintf(body,sizeof(body),"{\"freeNoticeReady\":true,\"freeNoticeSeen\":%s,\"acknowledged\":%s}",notice_seen()?"true":"false",ok?"true":"false");
   if(menu_action && ok) len=snprintf(body,sizeof(body),"{\"menuAcknowledged\":true}");
-  if(ok && !menu_action){int f=open("/tmp/x2d-speed-buff/ui.json",0);if(f>=0){len=(int)read(f,body,sizeof(body)-1);close(f);}}
+  if(ok && !menu_action && !notice_action){int f=open("/tmp/x2d-speed-buff/ui.json",0);if(f>=0){len=(int)read(f,body,sizeof(body)-1);close(f);}}
   if(len<=0){len=snprintf(body,sizeof(body),"%s",fallback);}
   char header[256];int h=snprintf(header,sizeof(header),"HTTP/1.1 200 OK\r\nContent-Type: application/json; charset=utf-8\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-store\r\nContent-Length: %d\r\nConnection: close\r\n\r\n",len);
   write(c,header,h);write(c,body,len);close(c);

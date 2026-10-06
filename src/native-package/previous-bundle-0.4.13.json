@@ -43,8 +43,8 @@
     {
       "source": "X2dPlayPage.qml",
       "target": "/system/etc/X2dPlayPage.qml",
-      "bytes": 17406,
-      "sha256": "3d6a77303ed77be7ac62130300ffb0f9f22e27b7868b3ccc5dfe754c0a63ccd6"
+      "bytes": 16759,
+      "sha256": "f49454c8b0fc7b4795aecb8bc3214fa5e6db8c5a782c76aef12b77dbc55ed30c"
     },
     {
       "source": "X2dAfcMenuController.qml",
@@ -55,8 +55,8 @@
     {
       "source": "X2dSpeedBuffController.qml",
       "target": "/system/etc/X2dSpeedBuffController.qml",
-      "bytes": 5295,
-      "sha256": "7af7d94aae8f67d772605eee5024fff7a673a791ab1d72609d698a05dd75e793"
+      "bytes": 3481,
+      "sha256": "5058dcc66b2dc5570d2a222008149098d4679c4a94ca15770a523c1dbcd4d9f0"
     },
     {
       "source": "X2dAutoBrightnessController.qml",
@@ -103,8 +103,8 @@
     {
       "source": "libx2d_speed_server.so",
       "target": "/system/lib64/libx2d_speed_server.so",
-      "sha256": "5015f440f85050df666fc57713a07439384b395bdced3ceae7de5aa392dc1db0",
-      "bytes": 8056
+      "sha256": "1f665f32618b515b53c59633895cf2100e4ba9f5bd41a9ef5d760571208d88db",
+      "bytes": 7216
     },
     {
       "source": "speed-worker",
@@ -192,8 +192,8 @@
       {
         "source": "X2dPlayPage.en.qml",
         "target": "/system/etc/X2dPlayPage.qml",
-        "bytes": 17408,
-        "sha256": "ced40648d60fafeba05d02015ce043ad7b976a121a22a7388d64ce5509510ec4"
+        "bytes": 16761,
+        "sha256": "7a75188cb92b2051fec679fa2310529405ab07a0de713136b9decf3e61a80ed1"
       },
       {
         "source": "X2dAfcMenuController.en.qml",
@@ -218,8 +218,8 @@
       {
         "source": "X2dPlayPage.zh-Hant.qml",
         "target": "/system/etc/X2dPlayPage.qml",
-        "bytes": 17409,
-        "sha256": "558770bdf2f5930fe931bf40f48404e3f0c660af7b22beeb2bb54e2f79390f2e"
+        "bytes": 16762,
+        "sha256": "906650d2a8946c08e8598fa258cfaacd1f7deab1ac1251ecf542037458392445"
       },
       {
         "source": "X2dAfcMenuController.zh-Hant.qml",
@@ -230,8 +230,8 @@
       {
         "source": "X2dSpeedBuffController.zh-Hant.qml",
         "target": "/system/etc/X2dSpeedBuffController.qml",
-        "bytes": 5295,
-        "sha256": "60ef16fe213e03c16a2134ff9c56e2d6e4e7711248f684b6c495ac92d667b458"
+        "bytes": 3481,
+        "sha256": "218e82daa4a2825bebfdd6f6aa6345b88632e9facc0e2ec3b2966e03b8ed3d7d"
       },
       {
         "source": "X2dDisplayRearBrightness.zh-Hant.qml",

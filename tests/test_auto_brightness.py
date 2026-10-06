@@ -81,11 +81,14 @@ cat() { case " $FAIL_SOURCE " in *" ${1##*/} "*) head -c 10 "$1"; return 1;; *) 
     def test_foreign_display_binary_refuses_before_adb_or_upload(self):self.install_script(True)
     def test_foreign_display_configuration_refuses_restore(self):self.restore_script(True)
     def test_install_backs_up_and_writes_both_configs(self):
+        seen=self.folder/'camera/blackbox/.x2d-play-software/free-notice-seen'
+        seen.parent.mkdir(parents=True);seen.write_bytes(b'1\n')
         script=self.install_script();root,result=self.execute(script)
         self.assertEqual(result.returncode,0,result.stderr)
         self.assertEqual((root/'system/etc/init/camera-gui.rc').read_bytes(),app.init_config(GUI))
         self.assertEqual((root/'system/etc/init/camera-system.rc').read_bytes(),app.init_display_config(DISPLAY))
         self.assertEqual((root/'blackbox/.x2d-play-software/stockdisplayrc').read_bytes(),DISPLAY)
+        self.assertEqual(seen.read_bytes(),b'1\n')
     def test_partial_display_write_rolls_back_both_configs(self):self.rollback('newdisplayrc')
     def test_gui_failure_after_display_write_rolls_back_both_configs(self):self.rollback('newrc')
     def rollback(self,fail):
@@ -105,6 +108,7 @@ cat() { case " $FAIL_SOURCE " in *" ${1##*/} "*) head -c 10 "$1"; return 1;; *) 
         (root/'blackbox/.x2d-play-software').mkdir(parents=True)
         (root/'blackbox/.x2d-play-software/stockrc').write_bytes(GUI)
         (root/'blackbox/.x2d-play-software/stockdisplayrc').write_bytes(DISPLAY)
+        seen=root/'blackbox/.x2d-play-software/free-notice-seen';seen.write_bytes(b'1\n')
         # Execute against an installed fixture; execute() supplies stock before replacing it here.
         script=script.replace('hashok '+app.RC+' '+app.sha(app.init_config(GUI)), 'hashok '+app.RC+' '+app.sha(GUI))
         script=script.replace('hashok '+app.DISPLAY_RC+' '+app.sha(app.init_display_config(DISPLAY)), 'hashok '+app.DISPLAY_RC+' '+app.sha(DISPLAY))
@@ -114,6 +118,7 @@ cat() { case " $FAIL_SOURCE " in *" ${1##*/} "*) head -c 10 "$1"; return 1;; *) 
         self.assertEqual(result.returncode,0,result.stderr)
         self.assertEqual((root/'system/etc/init/camera-system.rc').read_bytes(),DISPLAY)
         self.assertFalse((root/'system/lib64/libx2d_play_brightness.so').exists())
+        self.assertEqual(seen.read_bytes(),b'1\n')
     def test_actual_display_callbacks_include_master_gate(self):
         generated=D/'src/outputs/brightness-runtime/display-generated.h'
         if not generated.exists():self.skipTest('Generate exact display header with brightness/build.py')
@@ -130,6 +135,7 @@ cat() { case " $FAIL_SOURCE " in *" ${1##*/} "*) head -c 10 "$1"; return 1;; *) 
         (self.folder/'previous-bundle-0.4.9.json').write_bytes((D/'src/native-package/previous-bundle-0.4.9.json').read_bytes())
         (self.folder/'previous-bundle-0.4.11.json').write_bytes((D/'src/native-package/previous-bundle-0.4.11.json').read_bytes())
         (self.folder/'previous-bundle-0.4.12.json').write_bytes((D/'src/native-package/previous-bundle-0.4.12.json').read_bytes())
+        (self.folder/'previous-bundle-0.4.13.json').write_bytes((D/'src/native-package/previous-bundle-0.4.13.json').read_bytes())
         old=json.loads(data)
         current=copy.deepcopy(self.m);current['uiLanguages']=dict(en=current['files'])
         with patch.object(app,'O',self.folder),patch.object(app,'prepare',return_value=current):

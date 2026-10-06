@@ -23,6 +23,7 @@ PREVIOUS_048_SHA = '70048064578e9cda6aed02934157769991ff8e1b2a353bfd54ca6310c9ee
 PREVIOUS_049_SHA = '9d2eb54beb6f4f11bf869ddd3930846d8a806a66a3cb8bf73008ccd6ba72f34a'
 PREVIOUS_0411_SHA = '100141063dd50451d7e186f21f47b5b6a6eec436a6a67cddfbb7d478071948fa'
 PREVIOUS_0412_SHA = '8592a30073cc64cc55228c1a089b3538ae39306c43e82ec12a333fdbb9d24f75'
+PREVIOUS_0413_SHA = '7121fe24826415ba00b6a2478df9124032842ac83e2937d7e5fe469fdeeead73'
 FEATURES = ('afc', 'speed-buff', 'auto-rear-brightness')
 STOCK_RC = '1d6a8f9e41e269be38b3fb9ba53f4c47d18007f413c90893fdfa9d7542d1f688'
 STOCK_GUI = '16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0'
@@ -432,6 +433,37 @@ def camera_model():
     raise RuntimeError('相机型号标识未通过校验，请重新检查连接')
 
 
+EYE_DEBUG_READ = ("printf 'DEBUG_MODE\\n'; /system/bin/odindb-send -s system -p debug_mode; "
+                  "printf 'DEBUG_OPTIONS\\n'; /system/bin/odindb-send -s system -p debug_options")
+
+
+def eye_debug_status():
+    """Read current stock diagnostic flags; never set them or infer their origin."""
+    try:
+        with reader(timeout=5000) as r:
+            raw = r.factory_shell(EYE_DEBUG_READ, capture_ms=5000)
+        mode, options = raw.split('DEBUG_MODE\n', 1)[1].split('DEBUG_OPTIONS\n', 1)
+        modes = re.findall(r'=\s*(true|false|[01])\s*$', mode, re.M)
+        masks = re.findall(r'=\s*(?:[A-Za-z_][A-Za-z0-9_ |,]*\()?((?:0x[0-9a-fA-F]+)|[0-9]+)\)?\s*$', options, re.M)
+        if len(modes) != 1 or len(masks) != 1: return dict(ready=False)
+        enabled = modes[0] in ('true', '1')
+        mask = int(masks[0], 16 if masks[0].lower().startswith('0x') else 10)
+        if not 0 <= mask <= 127: return dict(ready=False)
+        return dict(ready=True, debugMode=enabled, debugOptions=mask, eyeDebug=enabled and bool(mask & 1))
+    except Exception:
+        return dict(ready=False)
+
+
+def report_eye_debug():
+    state = eye_debug_status()
+    if state.get('ready'):
+        message = ('检测到原厂人眼调试选项已开启；眼部框不代表跟随对焦。本工具不会开启或清除该选项。'
+                   if state['eyeDebug'] else '当前原厂人眼调试选项未开启；眼部框来源仍需结合相机状态判断。')
+    else:
+        message = '原厂人眼调试状态暂无法读取，尚不能判断眼部框来源。'
+    event('progress', message=message, eyeDebugStatus=state)
+
+
 def header():
     return '''#!/system/bin/sh
 set -eu
@@ -553,7 +585,8 @@ def recognized_bundle(manifest):
             if (manifest.get('files') == expected['files'] and manifest.get('featureMask') == expected['featureMask']
                     and features == expected['selectedFeatures'] and manifest.get('autoBrightness') == expected.get('autoBrightness')):
                 return True
-        for name, digest in (('previous-bundle-0.4.12.json', PREVIOUS_0412_SHA),
+        for name, digest in (('previous-bundle-0.4.13.json', PREVIOUS_0413_SHA),
+                             ('previous-bundle-0.4.12.json', PREVIOUS_0412_SHA),
                              ('previous-bundle-0.4.11.json', PREVIOUS_0411_SHA)):
             previous = (O / name).read_bytes()
             if sha(previous) != digest:
@@ -568,7 +601,8 @@ def recognized_bundle(manifest):
     if same_release_files(manifest.get('files'), current):
         return manifest.get('autoBrightness') == current.get('autoBrightness')
     if manifest.get('autoBrightness'):
-        for name, expected in (('previous-bundle-0.4.12.json', PREVIOUS_0412_SHA),
+        for name, expected in (('previous-bundle-0.4.13.json', PREVIOUS_0413_SHA),
+                               ('previous-bundle-0.4.12.json', PREVIOUS_0412_SHA),
                                ('previous-bundle-0.4.11.json', PREVIOUS_0411_SHA),
                                ('previous-bundle-0.4.9.json', PREVIOUS_049_SHA),
                                ('previous-bundle-0.4.8.json', PREVIOUS_048_SHA),
@@ -814,10 +848,11 @@ mkdir -p /system/etc/x2d-speed-buff
     else: event('result', success=True, installed=True, message='文件已安装，待重启验证')
 
 
-def status():
+def status(eye_debug=False):
     event('progress', message='正在核验原厂界面、对焦与显示文件及安装记录', percent=5)
     verify_target()
     model = camera_model()
+    if eye_debug: report_eye_debug()
     installed = shell(f'test -e {ROOT}/installed && echo YES || echo NO') == 'YES'
     phase = read_bytes(ROOT + '/installed').decode().strip() if installed else None
     if installed and phase != 'INSTALLED':
@@ -1041,7 +1076,8 @@ def main():
     try:
         if args.action == 'install': install(not args.no_reboot, args.prank_ibis, args.language, args.features)
         elif args.action == 'restore': restore(not args.no_reboot)
-        elif args.action == 'status': status()
+        elif args.action == 'status':
+            status(eye_debug=True)
         else:
             verify_target()
             event('status', state=backend(args.action))

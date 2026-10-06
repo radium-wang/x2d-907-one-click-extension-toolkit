@@ -16,6 +16,39 @@ QtObject {
     readonly property bool brightnessInstalled: (featureMask & 4) !== 0
     property string statusMessage: "正在读取功能状态"
     property var currentRequest: null
+    property bool freeNoticeReady: false
+    property bool freeNoticeSeen: false
+    property bool freeNoticeAcknowledged: false
+    property var noticeRequest: null
+    function requestFreeNotice(action) {
+        if (noticeRequest !== null) return false
+        var xhr = new XMLHttpRequest()
+        noticeRequest = xhr
+        noticeDeadline.restart()
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState !== XMLHttpRequest.DONE || noticeRequest !== xhr) return
+            noticeDeadline.stop()
+            noticeRequest = null
+            try {
+                if (xhr.status !== 200) return
+                var state = JSON.parse(xhr.responseText)
+                if (state.freeNoticeReady !== true || typeof state.freeNoticeSeen !== "boolean") return
+                freeNoticeSeen = state.freeNoticeSeen
+                freeNoticeReady = true
+            } catch (e) { }
+        }
+        xhr.open(action === "notice_status" ? "GET" : "POST", "http://127.0.0.1:18763/" + action)
+        xhr.send()
+        return true
+    }
+    function acknowledgeFreeNotice() {
+        freeNoticeAcknowledged = true
+        return requestFreeNotice("notice_seen")
+    }
+    function pollFreeNotice() {
+        if (freeNoticeAcknowledged && !freeNoticeSeen) requestFreeNotice("notice_seen")
+        else if (!freeNoticeReady) requestFreeNotice("notice_status")
+    }
     function syncAfcMenu() {
         if (afcMenu !== null && afcMenu.ready && !afcMenu.focusPopoverOpen)
             afcMenu.setEnabled(afcInstalled && master && afcEnabled)
@@ -60,7 +93,18 @@ QtObject {
     function setEnabled(value) { return !value || speedInstalled ? request(value ? "enable" : "disable") : false }
     function setAfc(value) { return !value || afcInstalled ? request(value ? "afc_on" : "afc_off") : false }
     function setMaster(value) { return request(value ? "master_on" : "master_off") }
-    property Timer poll: Timer { interval: 2500; running: true; repeat: true; onTriggered: root.request("status") }
+    property Timer poll: Timer {
+        interval: 2500; running: true; repeat: true
+        onTriggered: { root.request("status"); root.pollFreeNotice() }
+    }
+    property Timer noticeDeadline: Timer {
+        interval: 5000
+        onTriggered: {
+            var xhr = root.noticeRequest
+            root.noticeRequest = null
+            if (xhr !== null) xhr.abort()
+        }
+    }
     property Timer requestDeadline: Timer {
         interval: 15000
         onTriggered: {
@@ -76,5 +120,10 @@ QtObject {
         function onReadyChanged() { root.syncAfcMenu() }
         function onFocusPopoverOpenChanged() { root.syncAfcMenu() }
     }
-    Component.onCompleted: request("status")
+    Component.onCompleted: { request("status"); pollFreeNotice() }
+    Component.onDestruction: {
+        var xhr = noticeRequest
+        noticeRequest = null
+        if (xhr !== null) xhr.abort()
+    }
 }

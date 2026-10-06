@@ -61,7 +61,7 @@ def build(inputs, pyusb, llvm, output=None):
     native = root / 'native-package'; native.mkdir()
     manifest = json.loads((PAYLOAD/'speed-bundle.json').read_text())
     localized={f['source'] for entries in (manifest.get('uiLanguages') or {}).values() for f in entries}
-    for source in {f['source'] for f in manifest['files']} | localized | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-0.4.7.json','previous-bundle-0.4.8.json','previous-bundle-0.4.9.json','previous-bundle-0.4.11.json','previous-bundle-0.4.12.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
+    for source in {f['source'] for f in manifest['files']} | localized | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-0.4.7.json','previous-bundle-0.4.8.json','previous-bundle-0.4.9.json','previous-bundle-0.4.11.json','previous-bundle-0.4.12.json','previous-bundle-0.4.13.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
         shutil.copy2(PAYLOAD / source, native / source)
     shutil.copytree(PAYLOAD/'previous-payloads',native / 'previous-payloads')
     # Generate import libraries with lld-link. Stub DLLs are build artifacts only.

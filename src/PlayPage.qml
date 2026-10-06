@@ -9,7 +9,11 @@ FocusScope {
     objectName: "PlayPageRoot"
     property bool pageActive: false
     property bool freeNoticeVisible: false
-    readonly property bool settingsActive: pageActive && !freeNoticeVisible
+    property bool localNoticeAcknowledged: false
+    readonly property bool freeNoticeRequired: featureController === null ? !localNoticeAcknowledged :
+        featureController.freeNoticeReady && !featureController.freeNoticeSeen && !featureController.freeNoticeAcknowledged
+    readonly property bool settingsActive: pageActive && !freeNoticeVisible &&
+        (featureController === null || featureController.freeNoticeReady || featureController.freeNoticeAcknowledged)
     readonly property bool masterEnabled: featureController !== null && featureController.master
     property var featureController: null
     property bool requestPending: false
@@ -23,13 +27,17 @@ FocusScope {
                                             featureController.statusMessage
     signal backRequested()
 
-    onPageActiveChanged: freeNoticeVisible = pageActive
+    onPageActiveChanged: updateFreeNotice()
+    onFreeNoticeRequiredChanged: updateFreeNotice()
+    function updateFreeNotice() { freeNoticeVisible = pageActive && freeNoticeRequired }
     function focusPage() {
         if (!pageActive) return
         if (freeNoticeVisible) freeNotice.forceActiveFocus()
         else root.forceActiveFocus()
     }
     function dismissFreeNotice() {
+        localNoticeAcknowledged = true
+        if (featureController !== null) featureController.acknowledgeFreeNotice()
         freeNoticeVisible = false
         if (pageActive) root.forceActiveFocus()
     }

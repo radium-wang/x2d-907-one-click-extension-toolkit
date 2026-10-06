@@ -29,8 +29,13 @@ Item {
  property alias loaded:features.loaded
  property alias calls:features.calls
  property alias featureMask:features.featureMask
+ property alias noticeReady:features.freeNoticeReady
+ property alias noticeSeen:features.freeNoticeSeen
+ property alias noticeAcknowledged:features.freeNoticeAcknowledged
  onUiScaleChanged:{Constants.scaleFactor=uiScale;Constants.scaleFactorX=uiScale;Constants.scaleFactorY=uiScale}
  QtObject {id:features;property bool master:true;property int featureMask:7;readonly property bool afcInstalled:(featureMask&1)!==0;readonly property bool speedInstalled:(featureMask&2)!==0;readonly property bool brightnessInstalled:(featureMask&4)!==0;property bool loaded:false;property bool busy:false;property bool ready:true;property bool faulted:false;property bool afcEnabled:false;property string statusMessage:"offline";property int calls:0
+ property bool freeNoticeReady:false;property bool freeNoticeSeen:false;property bool freeNoticeAcknowledged:false
+ function acknowledgeFreeNotice(){freeNoticeAcknowledged=true;freeNoticeSeen=true;return true}
  function setEnabled(value){loaded=value;calls++;return true}}
  X2dPlayPage {anchors.fill:parent;pageActive:true;featureController:features}
  StockMenu.SettingDescription {objectName:"StockDescriptionReference";text:"Reference";isEnabled:features.master;visible:false}
@@ -54,8 +59,11 @@ Item {
   while time.monotonic()<end:app.processEvents();time.sleep(.003)
  for index,(scale,width) in enumerate([(1,1024),(.75,768),(1,620)]):
   root.setProperty('uiScale',scale);root.setProperty('width',width);win.resize(width,768);settle()
-  if index:
-   page.setProperty('pageActive',False);page.setProperty('pageActive',True);settle()
+  page.setProperty('pageActive',False)
+  root.setProperty('noticeReady',False);root.setProperty('noticeSeen',False);root.setProperty('noticeAcknowledged',False)
+  page.setProperty('pageActive',True);settle()
+  assert not notice.isVisible() and not page.property('settingsActive')
+  root.setProperty('noticeReady',True);settle()
   assert notice.isVisible() and not page.property('settingsActive')
   assert message.property('text')==copy[language][0] and buttonText.property('text')==copy[language][1]
   assert not message.property('truncated') and message.property('contentWidth')<=message.width()+.5
@@ -68,6 +76,8 @@ Item {
   point=button.mapToItem(win.contentItem(),QPointF(button.width()/2,button.height()/2))
   QTest.mouseClick(win,Qt.LeftButton,Qt.NoModifier,QPoint(round(point.x()),round(point.y())));settle()
   assert not notice.isVisible() and page.property('settingsActive') and root.property('calls')==before
+  page.setProperty('pageActive',False);page.setProperty('pageActive',True);settle()
+  assert not notice.isVisible() and page.property('settingsActive')
   assert hint.property('font').pixelSize()==ref.property('font').pixelSize()==round(32*scale)
   assert hint.property('opacity')==ref.property('opacity')==.7
   assert not hint.property('truncated')
@@ -77,7 +87,7 @@ Item {
   point=row.mapToItem(win.contentItem(),QPointF(width/2,15))
   QTest.mouseClick(win,Qt.LeftButton,Qt.NoModifier,QPoint(round(point.x()),round(point.y())));settle()
   assert root.property('calls')==index+1,(language,root.property('calls'))
-  reports.append(dict(language=language,width=width,scale=scale,fontPixels=hint.property('font').pixelSize(),lines=hint.property('lineCount'),rowHeight=row.height(),text=hint.property('text'),realSwitchClickPassed=True,noticeText=message.property('text'),noticeButton=buttonText.property('text'),noticeInputBlocked=True,noticeRepeatAndButtonClosePassed=True))
+  reports.append(dict(language=language,width=width,scale=scale,fontPixels=hint.property('font').pixelSize(),lines=hint.property('lineCount'),rowHeight=row.height(),text=hint.property('text'),realSwitchClickPassed=True,noticeText=message.property('text'),noticeButton=buttonText.property('text'),noticeInputBlocked=True,noticeFirstOnlyAndButtonClosePassed=True))
  win.grabWindow().save(str(out/'enabled.png'))
  root.setProperty('master',False);settle();assert hint.property('opacity')==ref.property('opacity')
  point=row.mapToItem(win.contentItem(),QPointF(310,15));before=root.property('calls')

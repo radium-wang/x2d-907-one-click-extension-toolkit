@@ -228,16 +228,12 @@ Window {
     assert window.property('playShowing')
     assert len(window.property('clicks').toVariant()) == 11
     QTest.keyClick(window, Qt.Key_Escape)
-    assert window.property('playShowing')
-    assert not page.property('freeNoticeVisible')
-    QTest.keyClick(window, Qt.Key_Escape)
     assert not window.property('playShowing')
+    assert not page.property('freeNoticeVisible')
     for _ in range(100):
         window.go('x2dPlayUi', '', False, False)
         assert window.property('playShowing')
-        assert page.property('freeNoticeVisible')
-        window.back()
-        assert window.property('playShowing') and not page.property('freeNoticeVisible')
+        assert not page.property('freeNoticeVisible')
         window.back()
         assert not window.property('playShowing')
         assert getCppPointer(page)[0] == address

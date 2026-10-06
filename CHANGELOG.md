@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.14](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.14) — 2026-10-06
+
+- Show the free-project notice only until its first acknowledgement. Store the fixed camera preference independently of feature switches and retain it across GUI/camera restart and routine upgrades; keep all three languages and block settings until the initial preference read completes.
+- Add a read-only stock DebugMode/EyeDetection diagnostic to Connected on Mac and Windows. Audit 0.4.8 source and exact saved payloads: no eye/debug option writes or new eye-tracking runtime. The reporting camera’s cause remains unconfirmed without its current flags and a stock-mode comparison.
+- Preserve the exact 0.4.13 manifest and all language bytes for upgrade/restoration of every feature selection.
+- Publish Mac universal and Windows x64 packages. All 212 offline tests pass with local payloads; clean source passes 180 and skips 32. Nine Qt notice layouts and three-language real-XHR/C-marker checks pass, including delayed reads, failed-write retry, fresh-engine persistence and 100 entries per language. Menu/brightness checks, native Mac launch, 76 Mach-O / 38 PE audits, archive/recovery hashes and updater extraction checks pass. Camera installation/restart behavior and native Windows execution remain pending.
+
 ## [0.4.13](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.13) — 2026-10-06
 
 - Show the free-project notice every time the Tweaks menu opens. The confirmation button dismisses the notice and keeps the menu open; the notice blocks underlying settings input. Include Simplified Chinese, Traditional Chinese and English copy.
@@ -157,6 +164,13 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## [0.4.14](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.14) — 2026-10-06
+
+- 免费提示改为首次确认后不再显示，记录保存在相机端，与功能开关独立；重启及常规更新后保留，三种语言同步更新，首次读取记录期间阻止设置操作。
+- Mac、Windows 的“已连接”增加原厂 DebugMode／EyeDetection 只读检查。核对 0.4.8 源码及已保存的精确载荷，没有人眼调试写入或新增人眼跟随对焦运行库；用户眼框来源仍需反馈相机的状态和原厂模式对比确认。
+- 保留 0.4.13 精确清单及三种语言旧字节，支持全部功能选择的升级与恢复。
+- 发布 Mac 通用及 Windows x64 安装包。212 项带本地载荷的离线测试通过；纯源码通过 180 项、跳过 32 项。九种 Qt 弹窗布局及三语言真实 XHR／C 记录检查通过，覆盖延迟读取、写入失败重试、重建界面后的持久记录和每种语言 100 次重进；菜单／亮度检查、Mac 原生启动、76 个 Mach-O／38 个 PE 审计、安装包／恢复字节及更新解压检查通过。相机安装重启行为与 Windows 原生运行仍待验证。
 
 ## [0.4.13](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.13) — 2026-10-06
 

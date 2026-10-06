@@ -34,6 +34,9 @@ Item {
  onToggleTriggerChanged: lastResult=page.requestBrightnessToggle()
  property alias master: features.master
  QtObject { id: features; property bool master: false; property bool loaded: false; property bool busy: false;
+  property bool freeNoticeReady:true;property bool freeNoticeSeen:true;property bool freeNoticeAcknowledged:true;
+  readonly property bool brightnessInstalled:true
+  readonly property bool afcInstalled:true;readonly property bool speedInstalled:true
   property bool ready: false; property bool faulted: true; property bool afcEnabled: false; property string statusMessage: "offline" }
  PlayPage {id: page; anchors.fill:parent; pageActive:true; featureController: features}
 }'''

@@ -385,5 +385,8 @@
   "安装已校验。请在相机菜单中开启已安装的功能。": "Installation verified. Enable the installed features in the camera menu.",
   "操作已完成，可以拔掉相机的 USB 数据线。请在相机主菜单末尾进入“耍起功能”，先开启总开关，再开启已安装的功能。": "Operation complete. You can unplug the camera USB cable. Open Tweaks at the end of the main menu, enable its master switch, then enable the installed features.",
   "在相机菜单中开启已安装的功能。": "Enable the installed features in the camera menu.",
-  "尚未选择功能": "No features selected"
+  "尚未选择功能": "No features selected",
+  "检测到原厂人眼调试选项已开启；眼部框不代表跟随对焦。本工具不会开启或清除该选项。": "The stock eye-detection debug option is enabled. Eye boxes do not establish tracking autofocus. This toolkit does not enable or clear this option.",
+  "当前原厂人眼调试选项未开启；眼部框来源仍需结合相机状态判断。": "The stock eye-detection debug option is currently off. The source of any eye boxes still needs camera-state verification.",
+  "原厂人眼调试状态暂无法读取，尚不能判断眼部框来源。": "The stock eye-detection debug state could not be read. The source of eye boxes is still unconfirmed."
 }
