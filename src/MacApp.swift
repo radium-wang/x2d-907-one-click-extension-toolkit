@@ -204,10 +204,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         featureBox.contentViewMargins = .zero
         let featureList = NSStackView(views: [
             featureRow("viewfinder", "AF-C 连续自动对焦", "在相机上开启连续自动对焦"),
-            featureRow("bolt", "对焦加速", "加快对焦扫描，关闭后恢复原厂速度"),
+            featureRow("bolt", "对焦加速", "对焦加速通过将镜头转速提高三倍实现，可安装，但不建议老镜头用户在相机内开启该功能。"),
             featureRow("sun.max", "后屏自动亮度", "根据环境光调节后屏亮度，可设置最高亮度")
         ])
         featureList.orientation = .vertical; featureList.spacing = 12; featureList.alignment = .leading
+        for row in featureList.arrangedSubviews {
+            row.widthAnchor.constraint(equalTo: featureList.widthAnchor).isActive = true
+        }
         featureList.translatesAutoresizingMaskIntoConstraints = false
         featureBox.contentView!.addSubview(featureList)
         NSLayoutConstraint.activate([
@@ -218,7 +221,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         ])
         root.addArrangedSubview(featureBox)
         featureBox.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -56).isActive = true
-        featureBox.heightAnchor.constraint(equalToConstant: 166).isActive = true
+        featureBox.heightAnchor.constraint(equalToConstant: 214).isActive = true
         prankCheckbox.isEnabled = false
         prankCheckbox.state = .off
         root.addArrangedSubview(prankCheckbox)
@@ -238,12 +241,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         install.action = #selector(installClicked); restore.action = #selector(restoreClicked); refresh.action = #selector(refreshClicked)
         refresh.keyEquivalent = "\r"
         root.addArrangedSubview(buttons)
-        let warning = NSTextField(wrappingLabelWithString: "对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。")
-        localize(warning)
-        warning.font = .systemFont(ofSize: 13, weight: .semibold)
-        warning.textColor = .systemOrange
-        root.addArrangedSubview(warning)
-        warning.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -56).isActive = true
         let note = NSTextField(wrappingLabelWithString: "安装会自动保存原厂配置，并重启相机完成校验。恢复会撤回本应用的菜单与功能。请等待操作完成再拔线。")
         localize(note)
         note.font = .systemFont(ofSize: 12); note.textColor = .secondaryLabelColor
@@ -287,13 +284,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let name = NSTextField(labelWithString: title)
         localize(name)
         name.font = .systemFont(ofSize: 14, weight: .semibold)
-        let caption = NSTextField(labelWithString: description)
+        let caption = NSTextField(wrappingLabelWithString: description)
         localize(caption)
-        caption.font = .systemFont(ofSize: 12); caption.textColor = .secondaryLabelColor
+        caption.font = .systemFont(ofSize: 12); caption.textColor = symbol == "bolt" ? .systemOrange : .secondaryLabelColor
         let text = NSStackView(views: [name, caption])
         text.orientation = .vertical; text.alignment = .leading; text.spacing = 3
+        caption.widthAnchor.constraint(equalTo: text.widthAnchor).isActive = true
         let row = NSStackView(views: [icon, text])
-        row.orientation = .horizontal; row.alignment = .top; row.spacing = 12
+        row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
         return row
     }
 

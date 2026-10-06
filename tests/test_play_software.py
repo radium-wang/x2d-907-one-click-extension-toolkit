@@ -27,11 +27,11 @@ class SoftwareTests(unittest.TestCase):
 
     def test_stock_connection_check_rejects_unknown_init(self):
         with patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'verify_target'),patch.object(app,'shell',side_effect=['NO','unknown hash']),patch.object(app,'event'):
-            with self.assertRaisesRegex(RuntimeError,'启动配置不是'):
+            with self.assertRaisesRegex(RuntimeError,'非原厂'):
                 app.status()
 
     def test_broken_service_does_not_block_usb_recovery(self):
-        with patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'verify_target') as verify,patch.object(app,'shell',return_value='YES'),patch.object(app,'read_bytes',return_value=b'INSTALLED'),patch.object(app,'backend',side_effect=RuntimeError('unavailable')),patch.object(app,'event') as event:
+        with patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'verify_target') as verify,patch.object(app,'shell',return_value='YES'),patch.object(app,'read_bytes',return_value=b'INSTALLED'),patch.object(app,'verify_installed_integrity'),patch.object(app,'backend',side_effect=RuntimeError('unavailable')),patch.object(app,'event') as event:
             app.status()
             self.assertEqual(verify.call_count,2)
             args=event.call_args.kwargs
@@ -152,7 +152,7 @@ class SoftwareTests(unittest.TestCase):
         calls=unittest.mock.Mock()
         with patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'verify_target'),patch.object(app,'shell',return_value='YES'), \
              patch.object(app,'read_bytes',side_effect=data),patch.object(app,'event') as events, \
-             patch.object(app,'confirm_reinstall',return_value=True),patch.object(app,'restore') as restore,patch.object(app,'install') as install:
+             patch.object(app,'verify_installed_integrity'),patch.object(app,'confirm_reinstall',return_value=True),patch.object(app,'restore') as restore,patch.object(app,'install') as install:
             calls.attach_mock(restore,'restore');calls.attach_mock(install,'install')
             entry()
             self.assertEqual(calls.mock_calls,[unittest.mock.call.restore(True,report_result=False),unittest.mock.call.install(True,False,'zh')])
@@ -163,13 +163,13 @@ class SoftwareTests(unittest.TestCase):
         entry=app.install;previous=json.loads((app.O/'previous-bundle.json').read_bytes())
         with patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'verify_target'),patch.object(app,'shell',return_value='YES'), \
              patch.object(app,'read_bytes',side_effect=[b'INSTALLED',json.dumps(previous).encode()]), \
-             patch.object(app,'event'),patch.object(app,'confirm_reinstall',return_value=True),patch.object(app,'restore',side_effect=RuntimeError('恢复未完成')), \
+             patch.object(app,'event'),patch.object(app,'verify_installed_integrity'),patch.object(app,'confirm_reinstall',return_value=True),patch.object(app,'restore',side_effect=RuntimeError('恢复未完成')), \
              patch.object(app,'install') as install:
             with self.assertRaisesRegex(RuntimeError,'恢复未完成'): entry()
             install.assert_not_called()
 
     def test_internal_restore_never_reports_completion_to_desktop(self):
-        with patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'verify_target'),patch.object(app,'prepare',return_value={'autoBrightness':True}),patch.object(app,'shell',side_effect=['NO',app.STOCK_RC+' file',app.DISPLAY_STOCK_RC+' file']), \
+        with patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'verify_target'),patch.object(app,'verify_stock_installation'),patch.object(app,'prepare',return_value={'autoBrightness':True}),patch.object(app,'shell',side_effect=['NO',app.STOCK_RC+' file',app.DISPLAY_STOCK_RC+' file']), \
              patch.object(app,'event') as events:
             app.restore(report_result=False)
         self.assertFalse(any(call.args[0]=='result' for call in events.call_args_list))

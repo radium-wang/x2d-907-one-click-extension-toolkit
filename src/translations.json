@@ -354,5 +354,9 @@
   "操作已完成，可以拔掉相机的 USB 数据线。请在相机主菜单末尾进入“耍起功能”，先开启总开关，再选择 AF-C 或对焦加速。": "Operation complete. You may disconnect the USB cable. Open Tweaks at the end of the camera's main menu, turn on the master switch, then enable AF-C or the focus buff.",
   "主菜单末尾进入耍起功能。总开关控制 AF-C、对焦加速和后屏自动亮度。": "Open Tweaks at the end of the camera menu. The master switch controls AF-C, focus boost and auto rear screen brightness.",
   "操作已完成，可以拔掉相机的 USB 数据线。请在相机主菜单末尾进入“耍起功能”，先开启总开关，再选择 AF-C、对焦加速或后屏自动亮度。": "Operation complete. You may disconnect the USB cable. Open Tweaks at the end of the camera menu, turn on the master switch, then select AF-C, focus boost or auto rear screen brightness.",
-  "对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。": "Focus acceleration works by tripling lens motor speed. Not recommended for older lenses."
+  "对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。": "Focus acceleration works by tripling lens motor speed. Not recommended for older lenses.",
+  "检测到非原厂或无法识别的修改，已停止操作。请先使用原修改工具恢复原厂 4.2.0，再重新检查；本应用不会覆盖未知修改。": "Detected non-stock or unrecognized modifications. Operation stopped. Restore stock 4.2.0 with the original modification tool, then check again. This application will not overwrite unknown modifications.",
+  "正在核验原厂界面、对焦与显示文件及安装记录": "Verifying stock UI, focus and display files and installation records",
+  "相机存在其他版本，请先用对应版本恢复原状。": "Another version is present. Restore it with its matching tool first. ",
+  "对焦加速通过将镜头转速提高三倍实现，可安装，但不建议老镜头用户在相机内开启该功能。": "Focus acceleration triples lens motor speed. It can be installed, but users of older lenses are advised not to enable this feature in the camera."
 }

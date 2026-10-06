@@ -22,6 +22,8 @@ PREVIOUS_047_SHA = 'cb510721aabea62d35220a9e60aed23569195fdd1defab2a5c5f57a897c5
 PREVIOUS_048_SHA = '70048064578e9cda6aed02934157769991ff8e1b2a353bfd54ca6310c9ee4a70'
 STOCK_RC = '1d6a8f9e41e269be38b3fb9ba53f4c47d18007f413c90893fdfa9d7542d1f688'
 STOCK_GUI = '16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0'
+STOCK_SERVICE_RC = '2aa2c06efcc2d7fac690f7fe5db324e12f02748fb7d368ee5f726c3d5b24f2a9'
+NONSTOCK_GUIDANCE = '检测到非原厂或无法识别的修改，已停止操作。请先使用原修改工具恢复原厂 4.2.0，再重新检查；本应用不会覆盖未知修改。'
 # Public packages use the existing preload route under the stock policy.
 # Keep this exact: a broad /system/etc prefix would also admit policy files.
 PUBLIC_PAYLOAD_TARGETS = frozenset({
@@ -359,13 +361,62 @@ def verify_target():
     for path, expected in {
         '/system/lib64/libaaa.so': 'feef8a8dc3a27395e47232c2b25a5da7a7ab335922fbb527e637c439e35bcec7',
         '/system/bin/camera-service': 'fbcf828f73bca13f0c8b95e7dd0b95ac483ae36954ec06179098c8a1a65f9f82',
+        '/system/lib64/librcam.so': '72ebc8deebce4a29047c475e77ab4edbf2860abb1f572fea45260fe17ad0bda5',
+        '/system/bin/camera-system': DISPLAY_SYSTEM_SHA,
+        '/system/etc/init/camera-service.rc': STOCK_SERVICE_RC,
     }.items():
-        if shell('sha256sum ' + path).split()[0] != expected:
-            raise RuntimeError('相机关键文件不属于本版共用的 4.2.0 系统，检查未通过')
+        verify_file(path, expected)
     mount = shell("awk '$2==\"/system\"{print $1,$3,$4}' /proc/mounts")
     if not re.fullmatch(r'/dev/block/mmcblk0p1[67] ext4 ro,.*', mount):
         raise RuntimeError('系统挂载状态不符合安装要求')
     return mount
+
+
+def verify_file(path, expected):
+    # Reject missing files and symlinks, including links to matching stock bytes.
+    result = shell('test ! -L ' + path + ' && sha256sum ' + path + ' || echo INTEGRITY_MISMATCH').split()
+    if not result or result[0] != expected:
+        raise RuntimeError(path + ': ' + NONSTOCK_GUIDANCE)
+
+
+def verify_stock_installation():
+    """Check unowned configurations and orphan payloads before ADB or upload."""
+    verify_file(RC, STOCK_RC)
+    verify_file(DISPLAY_RC, DISPLAY_STOCK_RC)
+    for path in sorted(PUBLIC_PAYLOAD_TARGETS):
+        if shell(f'if [ -e {path} ] || [ -L {path} ]; then echo PRESENT; else echo ABSENT; fi') != 'ABSENT':
+            raise RuntimeError(path + ': ' + NONSTOCK_GUIDANCE)
+
+
+def verify_installed_integrity(manifest=None):
+    """A service/receipt is not proof that the on-disk install is ours."""
+    manifest = manifest if manifest is not None else json.loads(read_bytes(ROOT + '/manifest'))
+    if not recognized_bundle(manifest):
+        raise RuntimeError(NONSTOCK_GUIDANCE)
+    stock = read_bytes(ROOT + '/stockrc')
+    if sha(stock) != STOCK_RC:
+        raise RuntimeError(ROOT + '/stockrc: ' + NONSTOCK_GUIDANCE)
+    expected_rc = init_config(stock)
+    if manifest.get('initBefore') != STOCK_RC or manifest.get('initAfter') != sha(expected_rc):
+        raise RuntimeError(NONSTOCK_GUIDANCE)
+    verify_file(RC, sha(expected_rc))
+    display_hash = DISPLAY_STOCK_RC
+    if manifest.get('autoBrightness'):
+        stock_display = read_bytes(ROOT + '/stockdisplayrc')
+        if sha(stock_display) != DISPLAY_STOCK_RC:
+            raise RuntimeError(ROOT + '/stockdisplayrc: ' + NONSTOCK_GUIDANCE)
+        display = init_display_config(stock_display)
+        display_hash = sha(display)
+        if manifest.get('displayInitBefore') != DISPLAY_STOCK_RC or manifest.get('displayInitAfter') != display_hash:
+            raise RuntimeError(NONSTOCK_GUIDANCE)
+    verify_file(DISPLAY_RC, display_hash)
+    targets = {entry['target'] for entry in manifest['files']}
+    ledger = read_bytes(ROOT + '/created').decode().split()
+    if len(ledger) != len(set(ledger)) or set(ledger) != targets:
+        raise RuntimeError(NONSTOCK_GUIDANCE)
+    for entry in manifest['files']:
+        verify_file(entry['target'], entry['sha256'])
+    return manifest
 
 
 def camera_model():
@@ -617,6 +668,7 @@ def install(reboot=True, prank_ibis=False, language='zh'):
         if installed['files'] == m['files'] and installed.get('autoBrightness') != m.get('autoBrightness'):
             raise RuntimeError('自动亮度安装包校验失败')
         if installed['files'] == m['files'] and bool(installed.get('prankIbis', False)) == prank_ibis:
+            verify_installed_integrity(installed)
             state = backend('status')
             if not state['ready']: raise RuntimeError('已安装的服务未就绪，请先恢复原状')
             if shell('cat /tmp/x2d-native-menu-ui.ready 2>/dev/null || echo MENU_PENDING') not in ('MENU_ENTRY_READY_11','MENU_ENTRY_READY_12'):
@@ -627,13 +679,15 @@ def install(reboot=True, prank_ibis=False, language='zh'):
             event('result', success=True, installed=True, state=state, message='当前版本已经安装')
             return
         if recognized_bundle(installed):
+            verify_installed_integrity(installed)
             if not confirm_reinstall(language):
                 event('cancelled', message='已取消重新安装，相机未被修改。')
                 return
             event('progress', message='检测到已知旧版，将先恢复原状再安装修正版；升级后请重新开启功能', percent=5)
             restore(True, report_result=False)
             return install(reboot, prank_ibis, language)
-        raise RuntimeError('相机存在其他版本，请先用对应版本恢复原状')
+        raise RuntimeError('相机存在其他版本，请先用对应版本恢复原状。' + NONSTOCK_GUIDANCE)
+    verify_stock_installation()
     raw = read_bytes(RC)
     rc = init_config(raw)
     display = bool(m.get('autoBrightness'))
@@ -706,14 +760,19 @@ mkdir -p /system/etc/x2d-speed-buff
 
 
 def status():
+    event('progress', message='正在核验原厂界面、对焦与显示文件及安装记录', percent=5)
     verify_target()
     model = camera_model()
     installed = shell(f'test -e {ROOT}/installed && echo YES || echo NO') == 'YES'
-    if installed and read_bytes(ROOT + '/installed').decode().strip() != 'INSTALLED':
+    phase = read_bytes(ROOT + '/installed').decode().strip() if installed else None
+    if installed and phase != 'INSTALLED':
+        if phase not in ('PREPARED', 'RESTORING') or not recognized_bundle(json.loads(read_bytes(ROOT + '/manifest'))):
+            raise RuntimeError(NONSTOCK_GUIDANCE)
         event('status', connected=True, model=model, installed=True, recovery=True, firmware='4.2.0',
               message='上次操作未完成，请点击恢复原状')
         return
     if installed:
+        verify_installed_integrity()
         try:
             state = backend('status')
             if not state.get('ready'): raise RuntimeError('功能服务未就绪')
@@ -730,8 +789,7 @@ def status():
                   hint='请在相机点击“跳过”并打开主菜单，再点击“已连接”重试；仍未通过时可恢复原状。')
             return
     else:
-        if shell('sha256sum ' + RC).split()[0] != STOCK_RC:
-            raise RuntimeError('相机启动配置不是本版原厂状态，安装检查未通过')
+        verify_stock_installation()
         state = dict(ready=True, active=False, afc=False, master=False)
     event('status', connected=True, model=model, installed=installed, firmware='4.2.0', state=state,
           message='已安装耍起功能' if installed else '相机就绪，原厂状态')
@@ -741,10 +799,7 @@ def restore(reboot=True, report_result=True):
     event('progress', message='正在检查恢复备份', percent=5)
     verify_target()
     if shell(f'test -e {ROOT}/installed && echo YES || echo NO') == 'NO':
-        if shell('sha256sum ' + RC).split()[0] != STOCK_RC:
-            raise RuntimeError('没有本软件安装记录，且启动配置不是原厂；拒绝覆盖')
-        if prepare().get('autoBrightness') and shell('sha256sum ' + DISPLAY_RC).split()[0] != DISPLAY_STOCK_RC:
-            raise RuntimeError('原厂屏幕启动配置校验失败')
+        verify_stock_installation()
         if report_result:
             event('result', success=True, installed=False, message='相机已经是原厂状态')
         else:
@@ -876,6 +931,8 @@ def user_error(error):
     if isinstance(error, json.JSONDecodeError):
         return '相机返回的状态未通过校验，请保持连接并重新检查'
     if isinstance(error, usb.UsbFactoryError):
+        if message.startswith('unknown /system/bin/camera-gui'):
+            return '/system/bin/camera-gui: ' + NONSTOCK_GUIDANCE
         if message.startswith('Windows 工厂接口'):
             return message
         if error.__cause__ is not None and str(error.__cause__).startswith('Windows 工厂接口'):

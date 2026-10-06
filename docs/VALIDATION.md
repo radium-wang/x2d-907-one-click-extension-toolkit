@@ -1,5 +1,17 @@
 # Validation boundaries — 0.4.9
 
+## Unreleased camera integrity checks and desktop guidance
+
+The source suite runs 195 tests: 167 pass and 28 skip because exact generated payload bytes are absent. Eleven new tests exercise read-only preflight with substituted factory USB/file responses. A modified stock GUI, changed focus/display binaries or startup configuration, orphan extension targets, altered installed payloads despite a ready service/menu receipt, missing files, symlinks, duplicate ledgers and unknown transaction state all stop without ADB setup, upload, restoration or reboot. A stock fixture passes, and a recognized current-install fixture passes exact file checks. Existing interrupted recovery and transaction rollback checks remain separate.
+
+The shared backend is used by both desktop platforms. It checks the pinned GUI, camera-service, camera-system, libaaa, librcam and camera-service startup file, then the applicable GUI/display startup configurations and the installation's exact known files. The camera-service startup digest was checked against the locally extracted stock 4.2.0 configuration. A service response or menu receipt alone no longer establishes installation integrity. A GUI hash mismatch now produces explicit non-stock recovery guidance instead of a generic USB error.
+
+These checks establish the specified files' compatibility, not that every firmware file or every byte of live process memory is stock. They do not inspect the physical display or infer the current AF mode from a screenshot. Arbitrary runtime injection and modifications outside the checked files are not covered. A read-only device status attempt did not complete factory communication; the connected camera's state remains unverified. No camera files or settings were changed, and no camera was restarted.
+
+Mac ARM64 source compilation passes. The orange acceleration description is inside the feature row in both desktop sources; Windows shared-layout checks cover its bounds and color. Native Windows rendering and the expanded checks on X2D/CFV hardware still require validation. Feature-selection installation remains a separate proposed UI change; these checks do not claim that the selectable demo is an implemented installer. Published 0.4.9 packages have not been rebuilt or replaced.
+
+源码离线测试共 195 项：167 项通过、28 项因缺少精确载荷跳过。新增 11 项检查使用模拟的 USB／文件响应，验证非原厂文件、残留扩展、被改动的已安装文件、缺失文件、符号链接、重复记录及未知事务状态会在写入前被拦截。当前仅核验上述指定文件，不能据此证明整个固件或全部运行内存均为原厂，也不能代替相机屏幕与当前对焦模式检查。只读实机检查未完成通信，当前相机状态尚未核实；没有安装、恢复、改变相机设置或重启。Mac 源码编译通过，Windows 原生显示及新增检查的实机验证仍待完成，已发布安装包不变。
+
 ## Focus popup and liveview mode icons (0.4.9)
 
 184 offline tests pass with the locally generated payload. The real native preload transaction is run against substituted memory and Qt resource APIs: success, each of seven partial-write rollbacks, stock mismatch, disable/retry markers, missing resource APIs, resource registration failure and memory-open failure are covered. Unknown file opens fail the harness. Public manifest tests reject policy files, vendor/raw partition targets and stock GUI replacement in the base payload and both language overlays, before payload file access and without USB access. Exact published 0.4.8 manifests and all per-language bytes remain recognized and recoverable.

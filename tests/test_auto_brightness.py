@@ -22,6 +22,10 @@ class BrightnessTests(unittest.TestCase):
     def install_script(self,foreign_system=False):
         def shell(cmd):
             if cmd.startswith('test -e '):return 'NO'
+            if cmd.startswith('if [ -e '):return 'ABSENT'
+            if cmd.startswith('test ! -L ') and 'sha256sum' in cmd:
+                path=cmd.split(' && sha256sum ')[1].split(' || ')[0]
+                return (app.STOCK_RC if path==app.RC else app.DISPLAY_STOCK_RC)+' file'
             if cmd=='sha256sum /system/bin/camera-system':return ('foreign' if foreign_system else app.DISPLAY_SYSTEM_SHA)+' file'
             if 'echo SAFE' in cmd:return 'SAFE'
             if cmd.startswith('tar '):return ''

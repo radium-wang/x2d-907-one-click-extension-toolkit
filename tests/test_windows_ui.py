@@ -97,7 +97,8 @@ class LayoutTests(unittest.TestCase):
         for label,caption in (('afc','afcdescription'),('buff','buffdescription'),('brightness','brightnessdescription')):
             self.assertLessEqual(layout[label][1]+layout[label][3],layout[caption][1])
         self.assertLess(layout['progress'][1],layout['statusbutton'][1])
-        self.assertLess(layout['warning'][1]+layout['warning'][3],layout['note'][1])
+        self.assertLess(layout['buffdescription'][1]+layout['buffdescription'][3],layout['brightness'][1])
+        self.assertEqual(ui.text_style('buffdescription')[2],ui.COLORS['orange'])
 
     def test_short_monitor_scroll_and_keyboard_focus_keep_actions_reachable(self):
         viewport=ui.Viewport(560)

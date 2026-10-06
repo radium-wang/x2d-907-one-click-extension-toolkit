@@ -17,7 +17,7 @@ COLORS = dict(background='#ffffff', text='#252525', secondary='#808080',
 def text_style(key, language='zh'):
     if key=='title':return (19 if language=='en' else 22), True, COLORS['text']
     if key=='state':return 16,True,COLORS['text']
-    if key=='warning':return 13,True,COLORS['orange']
+    if key=='buffdescription':return 12,False,COLORS['orange']
     if key in ('afc','buff','brightness'):return 14,True,COLORS['text']
     if key=='subtitle':return 14,False,COLORS['secondary']
     if key in ('detail','note','updatesdescription') or key.endswith('description'):return 12,False,COLORS['secondary']
@@ -29,14 +29,14 @@ def main_layout(width=WIDTH):
     inner = width - 56
     return dict(
         title=(28, 28, inner-90, 34), settingsbutton=(width-102, 30, 74, 28),
-        subtitle=(28, 69, inner, 22), box=(28, 102, inner, 166),
+        subtitle=(28, 69, inner, 22), box=(28, 102, inner, 214),
         afc=(77, 117, inner-64, 21), afcdescription=(77, 140, inner-64, 20),
-        buff=(77, 165, inner-64, 21), buffdescription=(77, 188, inner-64, 20),
-        brightness=(77, 213, inner-64, 21), brightnessdescription=(77, 236, inner-64, 20),
-        prank=(28, 280, inner, 26), state=(28, 322, inner, 27),
-        detail=(28, 361, inner, 54), progress=(28, 427, inner, 6),
-        statusbutton=(28, 451, 106, 32), installbutton=(146, 451, 118, 32),
-        restorebutton=(276, 451, 156, 32), warning=(28, 500, inner, 44),
+        buff=(77, 165, inner-64, 21), buffdescription=(77, 188, inner-64, 60),
+        brightness=(77, 261, inner-64, 21), brightnessdescription=(77, 284, inner-64, 20),
+        prank=(28, 328, inner, 26), state=(28, 370, inner, 27),
+        detail=(28, 409, inner, 54), progress=(28, 475, inner, 6),
+        statusbutton=(28, 499, 106, 32), installbutton=(146, 499, 118, 32),
+        restorebutton=(276, 499, 156, 32),
         note=(28, 556, inner, 52), logs=(29, 626, inner-2, HEIGHT-651))
 
 
@@ -72,8 +72,10 @@ def decorations(width=WIDTH, offset=0):
     layout = main_layout(width)
     x,y,w,h = layout['box']
     result = [('round', (x,y-offset,w,h,10), '#ffffff', COLORS['border'])]
-    for index, kind in enumerate(('focus','bolt','sun')):
-        result.append(('icon', (43,120+48*index-offset,18,18,kind), COLORS['secondary'], None))
+    for kind, title, caption in (('focus','afc','afcdescription'),('bolt','buff','buffdescription'),('sun','brightness','brightnessdescription')):
+        top = layout[title][1]
+        bottom = layout[caption][1] + layout[caption][3]
+        result.append(('icon', (43,round((top+bottom-18)/2)-offset,18,18,kind), COLORS['secondary'], None))
     x,y,w,h = layout['logs']
     result.append(('round', (x-1,y-1-offset,w+2,h+2,5), '#ffffff', COLORS['border']))
     return result

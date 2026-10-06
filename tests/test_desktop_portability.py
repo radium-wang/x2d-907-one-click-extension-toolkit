@@ -43,7 +43,7 @@ class DesktopTests(unittest.TestCase):
         with patch.object(app, 'reader', return_value=MagicMock()), \
              patch.object(app.usb, 'validate_factory_gui_target'), \
              patch.object(app, 'shell', return_value='0'*64+' /system/lib64/libaaa.so'):
-            with self.assertRaisesRegex(RuntimeError, '关键文件'):
+            with self.assertRaisesRegex(RuntimeError, '非原厂'):
                 app.verify_target()
 
     @requires_payloads

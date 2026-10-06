@@ -23,6 +23,8 @@ class ReinstallConfirmationTests(unittest.TestCase):
         with ExitStack() as stack:
             stack.enter_context(patch.object(app, 'prepare', return_value=package))
             stack.enter_context(patch.object(app, 'verify_target'))
+            stack.enter_context(patch.object(app, 'verify_installed_integrity'))
+            stack.enter_context(patch.object(app, 'verify_stock_installation'))
             stack.enter_context(patch.object(app, 'INTERACTIVE_CONFIRMATION', True))
             stack.enter_context(patch.object(app, 'REINSTALL_CONFIRMED', False))
             stack.enter_context(patch.object(app.sys, 'stdin', io.StringIO(response)))

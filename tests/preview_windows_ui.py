@@ -91,7 +91,7 @@ def render(path,language='zh',scale=2,height=HEIGHT,offset=0,connected=False,set
                 text(value,(x+6,y,w-12,h),14,color,key=='statusbutton',center=True)
         else:
             size,bold,color=text_style(key,language)
-            text(value,(x,y,w,h),size,color,bold,wrap=key in ('detail','note','warning','updatesdescription'))
+            text(value,(x,y,w,h),size,color,bold,wrap=key in ('detail','note','buffdescription','updatesdescription'))
     painter.end();image.save(str(path))
     return dict(page='settings' if settings else 'main',language=language,scale=scale,height=height,offset=offset,issues=issues)
 
