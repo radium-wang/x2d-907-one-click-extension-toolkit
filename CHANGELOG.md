@@ -1,5 +1,11 @@
 # Changelog
 
+## Documentation update — 2026-10-06
+
+- Highlight latest toolkit downloads and voluntary PayPal / Alipay support at the top of the README, matching the research repository. Preserve platform download links, setup instructions and validation limits. Published application archives are unchanged.
+- 在 README 顶部突出最新版下载及 PayPal／支付宝自愿赞助入口，与研究仓库保持一致。保留平台下载链接、使用说明和验证范围，已发布安装包不变。
+
+
 ## [0.4.9](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.9) — 2026-10-06
 
 - Port the reviewed focus popup and liveview mode icons into the existing App preload route. Use the second-generation focus icons, popup frame size and spacing while retaining first-generation fonts and borders. The popup adapts to AF-S/MF or AF-S/AF-C/MF according to the AF-C availability switch; installing or enabling the extension does not select AF-C.

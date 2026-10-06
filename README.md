@@ -1,5 +1,24 @@
 # X2D/907 One-Click Extension Toolkit
 
+## 一键工具包 · 下载 / One-click toolkit
+
+**[下载 Windows / macOS 最新版 →](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/latest)**
+
+[![Download toolkit](https://img.shields.io/badge/Download-Windows%20%2F%20macOS-0969da?style=for-the-badge)](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/latest)
+
+[平台下载及更新说明 / Downloads & release notes](#download--下载软件) · [中文使用说明](#中文说明) · [English setup](#getting-started)
+
+## 赞助开发 / Support development
+
+**[PayPal 赞助 →](https://paypal.me/RadiumWang) · [支付宝收款码 →](#support-development)**
+
+[![Support via PayPal](https://img.shields.io/badge/Support-PayPal-0070ba?style=for-the-badge)](https://paypal.me/RadiumWang)
+
+赞助完全自愿，用于支持持续研究、工具开发和维护；获取工具与使用功能不以付款为条件。 Donations are voluntary and support ongoing research, development and maintenance.
+
+---
+
+
 **X2D/907 One-Click Extension Toolkit (x2d/907一键扩展功能-工具包)** is an experimental macOS and Windows utility for the first-generation **X2D 100C** and **907X & CFV 100C**, targeting stock firmware **4.2.0**.
 
 Camera menu text follows the app language at install time: English installs **Tweaks**; Simplified and Traditional Chinese install **耍起功能** with their respective feature labels and messages.
