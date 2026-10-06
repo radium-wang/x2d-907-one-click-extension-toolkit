@@ -27,16 +27,16 @@ Camera menu text follows the app language at install time: English installs **Tw
 
 ## Download / 下载软件
 
-**Latest version: 0.4.11 / 最新版本：0.4.11**
+**Latest version: 0.4.12 / 最新版本：0.4.12**
 
-- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.11/x2d-907-extension-toolkit-Windows-x64-0.4.11.zip)
-- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.11/x2d-907-extension-toolkit-macOS-Universal-0.4.11.zip)
+- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/x2d-907-extension-toolkit-Windows-x64-0.4.12.zip)
+- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/x2d-907-extension-toolkit-macOS-Universal-0.4.12.zip)
 
-Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.11) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.11/SHA256SUMS)
+Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.12) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/SHA256SUMS)
 
-Version 0.4.11 implements the confirmed Mac/Windows layout with a left log card, independent feature choices and an installation summary. It adds guarded lookup for the stock Qt resource functions behind the reported `FOCUS_RESOURCE_API_MISSING` menu-loading failure, and preserves the 0.4.9/0.4.10 recovery files. The corrected camera preload still needs physical device validation. See [release notes](CHANGELOG.md).
+Version 0.4.12 fixes focus UI state: when either Tweaks or AF-C is off, the stock popup and icons remain. With both enabled, control-screen, liveview and popup icons follow AF-S/AF-C/MF together. It retains the Mac/Windows design and all 0.4.11 feature-selection recovery records. Offline and Qt regressions pass; physical camera validation remains pending. See [release notes](CHANGELOG.md).
 
-0.4.11 正式采用已确认的 Mac／Windows 界面：左侧日志、独立勾选功能、安装摘要及统一圆角控件。针对 `FOCUS_RESOURCE_API_MISSING` 导致的菜单加载失败，补上原厂 Qt 资源函数定位与代码指纹校验；保留 0.4.9／0.4.10 恢复文件。新版相机预载仍待实机验证，详见[更新说明](CHANGELOG.md)。
+0.4.12 修复对焦界面状态：关闭耍起功能或 AF-C 时保留原厂弹窗与图标；两者都开启后，主页、取景和弹窗的 AF-S／AF-C／MF 同步显示。沿用 Mac／Windows 新界面，保留 0.4.11 所有功能组合的恢复记录。离线及 Qt 回归通过，仍待实机验证，详见[更新说明](CHANGELOG.md)。
 
 ## Features
 

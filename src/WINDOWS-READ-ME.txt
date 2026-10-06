@@ -1,4 +1,4 @@
-x2d/907一键扩展功能-工具包 0.4.11 · Windows x64 实验版
+x2d/907一键扩展功能-工具包 0.4.12 · Windows x64 实验版
 
 选择安装与新版界面 / Selected features and desktop interface
 左侧查看日志，右侧分别选择 AF-C、对焦加速和后屏自动亮度，再点击“安装所选功能”。未选择的功能不会出现在相机功能页中；默认开关均关闭。
@@ -135,11 +135,15 @@ Startup update checks default to on. Disable them in Settings; the choice surviv
 安装时按 App 语言选择相机菜单。需要恢复并重新安装时，按目标语言弹窗确认；取消不修改相机，完成后需重新开启所需功能。
 Install selects the camera menu language from the app. Restoration before reinstallation requires confirmation in the target language. Cancel leaves the camera unchanged; re-enable the features you need after completion.
 
-0.4.11 安装前检查
+0.4.12 安装前检查
 安装前会核验指定的原厂界面、对焦、显示文件及安装记录。检测到未知修改时停止操作，请先使用原修改工具恢复原厂 4.2.0，再重新检查；本应用不会覆盖或恢复未知修改。检测不代表整个固件或运行内存均为原厂。
 对焦加速可安装，但不建议老镜头用户在相机内开启该功能。
 本版相机载荷与 0.4.9 相同，选择安装功能尚未接入。
 
-0.4.11 pre-installation checks
+0.4.12 pre-installation checks
 The installer checks the specified stock UI, focus and display files and installation records. Unknown modifications stop the operation. Restore stock 4.2.0 with the original modification tool, then check again. This toolkit will not overwrite or restore unknown modifications. The check does not establish that the entire firmware or live memory is stock.
 Focus acceleration can be installed, but older-lens users are advised not to enable it in the camera. Camera payloads are unchanged from 0.4.9; selectable installation is not included.
+
+0.4.12 对焦界面修复 / Focus UI fix
+关闭耍起功能或 AF-C 时使用原厂对焦弹窗和图标；两个开关都开启后同步主页、取景和弹窗的 AF-S／AF-C／MF。三语言离线回归已覆盖，仍待实机验证。
+Stock focus popup and icons remain when either switch is off. With both switches on, control-screen/liveview/popup mode icons agree. Physical camera validation remains pending.

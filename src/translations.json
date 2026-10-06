@@ -329,6 +329,7 @@
   "功能文件已安装，菜单回执待刷新": "Feature files installed; waiting for a fresh menu receipt",
   "请在相机点击“跳过”并打开主菜单，再点击“已连接”重试；仍未通过时可恢复原状。": "Tap Skip on the camera and open its main menu, then click Connected again. If verification still fails, use Restore original.",
   "已知 0.4.2 清单校验失败，请重新解压安装包": "Known 0.4.2 manifest verification failed. Extract the full app again.",
+  "已知 0.4.11 清单校验失败，请重新解压安装包": "Known 0.4.11 manifest verification failed. Extract the full app again.",
   "自动亮度安装包校验失败": "Auto brightness package verification failed.",
   "屏幕启动配置不是已核验的原厂版本": "Display startup configuration is not the verified original version.",
   "未知屏幕启动配置": "Unknown display startup configuration.",

@@ -8,6 +8,18 @@ from payload_support import requires_payloads
 
 @requires_payloads
 class FocusUIUpgradeTests(unittest.TestCase):
+    def test_0411_all_masks_and_languages_are_restorable_after_the_stock_ui_fix(self):
+        raw=(app.O/'previous-bundle-0.4.11.json').read_bytes()
+        self.assertEqual(app.sha(raw),app.PREVIOUS_0411_SHA)
+        previous=json.loads(raw)
+        for language in ('zh','en','zh-Hant'):
+            for mask in range(1,8):
+                features=[f for i,f in enumerate(app.FEATURES) if mask & (1<<i)]
+                selected=app.select_features(app.apply_ui_language(previous,language),features)
+                self.assertTrue(app.recognized_bundle(selected),(language,mask))
+                for entry in selected['files']:
+                    self.assertEqual(app.sha((app.O/'previous-payloads'/entry['sha256']).read_bytes()),entry['sha256'])
+
     def test_previous_release_all_languages_recognized_and_full_bytes_retained(self):
         raw=(app.O/'previous-bundle-0.4.8.json').read_bytes()
         self.assertEqual(app.sha(raw),app.PREVIOUS_048_SHA)

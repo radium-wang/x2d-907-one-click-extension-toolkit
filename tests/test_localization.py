@@ -106,7 +106,7 @@ class LanguageTests(unittest.TestCase):
                                  '请先切换到 AF-S 或 MF，再关闭耍起功能'):
                     if f'"{sentence}"' in sources[name]:
                         self.assertIn(f'"{sentence}"',text)
-        self.assertEqual(english['AfcMenuController.qml'].count('"AF-C"'),1)
+        self.assertEqual(english['AfcMenuController.qml'].count('text: "AF-C"'),1)
         self.assertIn('"IBIS"',english['PlayMenuModel.qml'])
         self.assertIn(f'"{PRANK_BODY_EN}"',english['PrankIbisPage.qml'])
         self.assertNotIn('你被骗了',english['PrankIbisPage.qml'])

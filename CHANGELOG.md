@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.12](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.12) — 2026-10-06
+
+- Keep the original focus popup, model objects, liveview indicator and control-screen badge while the master or AF-C switch is off. Stop replacing stock focus compiled caches/AOT tables at GUI startup. Load the private three-mode popup and reversible icon bindings only when both switches are on; update AF-S/AF-C/MF and disabled icons together, and restore the original dynamic bindings when disabled.
+- Preserve the exact 0.4.11 manifest and all language bytes for recognized upgrade/restoration of every feature selection. Add only the private focus popup to the exact extension target allowlist.
+- Publish Mac universal and Windows x64 packages. All 202 offline tests pass with local payloads; clean source passes 172 and skips 30. Qt 6.4.1 checks verify three languages, the actual two-switch gate, original stock popup/indicator sources, repeated switching, all mode/disabled icons and restored dynamic bindings. Mac native launch, 76 Mach-O and 38 PE dependency audits, package/recovery-byte checks and updater extraction checks pass. Camera installation/visual behavior and native Windows execution remain pending.
+
 ## [0.4.11](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.11) — 2026-10-06
 
 - Implement the confirmed desktop design on Mac and Windows: a log card on the left, independently selectable feature rows with dividers, a selection count, a gray installation summary and matching rounded controls. Both use a shared layout/color specification; Settings retains rounded language selection.
@@ -145,6 +151,12 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## [0.4.12](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.12) — 2026-10-06
+
+- 当“耍起功能”或 AF-C 开关关闭时，保留原厂对焦弹窗、列表对象、实时取景指示和主页图标。启动时不再替换原厂对焦缓存；仅在两个开关都开启时加载三模式弹窗并同步 AF-S／AF-C／MF 及灰色图标，关闭后恢复原厂动态绑定。
+- 保留 0.4.11 的精确清单和三种语言字节，支持所有已选功能组合的升级与恢复；安装白名单仅新增私有对焦弹窗。
+- 发布 Mac 通用和 Windows x64 安装包。完整离线测试 202 项通过；干净源码 172 项通过、30 项跳过。Qt 6.4.1 验证三种语言、实际双开关逻辑、原厂弹窗与取景控件源文件、反复切换、全部模式及灰色图标、动态绑定恢复。Mac 原生启动、76 个 Mach-O／38 个 PE 依赖审计、安装包与恢复字节、更新解压检查通过。相机安装及视觉行为、Windows 原生运行仍待验证。
 
 ## [0.4.11](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.11) — 2026-10-06
 

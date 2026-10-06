@@ -96,9 +96,10 @@ int main(int argc,char **argv) {
     if(!strcmp(mode,"local-api-mismatch")) arena[0x8a9c90]^=1;
     install();
     if(!strcmp(mode,"ok") || !strcmp(mode,"local-api")) {
-        if(strcmp(last_status,"MENU_AND_AFC_SWITCHABLE_READY\n") || registrations!=1 || removals || writes!=7) return 90;
-        if(main_cache->data!=extended_unit || control->data!=control_stock || popup->data!=popover_afc || popup->aot ||
-           liveview->data!=liveview_modes || liveview->aot || *(unsigned int *)(base+0x18a2a64)!=1) return 91;
+        if(strcmp(last_status,"MENU_AND_AFC_SWITCHABLE_READY\n") || registrations!=1 || removals || writes!=2) return 90;
+        if(main_cache->data!=extended_unit || memcmp(control,&original_control,sizeof(*control)) ||
+           memcmp(popup,&original_popup,sizeof(*popup)) || memcmp(liveview,&original_liveview,sizeof(*liveview)) ||
+           *(unsigned int *)(base+0x18a2a64)!=1) return 91;
     } else if(!strcmp(mode,"menu-only")) {
         if(strcmp(last_status,"MENU_AND_AFC_SWITCHABLE_READY\n") || writes!=1 || registrations || removals || main_cache->data!=extended_unit) return 97;
         if(memcmp(control,&original_control,sizeof(*control)) || memcmp(popup,&original_popup,sizeof(*popup)) || memcmp(liveview,&original_liveview,sizeof(*liveview)) || *(unsigned int *)(base+0x18a2a64)) return 98;
@@ -156,7 +157,7 @@ class NativeFocusUITests(unittest.TestCase):
             self.assertEqual(self.run_probe('invalid-mask',mask=mask),'FEATURE_MASK_INVALID')
         self.assertEqual(self.run_probe('partial-menu',failed_write=1,mask=2),'WRITE_FAILED_RESTORED')
 
-    def test_success_registers_private_icons_and_clears_both_old_aot_tables(self):
+    def test_success_keeps_all_stock_focus_caches_and_aot_tables_intact(self):
         self.assertEqual(self.run_probe('ok'),'MENU_AND_AFC_SWITCHABLE_READY')
 
     def test_static_local_qt_symbols_use_verified_code_addresses(self):
@@ -164,7 +165,7 @@ class NativeFocusUITests(unittest.TestCase):
         self.assertEqual(self.run_probe('local-api-mismatch'),'FOCUS_RESOURCE_API_MISSING')
 
     def test_each_partial_write_restores_all_original_fields_and_unregisters_icons(self):
-        for write in range(1,8):
+        for write in range(1,3):
             with self.subTest(write=write):self.run_probe('partial',write)
 
     def test_disabled_retry_and_stock_mismatch_make_no_memory_or_resource_changes(self):

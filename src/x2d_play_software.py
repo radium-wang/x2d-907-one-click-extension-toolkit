@@ -21,6 +21,7 @@ PREVIOUS_042_SHA = '34a32083a442cc667e56d311bcd9ea583a15e7f076c39f6cdc4c8e67c902
 PREVIOUS_047_SHA = 'cb510721aabea62d35220a9e60aed23569195fdd1defab2a5c5f57a897c557c4'
 PREVIOUS_048_SHA = '70048064578e9cda6aed02934157769991ff8e1b2a353bfd54ca6310c9ee4a70'
 PREVIOUS_049_SHA = '9d2eb54beb6f4f11bf869ddd3930846d8a806a66a3cb8bf73008ccd6ba72f34a'
+PREVIOUS_0411_SHA = '100141063dd50451d7e186f21f47b5b6a6eec436a6a67cddfbb7d478071948fa'
 FEATURES = ('afc', 'speed-buff', 'auto-rear-brightness')
 STOCK_RC = '1d6a8f9e41e269be38b3fb9ba53f4c47d18007f413c90893fdfa9d7542d1f688'
 STOCK_GUI = '16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0'
@@ -37,6 +38,7 @@ PUBLIC_PAYLOAD_TARGETS = frozenset({
     '/system/etc/X2dPrankIbisPage.qml',
     '/system/etc/X2dPlayPage.qml',
     '/system/etc/X2dAfcMenuController.qml',
+    '/system/etc/X2dFocusModePopup.qml',
     '/system/etc/X2dSpeedBuffController.qml',
     '/system/etc/X2dAutoBrightnessController.qml',
     '/system/etc/X2dDisplaySettings.qml',
@@ -550,11 +552,21 @@ def recognized_bundle(manifest):
             if (manifest.get('files') == expected['files'] and manifest.get('featureMask') == expected['featureMask']
                     and features == expected['selectedFeatures'] and manifest.get('autoBrightness') == expected.get('autoBrightness')):
                 return True
+        previous = (O / 'previous-bundle-0.4.11.json').read_bytes()
+        if sha(previous) != PREVIOUS_0411_SHA:
+            raise RuntimeError('已知 0.4.11 清单校验失败，请重新解压安装包')
+        known = json.loads(previous)
+        for language in ('zh', 'en', 'zh-Hant'):
+            expected = select_features(apply_ui_language(known, language), features)
+            if (manifest.get('files') == expected['files'] and manifest.get('featureMask') == expected['featureMask']
+                    and features == expected['selectedFeatures'] and manifest.get('autoBrightness') == expected.get('autoBrightness')):
+                return True
         return False
     if same_release_files(manifest.get('files'), current):
         return manifest.get('autoBrightness') == current.get('autoBrightness')
     if manifest.get('autoBrightness'):
-        for name, expected in (('previous-bundle-0.4.9.json', PREVIOUS_049_SHA),
+        for name, expected in (('previous-bundle-0.4.11.json', PREVIOUS_0411_SHA),
+                               ('previous-bundle-0.4.9.json', PREVIOUS_049_SHA),
                                ('previous-bundle-0.4.8.json', PREVIOUS_048_SHA),
                                ('previous-bundle-0.4.7.json', PREVIOUS_047_SHA),
                                ('previous-bundle-auto-brightness.json', PREVIOUS_BRIGHTNESS_SHA),

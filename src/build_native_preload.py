@@ -49,24 +49,21 @@ for name,expected in focus_hashes.items():
     if hashlib.sha256((focus_inputs/name).read_bytes()).hexdigest()!=expected:
         raise ValueError('Unrecognized focus UI input: '+name)
 clone=(inputs/'main-screen-bootstrap-device.bin').read_bytes()
-for name in ('control-stock.bin','control-afc.bin','popover-stock.bin'):
+for name in ('control-stock.bin','popover-stock.bin'):
     shutil.copy2(inputs/name,O/name)
-for source,target in [('focus-popup.qt64.bin','popover-afc.bin'),
-                      ('liveview-stock.bin','liveview-stock.bin'),('liveview-modes.bin','liveview-modes.bin'),
+for source,target in [('liveview-stock.bin','liveview-stock.bin'),
                       ('focus.tree','focus.tree'),('focus.names','focus.names'),('focus.data','focus.data')]:
     shutil.copy2(focus_inputs/source,O/target)
 assert (O/'liveview-stock.bin').stat().st_size == 6196
-assert hashlib.sha256((O/'liveview-modes.bin').read_bytes()).hexdigest() == 'f4cca4d51eb53f19b7267e49e5c3a1e93a26c191db98bd711afef5aad938f7eb'
-popup=(O/'popover-afc.bin').read_bytes()
+popup=(focus_inputs/'focus-popup.qt64.bin').read_bytes()
 assert popup[:16] == b'qv4cdata' + bytes.fromhex('3600000001040600')
 assert popup[76:92] == hashlib.md5(popup[92:]).digest()
 assert 15084 < len(clone) < 20000
 (O/'extended-unit.bin').write_bytes(clone)
 assembly='.section .rodata\n.balign 8\n'
 for label,file in [('stock_unit','stock-unit.bin'),('extended_unit','extended-unit.bin'),
-                   ('control_stock','control-stock.bin'),('control_afc','control-afc.bin'),
-                   ('popover_stock','popover-stock.bin'),('popover_afc','popover-afc.bin'),
-                   ('liveview_stock','liveview-stock.bin'),('liveview_modes','liveview-modes.bin'),
+                   ('control_stock','control-stock.bin'),('popover_stock','popover-stock.bin'),
+                   ('liveview_stock','liveview-stock.bin'),
                    ('focus_tree','focus.tree'),('focus_names','focus.names'),('focus_data','focus.data')]:
     assembly+=f'.global {label}, {label}_end\n{label}:\n.incbin "{(O/file).as_posix()}"\n{label}_end:\n.balign 8\n'
 (O/'units.S').write_text(assembly)
@@ -92,7 +89,6 @@ else:
     raise SystemExit('Need X2D_CC, zig, or clang plus ld.lld for the AArch64 build')
 subprocess.run(compiler+['-target','aarch64-linux-gnu','-O2','-g0','-fPIC','-shared','-nostdlib',
                '-DEXTENDED_UNIT_SIZE='+str(len(clone)),
-               '-DPOPOVER_UNIT_SIZE='+str((O/'popover-afc.bin').stat().st_size),
                '-fno-stack-protector','-fno-builtin','-Wl,--strip-all','-Wl,--no-undefined','-Wl,-z,noexecstack',
                '-Wl,-soname,libx2d_native_menu.so',str(D/'native_menu_preload.c'),str(O/'units.S'),
                str(O/'libc.so'),str(O/'libdl.so'),'-o',str(target)],env=env,check=True)
@@ -142,6 +138,17 @@ for source in sources:
             stream.write(traditional)
         traditional_files.append(dict(source=hant_name,target=target_path,bytes=hant_path.stat().st_size,
                                       sha256=hashlib.sha256(hant_path.read_bytes()).hexdigest()))
+# Keep the original popup cache untouched. This private file is loaded only
+# when both camera switches are ON, through the stock popup Loader lifecycle.
+popup_source=(focus_inputs/'ported-source/app/qml/popups/PopoverFocusMode.qml').read_text()
+expected_source='4f961d09c9f10b8d323dc534ebeec0242d760775f59a8b8017a060fa3f4cc144'
+if hashlib.sha256(popup_source.encode()).hexdigest()!=expected_source:
+    raise ValueError('Unrecognized reviewed focus popup source')
+popup_source=popup_source.replace('import "../components"','import "qrc:/app/qml/components"')
+popup_source=popup_source.replace('import "../scripts/Keys.js"','import "qrc:/app/qml/scripts/Keys.js"')
+popup_path=O/'X2dFocusModePopup.qml'
+popup_path.write_text(popup_source,encoding='utf-8')
+paths.append(popup_path)
 icon=D/'assets/ic_main_menu_play.svg'
 assert icon.is_file()
 output_icon=O/'ic_main_menu_play.svg'
@@ -158,13 +165,14 @@ report=dict(guiSha256=GUI_SHA,files=files,uiLanguages={'en':english_files,'zh-Ha
             resourceApis=resource_apis,
             imports=sorted(imports),
             deployed=False,deviceValidated=False,bootConfigurationWritten=False,
-            guard='exact four original units/cache pointers; private icon registration; opt-in; disable-file; once per boot; rollback all seven writes',
+            guard='exact four original units/cache pointers; private icon registration; opt-in; disable-file; once per boot; rollback both writes',
             menuOnly=False,
             featureScope=['main-menu-play-entry','stock-style-play-settings','master-switch',
                           'afc-runtime-model-switch','afc-three-item-popover','afc-gate',
                           'x2d2-focus-popup','liveview-focus-mode-icons'],
             focusUi=dict(privateIcons=18,popupModelCountAdaptive=True,originalTypographyAndBorders=True,
-                         popupOldAotDisabled=True,liveviewOldAotDisabled=True,
+                         stockFocusCachesAndAotPreserved=True,stockModelObjectsPreserved=True,
+                         masterAndAfcRequired=True,reversibleIconBindings=True,
                          diskGuiChanged=False,deviceValidated=False),
             afcRuntimeModelMutationValidated=False,
             playPressedHighlightCorrected=True)

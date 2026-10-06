@@ -7,14 +7,14 @@
     {
       "source": "libx2d_native_menu.so",
       "target": "/system/lib64/libx2d_native_menu.so",
-      "bytes": 199360,
-      "sha256": "7d369ef05494148f286bcb4627509ebfc62abf5daa6a2a342d2a23a549e9e74c"
+      "bytes": 331280,
+      "sha256": "127f26b11690d9206430da5e017133267987ad396e717a86afa2e16322d4c06c"
     },
     {
       "source": "X2dNativeMenuBootstrap.qml",
       "target": "/system/etc/X2dNativeMenuBootstrap.qml",
-      "bytes": 9745,
-      "sha256": "5b9a4d8c112d017ddfb9f8f9353d8007d426e47d60da27905e14162dc8c2711b"
+      "bytes": 9489,
+      "sha256": "cf98d5ce2c512d841d7606fa741ad0c8fbba89af3c6f79e87dfec5841f1aabec"
     },
     {
       "source": "X2dNativeMenuModel.qml",
@@ -49,8 +49,8 @@
     {
       "source": "X2dAfcMenuController.qml",
       "target": "/system/etc/X2dAfcMenuController.qml",
-      "bytes": 11486,
-      "sha256": "bf6fa8fc088fd5d500b4741b89ebe52459c33033fa71f57f30824ef57551f11f"
+      "bytes": 6341,
+      "sha256": "5c5c78f480652f79443d86652688eb961f1a4cac45d6a6b3f6b0b6e10210e18c"
     },
     {
       "source": "X2dSpeedBuffController.qml",
@@ -81,12 +81,6 @@
       "target": "/system/etc/X2dBrightnessSlider.qml",
       "bytes": 5436,
       "sha256": "f51ae1d3bd72f9295a7e60a2ae51142190b51b487e7b9ebd0ac086b16dd5ffad"
-    },
-    {
-      "source": "X2dFocusModePopup.qml",
-      "target": "/system/etc/X2dFocusModePopup.qml",
-      "bytes": 17177,
-      "sha256": "04e0ef5b9d0a2ec99456861179e800bb2225f576773ef9ebfc7357c9f29bcc59"
     },
     {
       "source": "ic_main_menu_play.svg",
@@ -174,8 +168,8 @@
       {
         "source": "X2dNativeMenuBootstrap.en.qml",
         "target": "/system/etc/X2dNativeMenuBootstrap.qml",
-        "bytes": 9739,
-        "sha256": "b4f7e1df86748c5833df17f53b7638e24731e28fee023b03586811ec777a55c1"
+        "bytes": 9483,
+        "sha256": "13c0d5624c43e2e82b2b234485a7e97cf046753326694844a164a81831379f8e"
       },
       {
         "source": "X2dNativeMenuModel.en.qml",
@@ -198,8 +192,8 @@
       {
         "source": "X2dAfcMenuController.en.qml",
         "target": "/system/etc/X2dAfcMenuController.qml",
-        "bytes": 11468,
-        "sha256": "8a80f0307605a6e987eff3ed9ddec1845df395628f317d9861cc37b709e952f2"
+        "bytes": 6323,
+        "sha256": "961d3f69d13a1968e8637dca4fbd4d99af976906c15da48ed5a24d528d50b276"
       },
       {
         "source": "X2dDisplayRearBrightness.en.qml",
@@ -224,8 +218,8 @@
       {
         "source": "X2dAfcMenuController.zh-Hant.qml",
         "target": "/system/etc/X2dAfcMenuController.qml",
-        "bytes": 11486,
-        "sha256": "d7ed21f8cb943de649fe17be34c781bb9cc55129424e09a59ef444eef470c608"
+        "bytes": 6341,
+        "sha256": "a0a8821b1528d296c9786c0355ef956e2e544870f97a3f4c1ccbf189470d25c8"
       },
       {
         "source": "X2dSpeedBuffController.zh-Hant.qml",
@@ -245,10 +239,8 @@
     "privateIcons": 18,
     "popupModelCountAdaptive": true,
     "originalTypographyAndBorders": true,
-    "stockFocusCachesAndAotPreserved": true,
-    "stockModelObjectsPreserved": true,
-    "masterAndAfcRequired": true,
-    "reversibleIconBindings": true,
+    "popupOldAotDisabled": true,
+    "liveviewOldAotDisabled": true,
     "diskGuiChanged": false,
     "deviceValidated": false
   }

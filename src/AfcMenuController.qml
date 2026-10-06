@@ -17,12 +17,19 @@ Item {
     property var controlViewModel: null
     property bool focusPopoverOpen: false
     property var focusPopover: null
+    property var uiRoot: null
+    property var controlRoot: null
+    property var popupLoader: null
+    property url extendedPopupSource: "file:///system/etc/X2dFocusModePopup.qml"
     property string focusTitle: "对焦模式"
     property string afsCaption: "单次自动对焦"
     property string mfCaption: "手动对焦"
     property var stockAfs: null
     property var stockMf: null
     property var afcItem: null
+    property var extendedAfs: null
+    property var extendedMf: null
+    property var visualBindings: []
     property bool loaded: false
     property bool busy: false
     property bool faulted: false
@@ -30,6 +37,24 @@ Item {
     readonly property bool ready: !faulted && controlViewModel !== null && CameraUI.canChangeAfc
     signal result(bool loaded, bool busy, string message)
 
+    Component {
+        id: afsFactory
+        StockComponents.FocusModeListItem {
+            focusMode: HblmTypes.E_FocusModes_Afs
+            valid: root.stockAfs ? root.stockAfs.valid : false
+            icon: "image://svg/ic_x2d2_focus_control_AF-S"
+            text: root.afsCaption
+        }
+    }
+    Component {
+        id: mfFactory
+        StockComponents.FocusModeListItem {
+            focusMode: HblmTypes.E_FocusModes_Man
+            valid: root.stockMf ? root.stockMf.valid : false
+            icon: "image://svg/ic_x2d2_focus_control_MF"
+            text: root.mfCaption
+        }
+    }
     Component {
         id: afcFactory
         StockComponents.FocusModeListItem {
@@ -40,31 +65,111 @@ Item {
         }
     }
 
-    function applyAppearance() {
-        if (!controlViewModel) return
-        var model = controlViewModel.focusModeModel
-        if (model.length !== 2 && model.length !== 3) return
-        var afs = null, mf = null
-        for (var i = 0; i < model.length; ++i) {
-            if (model[i].focusMode === HblmTypes.E_FocusModes_Afs) afs = model[i]
-            else if (model[i].focusMode === HblmTypes.E_FocusModes_Man) mf = model[i]
-            else if (model[i].focusMode !== HblmTypes.E_FocusModes_Afc) return
+    function modeName(mode) {
+        if (mode === HblmTypes.E_FocusModes_Afs) return "AF-S"
+        if (mode === HblmTypes.E_FocusModes_Afc) return "AF-C"
+        if (mode === HblmTypes.E_FocusModes_Man) return "MF"
+        return ""
+    }
+    function modeIcon(mode, liveview) {
+        var name = modeName(mode)
+        if (!name) return ""
+        return "image://svg/ic_x2d2_" + (liveview ? "liveview_" : "focus_control_") + name +
+                (CameraUI.focusModeSelectable ? "" : liveview ? "_disable" : "_disabled")
+    }
+    // Binding restores the original binding (including future mode/lens
+    // changes), rather than saving a stale icon or visibility value.
+    Component {
+        id: controlBindingFactory
+        Item {
+            id: controlBinding
+            property var item: null
+            Binding {
+                target: controlBinding.item
+                property: "symbol"
+                value: root.modeIcon(Camera.focus_mode, false) || root.controlViewModel.focusModeIcon
+                when: root.loaded && controlBinding.item !== null
+                restoreMode: Binding.RestoreBindingOrValue
+            }
         }
-        if (!afs || !mf) return
-        afs.icon = "image://svg/ic_x2d2_focus_control_AF-S"
-        afs.text = afsCaption
-        mf.icon = "image://svg/ic_x2d2_focus_control_MF"
-        mf.text = mfCaption
     }
-
-    function applyHeading() {
-        if (focusPopover && typeof focusPopover.heading === "string")
-            focusPopover.heading = focusTitle
+    Component {
+        id: liveviewBindingFactory
+        Item {
+            id: liveBinding
+            property var item: null
+            property var icon: item ? item.children[0] : null
+            Binding {
+                target: liveBinding.icon; property: "source"
+                value: liveBinding.item ? (root.modeIcon(liveBinding.item.viewModel.focusMode, true) ||
+                                           liveBinding.item.viewModel.focusModeIcon) : ""
+                when: root.loaded && liveBinding.item !== null
+                restoreMode: Binding.RestoreBindingOrValue
+            }
+            Binding {
+                target: liveBinding.icon; property: "visible"
+                value: liveBinding.item ? liveBinding.item.viewModel.canShowFocusMode : false
+                when: root.loaded && liveBinding.item !== null
+                restoreMode: Binding.RestoreBindingOrValue
+            }
+            Binding {
+                target: liveBinding.item; property: "visible"
+                value: liveBinding.item !== null && (liveBinding.item.viewModel.canShowFocusMode || liveBinding.item.showIndicators) &&
+                       !liveBinding.item.parent.overlayOff && liveBinding.item.parent.infoVisible &&
+                       !liveBinding.item.parent.showOnlyBottomRow
+                when: root.loaded && liveBinding.item !== null
+                restoreMode: Binding.RestoreBindingOrValue
+            }
+        }
     }
-
-    onControlViewModelChanged: applyAppearance()
-    onFocusPopoverChanged: applyHeading()
-    Component.onCompleted: { applyAppearance(); applyHeading() }
+    function bindVisual(item, factory) {
+        for (var i = 0; i < visualBindings.length; ++i)
+            if (visualBindings[i].item === item) return
+        var binding = factory.createObject(root, {item: item})
+        if (binding) visualBindings.push(binding)
+    }
+    function discover(item, controls) {
+        if (!item) return
+        if (controls && item.objectName === "ControlScreen_popupLoader") popupLoader = item
+        if (controls && item.objectName === "ControlScreen_afControl" && typeof item.symbol !== "undefined")
+            bindVisual(item, controlBindingFactory)
+        if (item.objectName === "FocusIndicator_root" && item.viewModel && item.children.length >= 2 &&
+                typeof item.children[0].source !== "undefined" && item.parent &&
+                typeof item.parent.overlayOff === "boolean")
+            bindVisual(item, liveviewBindingFactory)
+        for (var i = 0; i < item.children.length; ++i) discover(item.children[i], controls)
+    }
+    function refreshUi() {
+        if (!loaded) return
+        discover(uiRoot, false)
+        discover(controlRoot || uiRoot, true)
+        routeFocusPopup()
+    }
+    function routeFocusPopup() {
+        if (!loaded || !popupLoader || !controlViewModel || controlViewModel.mainState !== "focus_mode") return
+        var source = popupLoader.source.toString()
+        if (source.indexOf("/popups/PopoverFocusMode.qml") !== -1)
+            popupLoader.source = extendedPopupSource
+    }
+    Connections {
+        target: root.popupLoader
+        function onSourceChanged() { root.routeFocusPopup() }
+        function onLoaded() {
+            if (root.loaded && root.popupLoader.source.toString() === root.extendedPopupSource.toString())
+                root.popupLoader.item.heading = root.focusTitle
+        }
+    }
+    Timer { interval: 1000; repeat: true; running: root.loaded; onTriggered: root.refreshUi() }
+    function clearExtendedItems() {
+        // Keep Binding objects alive while their `when` becomes false. Qt
+        // restores the saved binding then; destroying one immediately after
+        // changing loaded can discard that restoration on Qt 6.4.1.
+        popupLoader = null
+        if (extendedAfs) extendedAfs.destroy()
+        if (afcItem) afcItem.destroy()
+        if (extendedMf) extendedMf.destroy()
+        extendedAfs = null; afcItem = null; extendedMf = null
+    }
 
     function sameModel(items) {
         if (!controlViewModel || controlViewModel.focusModeModel.length !== items.length)
@@ -109,7 +214,7 @@ Item {
             publish("请先切换到 AF-S 或 MF，再关闭耍起功能")
             return false
         }
-        if (!enable && !sameModel([stockAfs, afcItem, stockMf])) {
+        if (!enable && !sameModel([extendedAfs, afcItem, extendedMf])) {
             publish("对焦列表被其他代码修改，拒绝卸载")
             return false
         }
@@ -126,19 +231,24 @@ Item {
                 }
                 stockAfs = model[0]
                 stockMf = model[1]
+                // Never rewrite stock captions/icons; their validity bindings
+                // and translation context remain available for exact restore.
+                extendedAfs = afsFactory.createObject(root)
                 afcItem = afcFactory.createObject(root)
+                extendedMf = mfFactory.createObject(root)
                 didMutate = true
-                if (!afcItem || !replaceModel([stockAfs, afcItem, stockMf]))
+                if (!extendedAfs || !afcItem || !extendedMf ||
+                        !replaceModel([extendedAfs, afcItem, extendedMf]))
                     throw new Error("AF-C 条目插入后回读不一致")
                 loaded = true
+                refreshUi()
                 publish("AF-C 菜单扩展已加载")
             } else {
                 didMutate = true
                 if (!replaceModel([stockAfs, stockMf]))
                     throw new Error("恢复原厂两项后回读不一致")
                 loaded = false
-                afcItem.destroy()
-                afcItem = null
+                clearExtendedItems()
                 publish("AF-C 尚未开启")
             }
             return true
@@ -149,8 +259,7 @@ Item {
                 try {
                     if (replaceModel([stockAfs, stockMf])) {
                         loaded = false
-                        if (afcItem) afcItem.destroy()
-                        afcItem = null
+                        clearExtendedItems()
                     } else {
                         faulted = true
                     }

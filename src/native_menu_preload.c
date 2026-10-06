@@ -1,6 +1,3 @@
-#ifndef POPOVER_UNIT_SIZE
-#define POPOVER_UNIT_SIZE 13552
-#endif
 /* Exact-build, process-local bootstrap. No camera/radio calls and no disk GUI patch. */
 typedef unsigned long size_t;
 typedef long ssize_t;
@@ -18,9 +15,9 @@ extern void *dlsym(void *, const char *);
 extern char *getenv(const char *);
 extern ssize_t readlink(const char *, char *, size_t);
 extern const unsigned char stock_unit[], stock_unit_end[], extended_unit[], extended_unit_end[];
-extern const unsigned char control_stock[], control_stock_end[], control_afc[], control_afc_end[];
-extern const unsigned char popover_stock[], popover_stock_end[], popover_afc[], popover_afc_end[];
-extern const unsigned char liveview_stock[], liveview_stock_end[], liveview_modes[], liveview_modes_end[];
+extern const unsigned char control_stock[], control_stock_end[];
+extern const unsigned char popover_stock[], popover_stock_end[];
+extern const unsigned char liveview_stock[], liveview_stock_end[];
 extern const unsigned char focus_tree[], focus_tree_end[], focus_names[], focus_names_end[], focus_data[], focus_data_end[];
 typedef _Bool (*resource_function)(int, const unsigned char *, const unsigned char *, const unsigned char *);
 struct cache { const unsigned char *data; const void *aot; const void *unused; };
@@ -108,11 +105,9 @@ __attribute__((constructor)) static void install(void) {
         control->data!=old_control || control->aot!=(const void *)(base+0x215cc90UL) || control->unused ||
         popover->data!=old_popover || popover->aot!=(const void *)(base+0x217aec0UL) || popover->unused ||
         liveview->data!=old_liveview || liveview->aot!=(const void *)(base+0x2163f60UL) || liveview->unused ||
-        control_stock_end-control_stock!=71108 || control_afc_end-control_afc!=75576 ||
-        popover_stock_end-popover_stock!=13552 || popover_afc_end-popover_afc!=POPOVER_UNIT_SIZE ||
-        liveview_stock_end-liveview_stock!=6196 || liveview_modes_end-liveview_modes!=7212 ||
+        control_stock_end-control_stock!=71108 || popover_stock_end-popover_stock!=13552 ||
+        liveview_stock_end-liveview_stock!=6196 ||
         focus_tree_end-focus_tree!=440 || focus_names_end-focus_names<6 || focus_data_end-focus_data<4 ||
-        memcmp(popover_afc,"qv4cdata",8) || memcmp(liveview_modes,"qv4cdata",8) ||
         memcmp(old_control,control_stock,71108) || memcmp(old_popover,popover_stock,13552) ||
         memcmp(old_liveview,liveview_stock,6196)) {
         status("AFC_BUILD_MISMATCH\n");return;
@@ -131,17 +126,11 @@ __attribute__((constructor)) static void install(void) {
     if(!register_icons || !unregister_icons) {status("FOCUS_RESOURCE_API_MISSING\n");return;}
     if(!register_icons(3,focus_tree,focus_names,focus_data)) {status("FOCUS_RESOURCE_REGISTER_FAILED\n");return;}
     const unsigned char *next=extended_unit;
-    /* Keep the focus list at the stock two items until the page switch opts in. */
-    const unsigned char *next_control=control_stock, *next_popover=popover_afc;
-    const unsigned char *next_liveview=liveview_modes;
-    const void *old_popover_aot=popover->aot, *old_liveview_aot=liveview->aot, *no_aot=0;
+    /* Stock focus caches and AOT tables stay intact for the entire process.
+     * QML opts into the private popup and reversible visual bindings only
+     * while the master and AF-C switches are both enabled. */
     struct patch patches[] = {
         {&c->data,&original,&next,sizeof(next)},
-        {&control->data,&old_control,&next_control,sizeof(next_control)},
-        {&popover->data,&old_popover,&next_popover,sizeof(next_popover)},
-        {&popover->aot,&old_popover_aot,&no_aot,sizeof(no_aot)},
-        {&liveview->data,&old_liveview,&next_liveview,sizeof(next_liveview)},
-        {&liveview->aot,&old_liveview_aot,&no_aot,sizeof(no_aot)},
         {gate,&old_gate,&enabled_gate,sizeof(enabled_gate)}
     };
     int fd=open("/proc/self/mem",2);

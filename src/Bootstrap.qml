@@ -23,6 +23,7 @@ Item {
     property var prankButton: null
     property var focusPopup: null
     property bool attached: false
+    property var focusUiRoot: null
     readonly property bool menuActive: attached && drawer.mainState === "main_menu"
                                       && drawer.mainViewState === "main_menu" && !drawer.drawerAtTop
 
@@ -55,6 +56,8 @@ Item {
         screen.loadSubMenuItem.connect(dispatch)
         screen.viewModel.favoriteModel = adapter
         parent = drawer
+        focusUiRoot = drawer
+        while (focusUiRoot.parent) focusUiRoot = focusUiRoot.parent
         attached = true
         routeDisplaySettings()
         screen.viewModel.inMenu = Qt.binding(function() { return originalLoader.active || route.playShowing })
@@ -167,6 +170,8 @@ Item {
         controlViewModel: root.drawer ? root.drawer.controlScreenViewModel : null
         focusPopoverOpen: root.drawer !== null && root.drawer.mainState === "focus_mode"
         focusPopover: root.focusPopup
+        uiRoot: root.focusUiRoot
+        controlRoot: root.drawer
     }
     SpeedBuffController {
         id: afcController
@@ -185,7 +190,10 @@ Item {
     }
     Connections {
         target: root.drawer
-        function onMainStateChanged() { Qt.callLater(root.refreshFocusPopup) }
+        function onMainStateChanged() {
+            nativeAfcMenu.refreshUi()
+            Qt.callLater(root.refreshFocusPopup)
+        }
         function onMainMenuExited() { route.dismiss() }
     }
     Connections {
