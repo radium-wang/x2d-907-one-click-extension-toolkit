@@ -1,11 +1,22 @@
 import Cocoa
 
+struct IconTile: Decodable {
+    let points: [[Double]]
+    let opacity: Double
+}
+func jsonBoolean(_ value: Any?) -> Bool? {
+    guard let number = value as? NSNumber, CFGetTypeID(number) == CFBooleanGetTypeID() else { return nil }
+    return number.boolValue
+}
 struct DesktopLook: Decodable {
     let width: Double
     let height: Double
     let colors: [String: String]
     let layout: [String: [Double]]
     let languageLayout: [String: [String: [Double]]]?
+    let featureRows: [String: [Double]]
+    let iconLines: [String: [[[Double]]]]
+    let iconTiles: [String: [IconTile]]
     static let shared: DesktopLook = {
         let url = Bundle.main.resourceURL!.appendingPathComponent("desktop-ui.json")
         return try! JSONDecoder().decode(DesktopLook.self, from: Data(contentsOf: url))
@@ -24,13 +35,18 @@ final class ToolkitButton: NSButton {
     var checkbox = false
     var checkboxInset: CGFloat = 0
     override var isFlipped: Bool { true }
+    override func becomeFirstResponder() -> Bool {
+        let accepted = super.becomeFirstResponder()
+        if accepted { _ = scrollToVisible(bounds.insetBy(dx: -12, dy: -12)) }
+        return accepted
+    }
     override func draw(_ dirtyRect: NSRect) {
         let look = DesktopLook.shared
         let alpha: CGFloat = isEnabled ? 1 : 0.48
         let rect = checkbox ? NSRect(x: checkboxInset, y: (bounds.height-18)/2, width: 18, height: 18) : bounds.insetBy(dx: 0.5, dy: 0.5)
         let path = NSBezierPath(roundedRect: rect, xRadius: checkbox ? 4 : 7, yRadius: checkbox ? 4 : 7)
         let selected = checkbox ? state == .on : primary
-        (selected ? look.color("blue") : look.color("background")).withAlphaComponent(alpha).setFill(); path.fill()
+        (checkbox && !isEnabled ? look.color("disabled_checkbox") : selected ? look.color("blue") : look.color("background")).withAlphaComponent(checkbox && !isEnabled ? 1 : alpha).setFill(); path.fill()
         (selected ? look.color("blue") : NSColor(srgbRed: 216/255, green: 216/255, blue: 220/255, alpha: 1)).withAlphaComponent(alpha).setStroke(); path.lineWidth = 1; path.stroke()
         if checkbox {
             if selected {
@@ -90,17 +106,35 @@ final class ToolkitCanvas: NSView {
             if border { look.color("border").setStroke(); shape.lineWidth = 1; shape.stroke() }
         }
         look.color("border").setStroke()
-        for (x,y,w) in [(392.0,198.0,560.0),(392.0,288.0,560.0),(43.0,140.0,310.0),(43.0,546.0,310.0)] {
+        for (x,y,w) in [(392.0,198.0,560.0),(392.0,288.0,560.0),(392.0,359.0,560.0),(392.0,430.0,560.0),(392.0,501.0,560.0),(43.0,140.0,310.0),(43.0,546.0,310.0)] {
             let line = NSBezierPath(); line.move(to: NSPoint(x: x, y: y)); line.line(to: NSPoint(x: x+w, y: y)); line.lineWidth = 1; line.stroke()
         }
-        look.color(busy ? "blue" : verified ? "green" : "orange").setFill(); NSBezierPath(ovalIn: NSRect(x: look.rect("state",language: language).minX-13, y: 434, width: 8, height: 8)).fill()
-        for (kind,y) in [("focus",153.0),("bolt",233.0),("sun",314.0)] {
+        let stateRect = look.rect("state",language: language)
+        look.color(busy ? "blue" : verified ? "green" : "orange").setFill(); NSBezierPath(ovalIn: NSRect(x: stateRect.minX-13, y: stateRect.minY+5, width: 8, height: 8)).fill()
+        for (kind,key) in [("focus","afcchoice"),("bolt","buffchoice"),("sun","brightnesschoice"),("eye","eyechoice"),("pixelshift","pixelshiftchoice"),("facetracking","facetrackingchoice")] {
             let x=448.0
+            let y=look.rect(key).minY
+            if let tiles = look.iconTiles[kind] {
+                // The user's SVG defines 13 tiles from back to front. Opaque
+                // background fills preserve its upper-tile occlusion on white.
+                let scale = 26.0/52.0
+                for tile in tiles {
+                    let path = NSBezierPath()
+                    path.move(to: NSPoint(x:x-4+tile.points[0][0]*scale,y:y-4+tile.points[0][1]*scale))
+                    for point in tile.points.dropFirst() { path.line(to: NSPoint(x:x-4+point[0]*scale,y:y-4+point[1]*scale)) }
+                    path.close(); path.lineJoinStyle = .round; path.lineCapStyle = .round
+                    look.color("background").setFill(); path.fill()
+                    look.color("background").setStroke(); path.lineWidth = 1.9*scale; path.stroke()
+                    look.color("disabled_text").withAlphaComponent(tile.opacity).setStroke(); path.lineWidth = 1.6*scale; path.stroke()
+                }
+                continue
+            }
             let lines: [[NSPoint]]
-            if kind == "focus" { lines = [[NSPoint(x:0,y:5),NSPoint(x:0,y:1),NSPoint(x:1,y:0),NSPoint(x:5,y:0)],[NSPoint(x:13,y:0),NSPoint(x:17,y:0),NSPoint(x:18,y:1),NSPoint(x:18,y:5)],[NSPoint(x:18,y:13),NSPoint(x:18,y:17),NSPoint(x:17,y:18),NSPoint(x:13,y:18)],[NSPoint(x:5,y:18),NSPoint(x:1,y:18),NSPoint(x:0,y:17),NSPoint(x:0,y:13)]] }
+            if let geometry = look.iconLines[kind] { lines = geometry.map { $0.map { NSPoint(x: $0[0], y: $0[1]) } } }
+            else if kind == "focus" { lines = [[NSPoint(x:0,y:5),NSPoint(x:0,y:1),NSPoint(x:1,y:0),NSPoint(x:5,y:0)],[NSPoint(x:13,y:0),NSPoint(x:17,y:0),NSPoint(x:18,y:1),NSPoint(x:18,y:5)],[NSPoint(x:18,y:13),NSPoint(x:18,y:17),NSPoint(x:17,y:18),NSPoint(x:13,y:18)],[NSPoint(x:5,y:18),NSPoint(x:1,y:18),NSPoint(x:0,y:17),NSPoint(x:0,y:13)]] }
             else if kind == "bolt" { lines = [[NSPoint(x:10,y:0),NSPoint(x:3,y:10),NSPoint(x:9,y:10),NSPoint(x:7,y:18),NSPoint(x:15,y:7),NSPoint(x:9,y:7),NSPoint(x:10,y:0)]] }
             else { lines = (0..<8).map { i in let angle=Double(i)*Double.pi/4; return [NSPoint(x:9+6.5*cos(angle),y:9+6.5*sin(angle)),NSPoint(x:9+9*cos(angle),y:9+9*sin(angle))] } }
-            look.color("secondary").setStroke()
+            look.color(kind == "pixelshift" || kind == "facetracking" ? "disabled_text" : "secondary").setStroke()
             for points in lines { let line=NSBezierPath(); line.move(to: NSPoint(x:x+points[0].x,y:y+points[0].y)); for p in points.dropFirst() {line.line(to: NSPoint(x:x+p.x,y:y+p.y))};line.lineWidth=1.3;line.stroke() }
             if kind == "sun" { NSBezierPath(ovalIn:NSRect(x:x+5,y:y+5,width:8,height:8)).stroke() }
         }
@@ -110,6 +144,7 @@ final class ToolkitCanvas: NSView {
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var window: NSWindow!
+    var mainCanvas: ToolkitCanvas!
     let status = NSTextField(labelWithString: "等待连接检查")
     let detail = NSTextField(wrappingLabelWithString: "连接相机并开机，点击“已连接”检查状态。907X 100C 适配版待实机验证。")
     let progress = ToolkitProgress()
@@ -119,7 +154,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let logState = NSTextField(labelWithString: "")
     let selectionSummary = NSTextField(wrappingLabelWithString: "")
     var selectedFeatures: [String] {
-        ["afc", "speed-buff", "auto-rear-brightness"].filter { featureChoices[$0]?.state == .on }
+        ["afc", "speed-buff", "auto-rear-brightness", "eye-detection"].filter { featureChoices[$0]?.state == .on }
     }
     let restore = ToolkitButton(title: "一键恢复原状", target: nil, action: nil)
     let refresh = ToolkitButton(title: "已连接", target: nil, action: nil)
@@ -188,6 +223,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         for (button,key) in [(refresh,"statusbutton"),(install,"installbutton"),(restore,"restorebutton")] { button.frame = look.rect(key,language: language) }
         for (field, source) in localizedFields.values { field.stringValue = translated(source) }
         for (image, source) in localizedImages { image.setAccessibilityLabel(translated(source)) }
+        for (key,title) in [("afc","AF-C 连续自动对焦"),("speed-buff","对焦加速"),("auto-rear-brightness","后屏自动亮度"),("eye-detection","人眼识别"),("pixelshift","像素位移"),("facetracking","人脸追踪对焦")] {
+            featureChoices[key]?.setAccessibilityLabel(translated(title))
+        }
         prankCheckbox.title = translated("添加防抖功能（907 彩蛋）")
         updateButton.title = translated("检查更新")
         downloadUpdateButton.title = translated("下载并安装更新")
@@ -272,13 +310,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         mainMenu.addItem(applicationItem)
         NSApp.mainMenu = mainMenu
         let look = DesktopLook.shared
-        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: look.width, height: look.height),
+        let availableHeight = max(320, (NSScreen.main?.visibleFrame.height ?? look.height+80)-80)
+        let viewportHeight = min(look.height, availableHeight)
+        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: look.width, height: viewportHeight),
                           styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         window.appearance = NSAppearance(named: .aqua)
         appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "未知"
         window.delegate = self; window.center()
         let root = ToolkitCanvas(frame: NSRect(x: 0, y: 0, width: look.width, height: look.height))
-        window.contentView = root
+        mainCanvas = root
+        let viewport = NSScrollView(frame: NSRect(x: 0, y: 0, width: look.width, height: viewportHeight))
+        viewport.autoresizingMask = [.width, .height]; viewport.hasVerticalScroller = viewportHeight < look.height
+        viewport.hasHorizontalScroller = false; viewport.borderType = .noBorder; viewport.documentView = root
+        window.contentView = viewport
+        viewport.contentView.scroll(to: .zero)
         func label(_ key: String, _ text: String, _ size: CGFloat = 12, _ weight: NSFont.Weight = .regular, _ color: String = "secondary") {
             let field = NSTextField(wrappingLabelWithString: text)
             localize(field); field.frame = look.rect(key); field.font = .systemFont(ofSize: size, weight: weight)
@@ -297,15 +342,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         label("buffdescription", "对焦加速通过将镜头转速提高三倍实现，可安装，但不建议老镜头用户在相机内开启该功能。", 12, .regular, "orange")
         label("brightness", "后屏自动亮度", 14, .semibold, "text")
         label("brightnessdescription", "根据环境光调节后屏亮度，可设置最高亮度。")
-        label("dependency", "三项功能可分别选择。")
+        label("eye", "人眼识别", 14, .semibold, "text")
+        label("eyedescription", "使用相机原有的人眼识别开关。")
+        label("pixelshift", "像素位移", 14, .semibold, "disabled_text")
+        label("pixelshiftdescription", "即将到来", 12, .regular, "disabled_text")
+        label("facetracking", "人脸追踪对焦", 14, .semibold, "disabled_text")
+        label("facetrackingdescription", "即将到来", 12, .regular, "disabled_text")
+        label("dependency", "四项功能可分别选择。")
         label("summarylabel", "本次安装")
         label("note", "日志保存在本地，便于查看操作进度。", 11)
-        for (key,title) in [("afc","AF-C 连续自动对焦"),("speed-buff","对焦加速"),("auto-rear-brightness","后屏自动亮度")] {
-            let choice = ToolkitButton(title: "", target: self, action: #selector(featureSelectionChanged))
-            choice.setButtonType(.switch); choice.checkbox = true; choice.state = .on; choice.isBordered = false
-            let rowTop = key == "afc" ? 127.0 : key == "speed-buff" ? 198.0 : 288.0
+        for (key,rowKey,title,enabled,selected) in [("afc","afcchoice","AF-C 连续自动对焦",true,true),("speed-buff","buffchoice","对焦加速",true,true),("auto-rear-brightness","brightnesschoice","后屏自动亮度",true,true),("eye-detection","eyechoice","人眼识别",true,false),("pixelshift","pixelshiftchoice","像素位移",false,false),("facetracking","facetrackingchoice","人脸追踪对焦",false,false)] {
+            let choice = ToolkitButton(title: "", target: enabled ? self : nil, action: enabled ? #selector(featureSelectionChanged) : nil)
+            choice.setButtonType(.switch); choice.checkbox = true; choice.state = selected ? .on : .off; choice.isBordered = false; choice.isEnabled = enabled
+            let row = look.featureRows[rowKey]!
             choice.checkboxInset = 16
-            choice.frame = NSRect(x: 392,y: rowTop,width: 560,height: key == "speed-buff" ? 90 : 71)
+            choice.frame = NSRect(x: row[0],y: row[1],width: row[2],height: row[3])
             choice.setAccessibilityLabel(title); featureChoices[key] = choice; root.addSubview(choice)
         }
         for (field,key,size) in [(selectionSummary,"selectionsummary",14.0),(status,"state",12.0),(detail,"detail",12.0)] {
@@ -362,13 +413,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         settingsButton.isEnabled = !value
         downloadUpdateButton.isEnabled = !value && !updateVersion.isEmpty
         prankCheckbox.isEnabled = !value && connectionVerified && detectedModel == "907X & CFV 100C"
-        for choice in featureChoices.values { choice.isEnabled = !value }
-        let labels = language == "en" ? ["afc": "AF-C", "speed-buff": "Focus speed", "auto-rear-brightness": "Auto brightness"] : ["afc": "AF-C", "speed-buff": "对焦加速", "auto-rear-brightness": "后屏自动亮度"]
+        if !connectionVerified || detectedModel != "907X & CFV 100C" { prankCheckbox.state = .off }
+        for (key,choice) in featureChoices { choice.isEnabled = !value && key != "pixelshift" && key != "facetracking" }
+        let labels = language == "en" ? ["afc": "AF-C", "speed-buff": "Focus speed", "auto-rear-brightness": "Auto brightness", "eye-detection": "Eye recognition"] : ["afc": "AF-C", "speed-buff": "对焦加速", "auto-rear-brightness": "后屏自动亮度", "eye-detection": "人眼识别"]
         featureCount.stringValue = translated("已选择 ") + String(selectedFeatures.count) + translated(" 项")
         logState.stringValue = translated(value ? "操作进行中" : connectionVerified ? "检查通过" : "等待连接")
         prankCheckbox.isHidden = detectedModel != "907X & CFV 100C"
         desktopFields["dependency"]?.isHidden = !prankCheckbox.isHidden
-        if let canvas = window.contentView as? ToolkitCanvas { canvas.language = language; canvas.busy = value; canvas.verified = connectionVerified; canvas.needsDisplay = true }
+        mainCanvas.language = language; mainCanvas.busy = value; mainCanvas.verified = connectionVerified; mainCanvas.needsDisplay = true
         selectionSummary.stringValue = selectedFeatures.isEmpty ? translated("尚未选择功能") : selectedFeatures.map { translated(labels[$0]!) }.joined(separator: language == "en" ? ", " : "、")
         install.isEnabled = !value && connectionVerified && !selectedFeatures.isEmpty
         restore.isEnabled = !value && connectionVerified; refresh.isEnabled = !value
@@ -377,6 +429,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         // Camera identities never appear in the main UI; private logs stay local.
         logBuffer += line + "\n"
         renderLog()
+    }
+    func prankChoiceFromStatus(_ object: [String: Any]) -> Bool? {
+        guard jsonBoolean(object["connected"]) == true, object["firmware"] as? String == "4.2.0",
+              object["model"] as? String == "907X & CFV 100C" else { return false }
+        if jsonBoolean(object["installed"]) == false { return true }
+        if jsonBoolean(object["installed"]) == true { return jsonBoolean(object["verifiedPrankIbis"]) }
+        return nil
     }
     func consume(_ line: String) {
         if line.hasPrefix("X2D_EVENT "),
@@ -415,6 +474,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 detectedModel = object["model"] as? String ?? ""
                 if detectedModel != "907X & CFV 100C" { prankCheckbox.state = .off }
                 connectionVerified = object["connected"] as? Bool == true && object["firmware"] as? String == "4.2.0"
+                if let choice = prankChoiceFromStatus(object) { prankCheckbox.state = choice ? .on : .off }
                 setLocalized(status, message)
                 setLocalized(detail, object["menuPending"] as? Bool == true ? (object["hint"] as? String ?? "") : (object["installed"] as? Bool == true)
                     ? "主菜单末尾进入耍起功能。总开关控制已安装的功能。"

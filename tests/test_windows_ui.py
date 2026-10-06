@@ -1,6 +1,8 @@
 """Native skin drawing/state and monitor-scale layout; no Windows or camera."""
 import ctypes as C
 import unittest
+import json,re,xml.etree.ElementTree as ET
+from pathlib import Path
 from unittest.mock import patch
 import windows_ui as ui
 
@@ -86,8 +88,27 @@ class NativeStyleTests(unittest.TestCase):
         self.skin.attach(101,'statusbutton')
         self.assertNotIn(101,self.skin.controls)
 
+    def test_disabled_coming_soon_checkbox_is_grey(self):
+        self.skin.attach(101,'pixelshiftchoice','checkbox')
+        self.api.enabled=False
+        self.skin.paint_control(101,222)
+        self.assertTrue(any(name=='CreateSolidBrush' and args[0]==self.skin.rgb(ui.COLORS['disabled_checkbox'])
+                            for name,args in self.api.calls))
+
 
 class LayoutTests(unittest.TestCase):
+    def test_pixel_shift_keeps_all_user_svg_tiles_vertices_and_opacity(self):
+        source=Path(__file__).resolve().parents[1]/'src/icons/pixel-shift.svg'
+        svg=ET.fromstring(source.read_text())
+        tiles=[]
+        for node in list(svg):
+            if node.tag.rsplit('}',1)[-1]!='path':continue
+            vertices=list(map(float,re.findall(r'[-+]?(?:\d*\.)?\d+',node.attrib['d'])))
+            tiles.append(dict(points=[vertices[i:i+2] for i in range(0,len(vertices),2)],opacity=float(node.attrib['stroke-opacity'])))
+        self.assertEqual(len(tiles),13)
+        self.assertEqual(ui.LOOK['iconTiles']['pixelshift'],tiles)
+        self.assertEqual(ui.icon_lines('pixelshift'),[])
+
     def test_controls_fit_and_feature_descriptions_keep_the_same_alignment(self):
         layout=ui.main_layout()
         for key,(x,y,w,h) in layout.items():

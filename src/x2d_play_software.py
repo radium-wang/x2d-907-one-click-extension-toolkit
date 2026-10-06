@@ -12,6 +12,8 @@ RC = '/system/etc/init/camera-gui.rc'
 O = Path(os.environ.get('X2D_PAYLOAD_DIR', str(D / 'native-package')))
 DISPLAY_RC = '/system/etc/init/camera-system.rc'
 DISPLAY_SYSTEM_SHA = 'bf854a21881148565ff2cc00376426c37a2b82fed94c653abf024e23ed4ceda6'
+ODINDB_SHA = '4fdf240bd521fbf54ec638617446e4eb8778335734cb36752df6ff1a2336f62b'
+TOYBOX_SHA = '999a0669ef654efbda54bc585c0f3c00643d1af61c985bfb7968cfd2f9aed840'
 DISPLAY_STOCK_RC = 'd43b8b26282f9e1da5825b96699658d444a58a83cda94b622e7da8aa1c35202b'
 BRIGHTNESS_PREF = '/blackbox/x2d-play-auto-brightness.enabled'
 BRIGHTNESS_FEATURE = '/blackbox/x2d-play-auto-brightness.available'
@@ -24,7 +26,8 @@ PREVIOUS_049_SHA = '9d2eb54beb6f4f11bf869ddd3930846d8a806a66a3cb8bf73008ccd6ba72
 PREVIOUS_0411_SHA = '100141063dd50451d7e186f21f47b5b6a6eec436a6a67cddfbb7d478071948fa'
 PREVIOUS_0412_SHA = '8592a30073cc64cc55228c1a089b3538ae39306c43e82ec12a333fdbb9d24f75'
 PREVIOUS_0413_SHA = '7121fe24826415ba00b6a2478df9124032842ac83e2937d7e5fe469fdeeead73'
-FEATURES = ('afc', 'speed-buff', 'auto-rear-brightness')
+PREVIOUS_0414_SHA = '2a3569515e886ad7b5fee8b4f6646dc0a95c13fba680925ad79bd9a52b39139f'
+FEATURES = ('afc', 'speed-buff', 'auto-rear-brightness', 'eye-detection')
 STOCK_RC = '1d6a8f9e41e269be38b3fb9ba53f4c47d18007f413c90893fdfa9d7542d1f688'
 STOCK_GUI = '16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0'
 STOCK_SERVICE_RC = '2aa2c06efcc2d7fac690f7fe5db324e12f02748fb7d368ee5f726c3d5b24f2a9'
@@ -369,6 +372,8 @@ def verify_target():
         '/system/bin/camera-service': 'fbcf828f73bca13f0c8b95e7dd0b95ac483ae36954ec06179098c8a1a65f9f82',
         '/system/lib64/librcam.so': '72ebc8deebce4a29047c475e77ab4edbf2860abb1f572fea45260fe17ad0bda5',
         '/system/bin/camera-system': DISPLAY_SYSTEM_SHA,
+        '/system/bin/odindb-send': ODINDB_SHA,
+        '/system/bin/toybox': TOYBOX_SHA,
         '/system/etc/init/camera-service.rc': STOCK_SERVICE_RC,
     }.items():
         verify_file(path, expected)
@@ -437,6 +442,25 @@ EYE_DEBUG_READ = ("printf 'DEBUG_MODE\\n'; /system/bin/odindb-send -s system -p 
                   "printf 'DEBUG_OPTIONS\\n'; /system/bin/odindb-send -s system -p debug_options")
 
 
+def debug_options_mask(value):
+    """Parse stock single-key, bracketed flag-list or numeric odindb replies."""
+    match = re.fullmatch(r'(?:(\[[^\[\]]+\]|E_DebugOption_[A-Za-z_]+)\((0x[0-9a-fA-F]+|[0-9]+)\)|(0x[0-9a-fA-F]+|[0-9]+))', value.strip())
+    if not match: return None
+    token = match[2] or match[3]
+    mask = int(token, 16 if token.lower().startswith('0x') else 10)
+    if not 0 <= mask <= 127: return None
+    if match[1]:
+        flags = dict(None_=0, EyeDetection=1, FaceDetection=2, Recalibrate=4,
+                     Touch=8, TouchPointerHandlers=16, Dcf=32, Browse=64)
+        flags['None'] = flags.pop('None_')
+        names = [name.strip().removeprefix('E_DebugOption_') for name in match[1].strip('[]').split('|')]
+        if len(names) != len(set(names)) or any(name not in flags for name in names): return None
+        if len(names) > 1 and 'None' in names: return None
+        combined = sum(flags[name] for name in names)
+        if combined != mask: return None
+    return mask
+
+
 def eye_debug_status():
     """Read current stock diagnostic flags; never set them or infer their origin."""
     try:
@@ -444,11 +468,11 @@ def eye_debug_status():
             raw = r.factory_shell(EYE_DEBUG_READ, capture_ms=5000)
         mode, options = raw.split('DEBUG_MODE\n', 1)[1].split('DEBUG_OPTIONS\n', 1)
         modes = re.findall(r'=\s*(true|false|[01])\s*$', mode, re.M)
-        masks = re.findall(r'=\s*(?:[A-Za-z_][A-Za-z0-9_ |,]*\()?((?:0x[0-9a-fA-F]+)|[0-9]+)\)?\s*$', options, re.M)
+        masks = re.findall(r'=\s*([^\r\n]+?)\s*$', options, re.M)
         if len(modes) != 1 or len(masks) != 1: return dict(ready=False)
         enabled = modes[0] in ('true', '1')
-        mask = int(masks[0], 16 if masks[0].lower().startswith('0x') else 10)
-        if not 0 <= mask <= 127: return dict(ready=False)
+        mask = debug_options_mask(masks[0])
+        if mask is None: return dict(ready=False)
         return dict(ready=True, debugMode=enabled, debugOptions=mask, eyeDebug=enabled and bool(mask & 1))
     except Exception:
         return dict(ready=False)
@@ -457,7 +481,7 @@ def eye_debug_status():
 def report_eye_debug():
     state = eye_debug_status()
     if state.get('ready'):
-        message = ('检测到原厂人眼调试选项已开启；眼部框不代表跟随对焦。本工具不会开启或清除该选项。'
+        message = ('检测到原厂人眼调试选项已开启；眼部框不代表跟随对焦。'
                    if state['eyeDebug'] else '当前原厂人眼调试选项未开启；眼部框来源仍需结合相机状态判断。')
     else:
         message = '原厂人眼调试状态暂无法读取，尚不能判断眼部框来源。'
@@ -548,6 +572,8 @@ def same_release_files(files, package):
 def select_features(manifest, features):
     if not features or len(features) != len(set(features)) or set(features) - set(FEATURES):
         raise RuntimeError('至少选择一项有效功能；每项功能只能选择一次')
+    if set(features) - set(manifest.get('features', FEATURES)):
+        raise RuntimeError('安装包不包含所选功能')
     selected = dict(manifest)
     selected['selectedFeatures'] = [name for name in FEATURES if name in features]
     selected['featureMask'] = sum(1 << FEATURES.index(name) for name in features)
@@ -573,9 +599,11 @@ def recognized_bundle(manifest):
     current = prepare()
     if manifest.get('format') != 3 or manifest.get('guiSha256') != STOCK_GUI:
         raise RuntimeError('安装或恢复清单版本不匹配')
+    if 'prankIbis' in manifest and type(manifest['prankIbis']) is not bool:
+        return False
     if 'featureMask' in manifest:
         features = manifest.get('selectedFeatures')
-        if (type(manifest['featureMask']) is not int or not 1 <= manifest['featureMask'] <= 7
+        if (type(manifest['featureMask']) is not int or not 1 <= manifest['featureMask'] <= 15
                 or not isinstance(features, list) or not features
                 or any(not isinstance(feature, str) for feature in features)
                 or len(features) != len(set(features)) or set(features) - set(FEATURES)):
@@ -585,13 +613,15 @@ def recognized_bundle(manifest):
             if (manifest.get('files') == expected['files'] and manifest.get('featureMask') == expected['featureMask']
                     and features == expected['selectedFeatures'] and manifest.get('autoBrightness') == expected.get('autoBrightness')):
                 return True
-        for name, digest in (('previous-bundle-0.4.13.json', PREVIOUS_0413_SHA),
+        for name, digest in (('previous-bundle-0.4.14.json', PREVIOUS_0414_SHA),
+                             ('previous-bundle-0.4.13.json', PREVIOUS_0413_SHA),
                              ('previous-bundle-0.4.12.json', PREVIOUS_0412_SHA),
                              ('previous-bundle-0.4.11.json', PREVIOUS_0411_SHA)):
             previous = (O / name).read_bytes()
             if sha(previous) != digest:
                 raise RuntimeError('已知旧版清单校验失败，请重新解压安装包')
             known = json.loads(previous)
+            if set(features) - set(known.get('features', ())): continue
             for language in ('zh', 'en', 'zh-Hant'):
                 expected = select_features(apply_ui_language(known, language), features)
                 if (manifest.get('files') == expected['files'] and manifest.get('featureMask') == expected['featureMask']
@@ -601,7 +631,8 @@ def recognized_bundle(manifest):
     if same_release_files(manifest.get('files'), current):
         return manifest.get('autoBrightness') == current.get('autoBrightness')
     if manifest.get('autoBrightness'):
-        for name, expected in (('previous-bundle-0.4.13.json', PREVIOUS_0413_SHA),
+        for name, expected in (('previous-bundle-0.4.14.json', PREVIOUS_0414_SHA),
+                             ('previous-bundle-0.4.13.json', PREVIOUS_0413_SHA),
                                ('previous-bundle-0.4.12.json', PREVIOUS_0412_SHA),
                                ('previous-bundle-0.4.11.json', PREVIOUS_0411_SHA),
                                ('previous-bundle-0.4.9.json', PREVIOUS_049_SHA),
@@ -652,7 +683,7 @@ service x2d-speed-buff /system/bin/camera-gui --x2d-speed-server
     oneshot
 '''
     if feature_mask is not None:
-        if type(feature_mask) is not int or not 1 <= feature_mask <= 7:
+        if type(feature_mask) is not int or not 1 <= feature_mask <= 15:
             raise RuntimeError('安装功能选择记录未通过校验')
         line = f'    setenv X2D_FEATURE_MASK {feature_mask}\n'.encode()
         rc = rc.replace(b'    setenv X2D_NATIVE_MENU 1\n', b'    setenv X2D_NATIVE_MENU 1\n' + line)
@@ -729,14 +760,65 @@ def reboot_and_verify(installed, report_result=True, prank_ibis=False, auto_brig
 
 
 def backend(action):
-    if action not in ('status', 'enable', 'disable', 'master_on', 'master_off', 'afc_on', 'afc_off'):
+    if action not in ('status', 'enable', 'disable', 'master_on', 'master_off', 'afc_on', 'afc_off', 'eye_on', 'eye_off'):
         raise RuntimeError('Unknown fixed action')
     if action == 'status':
         raw = shell('busybox wget -T 10 -qO- http://127.0.0.1:18763/status | base64')
         return json.loads(base64.b64decode(raw))
-    output = shell('sh /system/etc/x2d-speed-buff/worker ' + action + ' && echo ACTION_FINISHED')
+    manifest = verify_installed_integrity()
+    mask = manifest.get('featureMask', 7)
+    if action in ('eye_on', 'eye_off'):
+        if not mask & 8: raise RuntimeError('安装包不包含所选功能')
+    output = shell('X2D_FEATURE_MASK=' + str(mask) + ' sh /system/etc/x2d-speed-buff/worker ' + action + ' && echo ACTION_FINISHED')
     if output != 'ACTION_FINISHED': raise RuntimeError('功能设置未完成')
-    return json.loads(read_bytes('/tmp/x2d-speed-buff/ui.json'))
+    state = json.loads(read_bytes('/tmp/x2d-speed-buff/ui.json'))
+    if action in ('eye_on', 'eye_off') and (not state.get('eyeReady') or state.get('eyeActive') is not (action == 'eye_on')):
+        raise RuntimeError('人眼识别设置未通过回读，请让相机回到空闲状态后重试。')
+    return state
+
+
+def recovery_control(mask, eye=False):
+    """Stop the old RPC owner before crossing from legacy to kernel locking."""
+    if type(mask) is not int or not 1 <= mask <= 15:
+        raise RuntimeError('安装功能选择记录未通过校验')
+    final_eye = f'sh {STAGE}/recovery eye_restore\n' if eye else ''
+    return f'''#!/system/bin/sh
+set -eu
+export PATH=/system/bin:/system/xbin:/sbin TMPDIR=/tmp
+export X2D_FEATURE_MASK={mask}
+finished=0
+finish_recovery() {{
+ if [ "$finished" != 1 ]; then
+  sh {STAGE}/recovery status >/dev/null 2>&1 || true
+  start x2d-speed-buff
+ fi
+}}
+trap finish_recovery EXIT
+trap 'exit 40' HUP INT TERM
+stop x2d-speed-buff
+n=0
+while :; do
+ service_state=$(getprop init.svc.x2d-speed-buff) || exit 42
+ case "$service_state" in stopped|'') break;; esac
+ n=$((n+1)); [ "$n" -lt 30 ] || exit 42; sleep 1
+done
+known_workers_busy() {{
+ for args in /proc/[0-9]*/cmdline; do
+  [ -r "$args" ] || continue
+  if tr '\\000' '\\n' < "$args" | awk '
+   NR==1{{shell=($0=="/system/bin/sh" || $0=="sh")}}
+   NR==2 && shell{{owned=($0=="/system/etc/x2d-speed-buff/worker" || $0=="/tmp/x2d-speed-buff/install" || $0=="/tmp/x2d-speed-buff/restore")}}
+   END{{exit(!owned)}}'; then return 0; fi
+ done
+ return 1
+}}
+n=0
+while known_workers_busy; do
+ n=$((n+1)); [ "$n" -lt 30 ] || exit 43; sleep 1
+done
+sh {STAGE}/recovery master_off
+{final_eye}finished=1
+'''
 
 
 def install(reboot=True, prank_ibis=False, language='zh', features=None):
@@ -862,7 +944,8 @@ def status(eye_debug=False):
               message='上次操作未完成，请点击恢复原状')
         return
     if installed:
-        verify_installed_integrity()
+        manifest = verify_installed_integrity()
+        verified_prank = bool(manifest.get('prankIbis', False))
         try:
             state = backend('status')
             if not state.get('ready'): raise RuntimeError('功能服务未就绪')
@@ -870,18 +953,24 @@ def status(eye_debug=False):
             # A failed loopback service must not prevent an independent USB restore.
             verify_target()
             event('status', connected=True, model=model, installed=True, recovery=True, firmware='4.2.0',
+                  verifiedPrankIbis=verified_prank,
                   message='相机已连接，功能服务未就绪，可使用恢复原状')
             return
         marker = shell('cat /tmp/x2d-native-menu-ui.ready 2>/dev/null || echo MENU_PENDING')
-        if marker not in ('MENU_ENTRY_READY_11', 'MENU_ENTRY_READY_12') or (state.get('prankIbis') and marker != 'MENU_ENTRY_READY_12'):
+        if (marker not in ('MENU_ENTRY_READY_11', 'MENU_ENTRY_READY_12')
+                or (verified_prank and marker != 'MENU_ENTRY_READY_12')
+                or bool(state.get('prankIbis', False)) != verified_prank):
             event('status', connected=True, model=model, installed=True, recovery=True, menuPending=True,
+                  verifiedPrankIbis=verified_prank,
                   firmware='4.2.0', state=state, message='功能文件已安装，菜单回执待刷新',
                   hint='请在相机点击“跳过”并打开主菜单，再点击“已连接”重试；仍未通过时可恢复原状。')
             return
     else:
         verify_stock_installation()
+        verified_prank = False
         state = dict(ready=True, active=False, afc=False, master=False)
     event('status', connected=True, model=model, installed=installed, firmware='4.2.0', state=state,
+          verifiedPrankIbis=verified_prank,
           message='已安装耍起功能' if installed else '相机就绪，原厂状态')
 
 
@@ -920,12 +1009,31 @@ def restore(reboot=True, report_result=True):
     ensure_adb()
     # Recovery uses the verified host worker even if installation stopped midway.
     upload('recovery', (O / 'speed-worker').read_bytes())
-    event('progress', message='正在撤回 AF-C 和对焦加速', percent=20)
-    output = shell('sh ' + STAGE + '/recovery master_off && echo ACTION_FINISHED')
-    if output != 'ACTION_FINISHED': raise RuntimeError('功能撤回未完成，请保持连接重试')
+    eye_installed = bool(m.get('featureMask', 7) & 8)
+    control = recovery_control(m.get('featureMask', 7), eye_installed)
+    validate_script(control)
+    upload('recover', control.encode())
+    event('progress', message='正在撤回已安装的功能', percent=20)
+    output = shell('sh ' + STAGE + '/recover && echo ACTION_FINISHED || echo RECOVERY_FAILED')
+    if output != 'ACTION_FINISHED':
+        if output == 'RECOVERY_FAILED' and eye_installed:
+            try:
+                failed = json.loads(read_bytes('/tmp/x2d-speed-buff/ui.json'))
+                issue = failed.get('eyeIssue')
+            except Exception:
+                issue = None
+            if issue == 'changed':
+                raise RuntimeError('调试选项另有改动，请先将其他调试选项恢复到开启人眼识别时的状态，再关闭或恢复。')
+            if issue == 'incomplete':
+                raise RuntimeError('人眼识别设置撤回尚未确认，请让相机回到空闲状态后重试恢复。')
+        raise RuntimeError('功能撤回未完成，请保持连接重试')
     state = json.loads(read_bytes('/tmp/x2d-speed-buff/ui.json'))
     if not state['ready'] or state['active'] or state['afc'] or state['master']:
+        if state.get('eyeIssue') == 'changed':
+            raise RuntimeError('调试选项另有改动，请先将其他调试选项恢复到开启人眼识别时的状态，再关闭或恢复。')
         raise RuntimeError('功能撤回尚未核验，请松开快门后重试')
+    if eye_installed and (state.get('eyeRestored') is not True or state.get('eyeEnabled')):
+        raise RuntimeError('人眼识别设置撤回尚未确认，请保持连接并重试恢复。')
     s = header() + f'hashok {ROOT}/stockrc {STOCK_RC}\n'
     # For interrupted writes, accept only a prefix of this application's exact bytes.
     if phase == 'INSTALLED':
@@ -1055,7 +1163,7 @@ def user_error(error):
 def main():
     global INTERACTIVE_CONFIRMATION, REINSTALL_CONFIRMED
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('action', choices=['install', 'status', 'restore', 'enable', 'disable', 'master_on', 'master_off', 'afc_on', 'afc_off'])
+    p.add_argument('action', choices=['install', 'status', 'restore', 'enable', 'disable', 'master_on', 'master_off', 'afc_on', 'afc_off', 'eye_on', 'eye_off'])
     p.add_argument('--no-reboot', action='store_true', help=argparse.SUPPRESS)
     p.add_argument('--prank-ibis', action='store_true', help='Add the optional CFV-only joke menu')
     p.add_argument('--language', choices=['zh', 'zh-Hant', 'en'], default='zh',

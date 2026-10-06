@@ -76,8 +76,13 @@ __attribute__((constructor)) static void install(void) {
     if((size_t)(extended_unit_end-extended_unit)!=EXTENDED_UNIT_SIZE ||
        memcmp(extended_unit,"qv4cdata",8)) {status("PAYLOAD_MISMATCH\n");return;}
     const char *mask=getenv("X2D_FEATURE_MASK");
-    if(mask && (mask[0]<'1' || mask[0]>'7' || mask[1])) {status("FEATURE_MASK_INVALID\n");return;}
-    if(mask && !((mask[0]-'0')&1)) {
+    unsigned int selected_mask=7;
+    if(mask) {
+        if(mask[0]>='1' && mask[0]<='9' && !mask[1]) selected_mask=mask[0]-'0';
+        else if(mask[0]=='1' && mask[1]>='0' && mask[1]<='5' && !mask[2]) selected_mask=10+mask[1]-'0';
+        else {status("FEATURE_MASK_INVALID\n");return;}
+    }
+    if(!(selected_mask&1)) {
         /* Non-AF-C installs only attach the shared menu. Keep stock focus UI. */
         int attempt=open("/tmp/x2d-native-menu-attempt",1|64|128,0600);
         if(attempt<0) {status("SKIPPED_RETRY\n");return;}

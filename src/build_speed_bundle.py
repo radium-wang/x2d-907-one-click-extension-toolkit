@@ -58,7 +58,7 @@ assert {f['target'] for f in english}<=chinese_targets
 assert {f['target'] for f in traditional}<=chinese_targets
 for name in ('speed-worker','speed-backend','speed-transaction'):
  subprocess.run(['sh','-n',str(O/name)],check=True)
-manifest=dict(format=3,model='X2D 100C',firmware='4.2.0',guiSha256='16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0',files=files,entryIndex=11,multipliers=[3,3,2],lensRestriction=False, serviceExecutable='/system/bin/camera-gui', features=['afc','speed-buff','auto-rear-brightness'])
+manifest=dict(format=3,model='X2D 100C',firmware='4.2.0',guiSha256='16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0',files=files,entryIndex=11,multipliers=[3,3,2],lensRestriction=False, serviceExecutable='/system/bin/camera-gui', features=['afc','speed-buff','auto-rear-brightness','eye-detection'])
 manifest['entryIndexesByModel']={'X2D 100C':11,'907X & CFV 100C':10}
 manifest['compatibleModels']=['X2D 100C','907X & CFV 100C']
 manifest['validation']={'X2D 100C':'prior-menu-and-buff-device-tested; startup-focus-mode-fix-awaiting-device-test','907X & CFV 100C':'USB-and-service-installation-user-reported; ten-item-menu-fix-awaiting-device-test'}
@@ -67,6 +67,8 @@ manifest['uiLanguages']={'en':english,'zh-Hant':traditional}
 manifest['focusUi']=package['focusUi']
 manifest['validation']['X2D 100C']+='; new-focus-ui-preload-device-test-pending'
 manifest['validation']['907X & CFV 100C']+='; new-focus-ui-device-test-pending'
+manifest['validation']['X2D 100C']+='; eye-debug-switch-firmware-verified-device-test-pending'
+manifest['validation']['907X & CFV 100C']+='; eye-debug-switch-firmware-verified-device-test-pending'
 (O/'speed-bundle.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
 archive_names={f['source'] for f in files}|{f['source'] for f in english}|{f['source'] for f in traditional}
 with tarfile.open(O/'speed-bundle.tar.gz','w:gz') as tar:

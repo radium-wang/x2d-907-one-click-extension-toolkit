@@ -6,8 +6,21 @@ from unittest.mock import patch
 import x2d_play_software as app
 
 class MenuReadyTests(unittest.TestCase):
+    def test_verified_907_choice_survives_when_rpc_or_menu_has_lost_the_entry(self):
+        for state,marker in [({'ready':True,'prankIbis':False},'MENU_ENTRY_READY_11'),({'ready':False},None)]:
+            with self.subTest(state=state),patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity',return_value={'prankIbis':True}),patch.object(app,'camera_model',return_value='907X & CFV 100C'),patch.object(app,'read_bytes',return_value=b'INSTALLED'),patch.object(app,'backend',return_value=state),patch.object(app,'shell',side_effect=['YES',marker] if marker else ['YES']),patch.object(app,'event') as event:
+                app.status()
+                self.assertIs(event.call_args.kwargs['verifiedPrankIbis'],True)
+                self.assertIs(event.call_args.kwargs['recovery'],True)
+
+    def test_matching_907_receipt_and_verified_choice_report_normal_install(self):
+        with patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity',return_value={'prankIbis':True}),patch.object(app,'camera_model',return_value='907X & CFV 100C'),patch.object(app,'read_bytes',return_value=b'INSTALLED'),patch.object(app,'backend',return_value={'ready':True,'prankIbis':True}),patch.object(app,'shell',side_effect=['YES','MENU_ENTRY_READY_12']),patch.object(app,'event') as event:
+            app.status()
+            self.assertIs(event.call_args.kwargs['verifiedPrankIbis'],True)
+            self.assertFalse(event.call_args.kwargs.get('recovery',False))
+
     def test_status_missing_receipt_is_recoverable_not_verified_install(self):
-        with patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity'),patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'read_bytes',return_value=b'INSTALLED'),patch.object(app,'backend',return_value={'ready':True}),patch.object(app,'shell',side_effect=['YES','MENU_PENDING']),patch.object(app,'event') as event:
+        with patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity',return_value={}),patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'read_bytes',return_value=b'INSTALLED'),patch.object(app,'backend',return_value={'ready':True}),patch.object(app,'shell',side_effect=['YES','MENU_PENDING']),patch.object(app,'event') as event:
             app.status()
             self.assertTrue(event.call_args.kwargs['menuPending'])
             self.assertTrue(event.call_args.kwargs['recovery'])
@@ -15,13 +28,13 @@ class MenuReadyTests(unittest.TestCase):
             self.assertIn('主菜单',event.call_args.kwargs['hint'])
 
     def test_status_ready_receipt_keeps_normal_install_state(self):
-        with patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity'),patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'read_bytes',return_value=b'INSTALLED'),patch.object(app,'backend',return_value={'ready':True}),patch.object(app,'shell',side_effect=['YES','MENU_ENTRY_READY_12']),patch.object(app,'event') as event:
+        with patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity',return_value={}),patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'read_bytes',return_value=b'INSTALLED'),patch.object(app,'backend',return_value={'ready':True}),patch.object(app,'shell',side_effect=['YES','MENU_ENTRY_READY_12']),patch.object(app,'event') as event:
             app.status()
             self.assertTrue(event.call_args.kwargs['installed'])
             self.assertFalse(event.call_args.kwargs.get('menuPending',False))
 
     def test_status_unready_service_keeps_restore_available(self):
-        with patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity'),patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'read_bytes',return_value=b'INSTALLED'),patch.object(app,'backend',return_value={'ready':False}),patch.object(app,'shell',return_value='YES'),patch.object(app,'event') as event:
+        with patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity',return_value={}),patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'read_bytes',return_value=b'INSTALLED'),patch.object(app,'backend',return_value={'ready':False}),patch.object(app,'shell',return_value='YES'),patch.object(app,'event') as event:
             app.status()
             self.assertTrue(event.call_args.kwargs['recovery'])
             self.assertTrue(event.call_args.kwargs['connected'])
@@ -37,20 +50,20 @@ class MenuReadyTests(unittest.TestCase):
     @requires_payloads
     def test_existing_install_missing_entry_never_reports_success(self):
         for marker in ('MENU_PENDING','MENU_ENTRY_READY_10',''):
-            with self.subTest(marker=marker), patch.object(app,'brightness_status',return_value={'ready':True}), patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity'), patch.object(app,'event') as event, patch.object(app,'backend',return_value={'ready':True}), patch.object(app,'read_bytes',side_effect=[b'INSTALLED',json.dumps(app.prepare()).encode()]), patch.object(app,'shell',side_effect=['YES',marker]):
+            with self.subTest(marker=marker), patch.object(app,'brightness_status',return_value={'ready':True}), patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity',return_value={}), patch.object(app,'event') as event, patch.object(app,'backend',return_value={'ready':True}), patch.object(app,'read_bytes',side_effect=[b'INSTALLED',json.dumps(app.prepare()).encode()]), patch.object(app,'shell',side_effect=['YES',marker]):
                 with self.assertRaisesRegex(RuntimeError,'菜单入口'): app.install()
                 self.assertFalse(any(c.args[0]=='result' for c in event.call_args_list))
 
     @requires_payloads
     def test_existing_install_accepts_both_actual_menu_lengths(self):
         for marker in ('MENU_ENTRY_READY_11','MENU_ENTRY_READY_12'):
-            with self.subTest(marker=marker), patch.object(app,'brightness_status',return_value={'ready':True}), patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity'), patch.object(app,'event') as event, patch.object(app,'backend',return_value={'ready':True}), patch.object(app,'read_bytes',side_effect=[b'INSTALLED',json.dumps(app.prepare()).encode()]), patch.object(app,'shell',side_effect=['YES',marker]):
+            with self.subTest(marker=marker), patch.object(app,'brightness_status',return_value={'ready':True}), patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity',return_value={}), patch.object(app,'event') as event, patch.object(app,'backend',return_value={'ready':True}), patch.object(app,'read_bytes',side_effect=[b'INSTALLED',json.dumps(app.prepare()).encode()]), patch.object(app,'shell',side_effect=['YES',marker]):
                 app.install()
                 self.assertEqual(event.call_args.args[0],'result'); self.assertTrue(event.call_args.kwargs['success'])
 
     def reboot(self,marker):
         values=['REBOOT_DISPATCHED','running','running','MENU_AND_AFC_SWITCHABLE_READY',marker]
-        with patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity'), patch.object(app,'event') as event, patch.object(app,'backend',return_value={'ready':True}) as backend, patch.object(app,'shell',side_effect=values), patch.object(app.time,'sleep'), patch.object(app.time,'monotonic',side_effect=[0,1,72]):
+        with patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity',return_value={}), patch.object(app,'event') as event, patch.object(app,'backend',return_value={'ready':True}) as backend, patch.object(app,'shell',side_effect=values), patch.object(app.time,'sleep'), patch.object(app.time,'monotonic',side_effect=[0,1,72]):
             if marker=='MENU_PENDING':
                 with self.assertRaisesRegex(RuntimeError,'菜单入口'): app.reboot_and_verify(True)
                 backend.assert_not_called()

@@ -8,6 +8,25 @@ from payload_support import requires_payloads
 
 @requires_payloads
 class FocusUIUpgradeTests(unittest.TestCase):
+    def test_0414_three_feature_selections_remain_restorable_after_eye_addition(self):
+        raw=(app.O/'previous-bundle-0.4.14.json').read_bytes()
+        self.assertEqual(app.sha(raw),app.PREVIOUS_0414_SHA)
+        previous=json.loads(raw)
+        for language in ('zh','en','zh-Hant'):
+            for mask in range(1,8):
+                features=[f for i,f in enumerate(app.FEATURES) if mask & (1<<i)]
+                selected=app.select_features(app.apply_ui_language(previous,language),features)
+                self.assertTrue(app.recognized_bundle(selected),(language,mask))
+                for entry in selected['files']:
+                    self.assertEqual(app.sha((app.O/'previous-payloads'/entry['sha256']).read_bytes()),entry['sha256'])
+        with self.assertRaisesRegex(RuntimeError,'安装包不包含所选功能'):
+            app.select_features(previous,['eye-detection'])
+        forged=dict(previous,featureMask=8,selectedFeatures=['eye-detection'])
+        self.assertFalse(app.recognized_bundle(forged))
+        with patch.object(app,'PREVIOUS_0414_SHA','0'*64):
+            with self.assertRaisesRegex(RuntimeError,'已知旧版清单校验失败'):
+                app.recognized_bundle(app.select_features(previous,['afc']))
+
     def test_0413_all_masks_and_languages_remain_restorable_after_first_use_notice(self):
         raw=(app.O/'previous-bundle-0.4.13.json').read_bytes()
         self.assertEqual(app.sha(raw),app.PREVIOUS_0413_SHA)

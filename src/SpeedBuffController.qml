@@ -9,11 +9,16 @@ QtObject {
     property bool loaded: false
     property bool master: false
     property bool afcEnabled: false
+    property bool eyeEnabled: false
+    property bool eyeActive: false
+    property bool eyeReady: false
+    property string eyeIssue: "none"
     property bool prankIbis: false
     property int featureMask: 0
     readonly property bool afcInstalled: (featureMask & 1) !== 0
     readonly property bool speedInstalled: (featureMask & 2) !== 0
     readonly property bool brightnessInstalled: (featureMask & 4) !== 0
+    readonly property bool eyeInstalled: (featureMask & 8) !== 0
     property string statusMessage: "正在读取功能状态"
     property var currentRequest: null
     property bool freeNoticeReady: false
@@ -72,6 +77,10 @@ QtObject {
                 var state = JSON.parse(xhr.responseText)
                 prankIbis = state.prankIbis === true
                 featureMask = state.featureMask === undefined ? 7 : Number(state.featureMask)
+                eyeReady = state.eyeReady === true
+                eyeIssue = state.eyeIssue === undefined ? "unavailable" : String(state.eyeIssue)
+                if (typeof state.eyeEnabled === "boolean") eyeEnabled = state.eyeEnabled
+                if (state.eyeKnown === true && typeof state.eyeActive === "boolean") eyeActive = state.eyeActive
                 if (state.ready === true) {
                     loaded = state.active === true
                     master = state.master === true
@@ -83,6 +92,7 @@ QtObject {
                 syncAfcMenu()
             } catch (e) {
                 ready = false; faulted = true
+                eyeReady = false
                 statusMessage = "服务未就绪；请检查连接或使用恢复原状"
             }
         }
@@ -92,6 +102,7 @@ QtObject {
     }
     function setEnabled(value) { return !value || speedInstalled ? request(value ? "enable" : "disable") : false }
     function setAfc(value) { return !value || afcInstalled ? request(value ? "afc_on" : "afc_off") : false }
+    function setEye(value) { return !value || eyeInstalled ? request(value ? "eye_on" : "eye_off") : false }
     function setMaster(value) { return request(value ? "master_on" : "master_off") }
     property Timer poll: Timer {
         interval: 2500; running: true; repeat: true
@@ -112,6 +123,7 @@ QtObject {
             root.currentRequest = null; root.inFlight = false; root.busy = false
             if (xhr !== null) xhr.abort()
             root.ready = false; root.faulted = true
+            root.eyeReady = false
             root.statusMessage = "读取超时，尚未确认本次操作结果"
         }
     }

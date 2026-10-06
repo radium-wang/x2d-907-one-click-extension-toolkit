@@ -6,19 +6,20 @@ optional PySide6, which is never included in the desktop distribution.
 import argparse,ast,json,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
-from windows_ui import WIDTH,HEIGHT,COLORS,decorations,icon_lines,main_layout,button_colors,text_style
+from windows_ui import WIDTH,HEIGHT,COLORS,LOOK,decorations,icon_lines,main_layout,button_colors,text_style
 from localization import translate
 
 
 def labels():
     tree=ast.parse((Path(__file__).resolve().parents[1]/'src/windows_app.py').read_text())
-    return {call.args[0].value:(call.args[1].value,call.args[2].value if isinstance(call.args[2],ast.Constant) else 'v0.4.10') for call in ast.walk(tree)
+    version=next(node.value.value for node in tree.body if isinstance(node,ast.Assign) and any(isinstance(target,ast.Name) and target.id=='VERSION' for target in node.targets))
+    return {call.args[0].value:(call.args[1].value,call.args[2].value if isinstance(call.args[2],ast.Constant) else 'v'+version) for call in ast.walk(tree)
             if isinstance(call,ast.Call) and isinstance(call.func,ast.Name) and call.func.id=='item'}
 
 
 def render(path,language='zh',scale=2,height=HEIGHT,offset=0,connected=False,settings=False):
     from PySide6.QtCore import Qt,QRectF,QPointF
-    from PySide6.QtGui import QImage,QPainter,QColor,QFont,QPen,QFontMetricsF
+    from PySide6.QtGui import QImage,QPainter,QColor,QFont,QPen,QFontMetricsF,QPolygonF
     width=450 if settings else WIDTH
     if settings:height=284
     layout=main_layout(language=language)
@@ -67,6 +68,14 @@ def render(path,language='zh',scale=2,height=HEIGHT,offset=0,connected=False,set
             painter.setPen(Qt.NoPen);painter.setBrush(QColor(fill));painter.drawEllipse(QRectF(*geometry))
         else:
             x,y,w,h,name=geometry
+            if name in LOOK.get('iconTiles',{}):
+                for tile in LOOK['iconTiles'][name]:
+                    polygon=QPolygonF([QPointF(x-4+px/2,y-4+py/2) for px,py in tile['points']])
+                    painter.setBrush(QColor(COLORS['background']));painter.setPen(QPen(QColor(COLORS['background']),.95,Qt.SolidLine,Qt.RoundCap,Qt.RoundJoin))
+                    painter.drawPolygon(polygon)
+                    color=QColor(COLORS['disabled_text']);color.setAlphaF(tile['opacity'])
+                    painter.setBrush(Qt.NoBrush);painter.setPen(QPen(color,.8,Qt.SolidLine,Qt.RoundCap,Qt.RoundJoin));painter.drawPolygon(polygon)
+                continue
             painter.setPen(QPen(QColor(fill),1));painter.setBrush(Qt.NoBrush)
             for points in icon_lines(name):
                 for a,b in zip(points,points[1:]):painter.drawLine(QPointF(x+a[0],y+a[1]),QPointF(x+b[0],y+b[1]))
@@ -87,10 +96,12 @@ def render(path,language='zh',scale=2,height=HEIGHT,offset=0,connected=False,set
             text('English' if language=='en' else '中文',(x+10,y,w-35,h),14,COLORS['text'])
             text('⌄',(x+w-28,y,20,h),16,COLORS['secondary'],center=True)
         elif kind=='BUTTON':
-            enabled=key not in ('installbutton','restorebutton','prank','downloadbutton') or connected
-            if key in ('prank','automaticupdates','afcchoice','buffchoice','brightnesschoice'):
-                shape((x,y+(h-18)/2,18,18),4,COLORS['blue'] if key!='prank' else COLORS['surface'])
-                if key!='prank':
+            enabled=key not in ('pixelshiftchoice','facetrackingchoice') and (key not in ('installbutton','restorebutton','prank','downloadbutton') or connected)
+            if key=='automaticupdates' or key=='prank' or key.endswith('choice'):
+                checked=key in ('automaticupdates','afcchoice','buffchoice','brightnesschoice')
+                fill=COLORS['disabled_checkbox'] if not enabled else COLORS['blue'] if checked else COLORS['surface']
+                shape((x,y+(h-18)/2,18,18),4,fill,COLORS['border'] if enabled and not checked else None)
+                if checked:
                     painter.setPen(QPen(QColor('white'),1.5))
                     painter.drawLine(QPointF(x+4,y+h/2),QPointF(x+7,y+h/2+3))
                     painter.drawLine(QPointF(x+7,y+h/2+3),QPointF(x+13,y+h/2-4))
@@ -101,7 +112,7 @@ def render(path,language='zh',scale=2,height=HEIGHT,offset=0,connected=False,set
                 text(value,(x+8,y,w-16,h),13,color,False,center=True)
         else:
             size,bold,color=text_style(key,language)
-            text(value,(x,y,w,h),size,color,bold,wrap=key in ('detail','note','buffdescription','updatesdescription'))
+            text(value,(x,y,w,h),size,color,bold,wrap=key in ('detail','note','selectionsummary','buffdescription','updatesdescription'))
     painter.end();image.save(str(path))
     return dict(page='settings' if settings else 'main',language=language,scale=scale,height=height,offset=offset,issues=issues)
 

@@ -6,11 +6,11 @@ from pathlib import Path
 from localization import Localizer, translate
 from reinstall_confirmation import CONTINUE, CANCEL
 from app_settings import UpdatePreferences
-from windows_ui import NativeStyle, Viewport, ScrollInfo, WIDTH, HEIGHT, COLORS, main_layout, text_style
+from windows_ui import NativeStyle, Viewport, ScrollInfo, WIDTH, HEIGHT, COLORS, LOOK, main_layout, text_style
 from windows_processes import UpdateCheck, stop_process
 
 D = Path(__file__).resolve().parent
-VERSION = '0.4.14'
+VERSION = '0.4.15'
 
 
 class Session:
@@ -22,6 +22,18 @@ class Session:
         self.action = ''
         self.error_received = False
         self.model = ''
+
+    @staticmethod
+    def prank_choice_from_status(event):
+        """Use the verified installation manifest, never the loopback state."""
+        if event.get('type') != 'status': return None
+        if (event.get('connected') is not True or event.get('firmware') != '4.2.0'
+                or event.get('model') != '907X & CFV 100C'): return False
+        if event.get('installed') is False: return True
+        if event.get('installed') is True:
+            value = event.get('verifiedPrankIbis')
+            return value if type(value) is bool else None
+        return None
 
     def start(self, action):
         if self.busy or (action != 'status' and not self.verified): return False
@@ -249,7 +261,7 @@ def main():
             enable(hwnd, True)
 
     def selected_features():
-        return [feature for feature,key in (('afc','afcchoice'),('speed-buff','buffchoice'),('auto-rear-brightness','brightnesschoice'))
+        return [feature for feature,key in (('afc','afcchoice'),('speed-buff','buffchoice'),('auto-rear-brightness','brightnesschoice'),('eye-detection','eyechoice'))
                 if send(controls[key],0x00F0,0,0)==1]
 
     def buttons():
@@ -263,9 +275,12 @@ def main():
         enable(controls['prank'], eligible and not busy)
         if not eligible: send(controls['prank'], 0x00F1, 0, 0)  # BM_SETCHECK
         enable(controls['statusbutton'], not busy)
-        for key in ('afcchoice','buffchoice','brightnesschoice'): enable(controls[key],not busy)
+        for key in ('afcchoice','buffchoice','brightnesschoice','eyechoice'): enable(controls[key],not busy)
+        for key in ('pixelshiftchoice','facetrackingchoice'):
+            enable(controls[key],False)
+            send(controls[key],0x00F1,0,0)
         features = selected_features()
-        names = {'afc':'AF-C','speed-buff':'Focus speed','auto-rear-brightness':'Auto brightness'} if language.language=='en' else {'afc':'AF-C','speed-buff':'对焦加速','auto-rear-brightness':'后屏自动亮度'}
+        names = {'afc':'AF-C','speed-buff':'Focus speed','auto-rear-brightness':'Auto brightness','eye-detection':'Eye recognition'} if language.language=='en' else {'afc':'AF-C','speed-buff':'对焦加速','auto-rear-brightness':'后屏自动亮度','eye-detection':'人眼识别'}
         native_settext(controls['selectionsummary'], language.text('尚未选择功能') if not features else ('、' if language.language!='en' else ', ').join(language.text(names[f]) for f in features))
         native_settext(controls['featurecount'], language.text('已选择 ') + str(len(features)) + language.text(' 项'))
         native_settext(controls['logstate'], language.text('操作进行中' if busy else '检查通过' if session.verified else '等待连接'))
@@ -301,6 +316,10 @@ def main():
     def consume(event):
         session.consume(event)
         kind, text = event.get('type'), event.get('message', '')
+        if kind == 'status':
+            choice = session.prank_choice_from_status(event)
+            if choice is not None: send(controls['prank'],0x00F1,int(choice),0)
+        elif kind == 'error': send(controls['prank'],0x00F1,0,0)
         if kind == 'progress':
             settext(controls['state'], {'status':'正在检查相机…', 'install':'正在安装…',
                                        'restore':'正在恢复…'}.get(session.action, '正在操作…'))
@@ -478,7 +497,8 @@ def main():
             if window==main_handle and msg==0x0202 and not session.busy and not update_state['busy']:
                 x=C.c_short(lp&0xffff).value*96/dpi; y=C.c_short((lp>>16)&0xffff).value*96/dpi+viewport.offset
                 if 392<=x<=952:
-                    key='afcchoice' if 127<=y<198 else 'buffchoice' if 198<=y<288 else 'brightnesschoice' if 288<=y<359 else None
+                    key=next((key for key in ('afcchoice','buffchoice','brightnesschoice','eyechoice')
+                              if LOOK['featureRows'][key][1]<=y<LOOK['featureRows'][key][1]+LOOK['featureRows'][key][3]),None)
                     if key:
                         send(controls[key],0x00F1,0 if send(controls[key],0x00F0,0,0)==1 else 1,0);buttons();return 0
             if msg == 0x0010:  # WM_CLOSE
@@ -501,7 +521,7 @@ def main():
                     change_language(); return 0
                 if (wp >> 16) == 0:
                     if (wp & 0xFFFF) == 113: show(settings_state['window'],0); return 0
-                    if (wp & 0xFFFF) in (110,111,112): buttons(); return 0
+                    if (wp & 0xFFFF) in (110,111,112,114,115,116): buttons(); return 0
                     if (wp & 0xFFFF) == 107: show_settings(); return 0
                     if (wp & 0xFFFF) == 108:
                         if not preferences.set_auto_check(send(controls['automaticupdates'],0x00F0,0,0)==1):
@@ -611,6 +631,9 @@ def main():
     item('afcchoice','BUTTON','AF-C 连续自动对焦',extra=0x10003,identity=110)
     item('buffchoice','BUTTON','对焦加速',extra=0x10003,identity=111)
     item('brightnesschoice','BUTTON','后屏自动亮度',extra=0x10003,identity=112)
+    item('eyechoice','BUTTON','人眼识别',extra=0x10003,identity=114)
+    item('pixelshiftchoice','BUTTON','像素位移',extra=3,identity=115)
+    item('facetrackingchoice','BUTTON','人脸追踪对焦',extra=3,identity=116)
     for key in ('afcchoice','buffchoice','brightnesschoice'): send(controls[key],0x00F1,1,0)
     item('afc','STATIC','AF-C 连续自动对焦',textfont=strong)
     item('afcdescription','STATIC','在相机上开启连续自动对焦。',textfont=small)
@@ -618,7 +641,13 @@ def main():
     item('buffdescription','STATIC','对焦加速通过将镜头转速提高三倍实现，可安装，但不建议老镜头用户在相机内开启该功能。',textfont=small)
     item('brightness','STATIC','后屏自动亮度',textfont=strong)
     item('brightnessdescription','STATIC','根据环境光调节后屏亮度，可设置最高亮度。',textfont=small)
-    item('dependency','STATIC','三项功能可分别选择。')
+    item('eye','STATIC','人眼识别',textfont=strong)
+    item('eyedescription','STATIC','使用相机原有的人眼识别开关。',textfont=small)
+    item('pixelshift','STATIC','像素位移',textfont=strong)
+    item('pixelshiftdescription','STATIC','即将到来',textfont=small)
+    item('facetracking','STATIC','人脸追踪对焦',textfont=strong)
+    item('facetrackingdescription','STATIC','即将到来',textfont=small)
+    item('dependency','STATIC','四项功能可分别选择。')
     item('summarylabel','STATIC','本次安装')
     item('selectionsummary','STATIC','')
     item('prank','BUTTON','添加防抖功能（907 彩蛋）',extra=0x10003,identity=105)

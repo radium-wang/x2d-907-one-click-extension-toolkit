@@ -82,6 +82,80 @@ class WindowsLanguageUITests(unittest.TestCase):
             with patch.object(app,'os',SimpleNamespace(name='nt',environ={'LOCALAPPDATA':folder})),patch.object(app.C,'WinDLL',side_effect=lambda *a,**k:api,create=True),patch.object(app.C,'WINFUNCTYPE',C.CFUNCTYPE,create=True),patch.object(app,'Session',Session),patch.object(app.threading,'Thread',Thread),patch.object(app.subprocess,'Popen') as worker:
                 app.main();worker.assert_not_called()
 
+    def test_eye_selection_is_optional_and_coming_soon_cards_never_install(self):
+        for language in ('zh','zh-Hant','en'):
+            pending=[]
+            class SelectionAPI(WindowAPI):
+                def call(self,name,*args):
+                    if name=='GetMessageW':
+                        self.session.verified=True
+                        choices={item['id']:handle for handle,item in self.controls.items() if item['id'] in (110,111,112,114,115,116)}
+                        assert [self.controls[choices[key]].get('checked',0) for key in (110,111,112,114,115,116)]==[1,1,1,0,0,0]
+                        for key in (110,111,112):self.controls[choices[key]]['checked']=0
+                        for key in (115,116):
+                            assert not self.enabled[choices[key]]
+                            self.controls[choices[key]]['checked']=1
+                            self.proc(101,0x0111,key,choices[key])
+                            assert not self.controls[choices[key]]['checked'] and not self.enabled[choices[key]]
+                        self.proc(101,0x0202,0,(450<<16)|500)
+                        self.proc(101,0x0202,0,(525<<16)|500)
+                        assert not self.controls[choices[114]].get('checked',0)
+                        self.proc(101,0x0202,0,(395<<16)|500)
+                        assert self.controls[choices[114]]['checked']==1
+                        install=next(h for h,item in self.controls.items() if item['id']==102)
+                        assert self.enabled[install]
+                        self.proc(101,0x0111,102,install)
+                        assert len(pending)==1 and pending[0][1][3]==('eye-detection',)
+                        assert all(not self.enabled[h] for h in choices.values())
+                        return 0
+                    return super().call(name,*args)
+            api=SelectionAPI()
+            class Session(app.Session):
+                def __init__(self):super().__init__();api.session=self
+            class Thread:
+                def __init__(self,target,args,daemon):self.target,self.args=target,args
+                def start(self):pending.append((self.target,self.args))
+            with tempfile.TemporaryDirectory() as folder:
+                (Path(folder)/'X2DPlay').mkdir()
+                (Path(folder)/'X2DPlay/language.json').write_text(json.dumps({'language':language}))
+                with patch.object(app,'os',SimpleNamespace(name='nt',environ={'LOCALAPPDATA':folder})),patch.object(app.C,'WinDLL',side_effect=lambda *a,**k:api,create=True),patch.object(app.C,'WINFUNCTYPE',C.CFUNCTYPE,create=True),patch.object(app,'Session',Session),patch.object(app.threading,'Thread',Thread),patch.object(app.subprocess,'Popen') as worker:
+                    app.main();worker.assert_not_called()
+
+    def test_status_restores_verified_907_choice_and_manual_cancel_survives_rendering(self):
+        for installed,choice,expected in ((False,False,True),(True,True,True),(True,False,False),(True,None,False)):
+            pending=[]
+            status=dict(type='status',connected=True,firmware='4.2.0',model='907X & CFV 100C',installed=installed,verifiedPrankIbis=choice)
+            class PrankAPI(WindowAPI):
+                def call(self,name,*args):
+                    if name=='PostMessageW':self.proc(*args);return 1
+                    if name=='GetMessageW':
+                        prank=next(h for h,item in self.controls.items() if item['id']==105)
+                        self.proc(101,0x0111,101,0)
+                        assert not self.controls[prank].get('checked',0)
+                        worker,arguments=pending.pop();assert arguments[0]=='status';worker(*arguments)
+                        assert self.controls[prank].get('checked',0)==int(expected) and self.enabled[prank]
+                        self.controls[prank]['checked']=0
+                        self.proc(101,0x0111,105,prank)
+                        self.proc(101,0x0111,107,0)
+                        self.selection=2;self.proc(101,0x0111,(1<<16)|104,0)
+                        assert not self.controls[prank]['checked']
+                        self.proc(101,0x0111,102,0)
+                        worker,arguments=pending.pop()
+                        assert arguments[0]=='install' and arguments[1] is False
+                        assert not self.controls[prank]['checked']
+                        return 0
+                    return super().call(name,*args)
+            api=PrankAPI()
+            class Session(app.Session):
+                def __init__(self):super().__init__();api.session=self
+            class Thread:
+                def __init__(self,target,args,daemon):self.target,self.args=target,args
+                def start(self):pending.append((self.target,self.args))
+            child=SimpleNamespace(stdin=None,stdout=io.StringIO('X2D_EVENT '+json.dumps(status)+'\n'),wait=lambda:0)
+            with tempfile.TemporaryDirectory() as folder:
+                with patch.object(app,'os',SimpleNamespace(name='nt',environ={'LOCALAPPDATA':folder})),patch.object(app.C,'WinDLL',side_effect=lambda *a,**k:api,create=True),patch.object(app.C,'WINFUNCTYPE',C.CFUNCTYPE,create=True),patch.object(app,'Session',Session),patch.object(app.threading,'Thread',Thread),patch.object(app.subprocess,'Popen',return_value=child),patch('windows_connection.prepare_driver',lambda event:None):
+                    app.main()
+
     def test_window_close_cancels_real_blocked_update_child_without_camera_work(self):
         ready = threading.Event(); children = []
         popen = subprocess.Popen

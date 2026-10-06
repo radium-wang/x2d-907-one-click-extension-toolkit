@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.15](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.15) — 2026-10-06
+
+- Add optional stock EyeDetection to the desktop feature selection and camera Tweaks menu, with three-language controls. Verify DebugMode/bit 1 against firmware 4.2.0; read back each write, retain other debug options and recover the original state on master disable or restoration. Eye boxes require stock face detection and do not establish tracking autofocus. Physical camera behavior remains pending.
+- Add disabled Pixel Shift and Face Tracking AF entries marked Coming soon; use the supplied Pixel Shift artwork and keep Mac/Windows layouts aligned.
+- Preserve the verified 907 Easter egg choice during connection checks and upgrades; default it on for a stock 907 while retaining an explicit installed opt-out. Confirm its receipt separately from the main extension menu.
+- Preserve the exact 0.4.14 manifest and all language bytes for recognized upgrade/restoration, coordinating legacy workers before recovery.
+- Publish Mac universal and Windows x64 packages. All 256 offline tests pass with local payloads; clean source passes 220 and skips 36. Nineteen real-worker/C Eye checks, twelve generated-shell recovery checks, three-language Qt touch/XHR and first-use notice checks, native AppKit selection/907 checks and nine Windows layout previews pass. Mac native launch, 76 Mach-O / 38 PE dependency audits, all 33 current variants / 95 previous-byte catalog entries and both updater extraction checks pass. Physical camera Eye behavior and native Windows execution remain pending.
+
 ## [0.4.14](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.14) — 2026-10-06
 
 - Show the free-project notice only until its first acknowledgement. Store the fixed camera preference independently of feature switches and retain it across GUI/camera restart and routine upgrades; keep all three languages and block settings until the initial preference read completes.
@@ -164,6 +172,14 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## [0.4.15](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.15) — 2026-10-06
+
+- 新增可选人眼识别，桌面安装勾选及相机“耍起功能”开关支持三种语言。核验原厂 4.2.0 的 DebugMode／bit 1，每次写入均回读，保留其他调试选项，总关闭及恢复时还原原始状态。眼框需开启原厂人脸检测，不代表跟随对焦，实机行为仍待验证。
+- 新增灰色不可选的像素位移及人脸追踪对焦，标注“即将到来”；使用用户提供的像素位移图标，Mac／Windows 布局同步。
+- 连接检查与升级时保留已核验的 907 彩蛋选择；原厂 907 首次安装默认勾选，已安装明确取消时继续保留取消，独立核验彩蛋菜单回执。
+- 保留 0.4.14 精确清单及三种语言字节，支持已知升级与恢复；撤回功能前先协调旧版服务及 worker。
+- 发布 Mac 通用及 Windows x64 安装包。256 项带本地载荷的离线测试通过；纯源码通过 220 项、跳过 36 项。19 项真实 worker／C 人眼检查、12 项实际生成 shell 恢复检查、三语言 Qt 点击／XHR 及首次提示、原生 AppKit 功能选择／907 检查、九种 Windows 布局预览通过。Mac 原生启动、76 个 Mach-O／38 个 PE 依赖审计、33 个当前载荷版本／95 个旧字节条目及两平台更新解压检查通过。人眼实机行为与 Windows 原生运行仍待验证。
 
 ## [0.4.14](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.14) — 2026-10-06
 

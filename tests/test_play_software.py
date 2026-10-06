@@ -8,9 +8,9 @@ RAW=b'service camera-gui /system/bin/camera-gui -platform wayland-egl --fullscre
 
 class SoftwareTests(unittest.TestCase):
     @requires_payloads
-    def test_bundle_verifies_and_has_no_eye_detection(self):
+    def test_bundle_verifies_four_installable_features(self):
         manifest=app.prepare()
-        self.assertEqual(manifest['features'],['afc','speed-buff','auto-rear-brightness'])
+        self.assertEqual(manifest['features'],['afc','speed-buff','auto-rear-brightness','eye-detection'])
         self.assertEqual(manifest['entryIndex'],11)
         self.assertFalse(manifest['lensRestriction'])
 
@@ -44,22 +44,24 @@ class SoftwareTests(unittest.TestCase):
             transport.assert_not_called()
 
     def test_failed_worker_never_reports_old_state(self):
-        with patch.object(app,'shell',return_value=''),patch.object(app,'read_bytes') as read:
+        with patch.object(app,'verify_installed_integrity',return_value={'featureMask':7}),patch.object(app,'shell',return_value=''),patch.object(app,'read_bytes') as read:
             with self.assertRaises(RuntimeError): app.backend('master_off')
             read.assert_not_called()
 
-    def restore_case(self,phase='INSTALLED',ledger=None,rc=None,active=False,previous=False,partial=None):
+    def restore_case(self,phase='INSTALLED',ledger=None,rc=None,active=False,previous=False,partial=None,features=None,state_extra=None,recovery_ok=True):
         m=json.loads((app.O/(previous if isinstance(previous,str) else 'previous-bundle.json')).read_bytes()) if previous else app.prepare()
+        if features is not None:m=app.select_features(m,features)
         targets=[f['target'] for f in m['files']]
         ledger=targets if ledger is None else ledger
         uploads={}
+        self.last_restore_uploads=uploads
         with patch.object(app,'STOCK_RC',app.sha(RAW)):
-            modified=app.init_config(RAW)
+            modified=app.init_config(RAW,m.get('featureMask'))
             m.update(initBefore=app.sha(RAW),initAfter=app.sha(modified))
             data={app.ROOT+'/manifest':json.dumps(m).encode(),app.ROOT+'/stockrc':RAW,
                   app.ROOT+'/installed':phase.encode(),app.ROOT+'/created':' '.join(ledger).encode(),
                   app.RC:modified if rc is None else rc,
-                  '/tmp/x2d-speed-buff/ui.json':json.dumps(dict(ready=True,active=active,afc=False,master=False)).encode()}
+                  '/tmp/x2d-speed-buff/ui.json':json.dumps(dict(ready=True,active=active,afc=False,master=False,**(state_extra or {}))).encode()}
             if m.get('autoBrightness'):
                 display_raw=b'service camera-system /system/bin/camera-system\n    class core\n'
                 display_rc=display_raw+b'    setenv X2D_DISPLAY_RUNTIME 1\n    setenv LD_PRELOAD /system/lib64/libx2d_play_brightness.so\n'
@@ -71,7 +73,8 @@ class SoftwareTests(unittest.TestCase):
             def shell(command):
                 if command.startswith('test -e '):
                     return 'YES' if '/installed' in command or any(path in command for path in (partial or {})) else 'NO'
-                if command.endswith('&& echo ACTION_FINISHED'): return 'ACTION_FINISHED'
+                if command=='sh '+app.STAGE+'/recover && echo ACTION_FINISHED || echo RECOVERY_FAILED':
+                    return 'ACTION_FINISHED' if recovery_ok else 'RECOVERY_FAILED'
                 if command=='sh '+app.STAGE+'/restore': return 'PLAY_SOFTWARE_RESTORED'
                 raise AssertionError(command)
             with patch.object(app,'verify_target'),patch.object(app,'ensure_adb'),patch.object(app,'shell',side_effect=shell),patch.object(app,'read_bytes',side_effect=lambda p:data[p]),patch.object(app,'upload',side_effect=lambda n,b:uploads.update({n:b})),patch.object(app,'event'),patch.object(app,'reboot_and_verify') as reboot:
@@ -124,6 +127,27 @@ class SoftwareTests(unittest.TestCase):
     def test_active_patch_prevents_file_removal(self):
         with self.assertRaisesRegex(RuntimeError,'功能撤回'):
             self.restore_case(active=True)
+
+    @requires_payloads
+    def test_eye_restoration_must_be_confirmed_before_files_can_be_removed(self):
+        for state in ({},dict(eyeRestored=False,eyeEnabled=False),dict(eyeRestored=True,eyeEnabled=True)):
+            with self.subTest(state=state),self.assertRaisesRegex(RuntimeError,'人眼识别设置撤回尚未确认'):
+                self.restore_case(features=['eye-detection'],state_extra=state)
+            self.assertNotIn('restore',self.last_restore_uploads)
+
+    @requires_payloads
+    def test_failed_eye_recovery_cannot_approve_uninstall_using_an_old_ready_state(self):
+        with self.assertRaisesRegex(RuntimeError,'功能撤回未完成'):
+            self.restore_case(features=['eye-detection'],state_extra=dict(eyeRestored=True,eyeEnabled=False),recovery_ok=False)
+        self.assertNotIn('restore',self.last_restore_uploads)
+
+    @requires_payloads
+    def test_eye_restore_uses_verified_recovery_worker_and_selected_mask(self):
+        self.restore_case(features=['eye-detection'],state_extra=dict(eyeRestored=True,eyeEnabled=False))
+        control=self.last_restore_uploads['recover'].decode()
+        self.assertIn('export X2D_FEATURE_MASK=8\n',control)
+        self.assertIn('/recovery eye_restore\n',control)
+        self.assertEqual(self.last_restore_uploads['recovery'],(app.O/'speed-worker').read_bytes())
 
     @requires_payloads
     def test_previous_bundle_restores_using_its_exact_installed_hash(self):

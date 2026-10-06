@@ -6,6 +6,17 @@ import x2d_play_software as app
 from windows_app import Session
 
 class PrankTests(unittest.TestCase):
+    def test_verified_manifest_prank_choice_is_preserved_and_stock_907_defaults_on(self):
+        base=dict(type='status',connected=True,firmware='4.2.0',model='907X & CFV 100C')
+        self.assertIs(Session.prank_choice_from_status(dict(base,installed=False)),True)
+        for choice in (True,False):
+            event=dict(base,installed=True,verifiedPrankIbis=choice,state={'ready':False,'prankIbis':not choice})
+            self.assertIs(Session.prank_choice_from_status(event),choice)
+        for unknown in (None,0,1,'true','false',[],{}):
+            self.assertIsNone(Session.prank_choice_from_status(dict(base,installed=True,verifiedPrankIbis=unknown)))
+        self.assertIsNone(Session.prank_choice_from_status(dict(base,installed=True,recovery=True,state={'prankIbis':True})))
+        for update in ({'model':'X2D 100C'},{'connected':False},{'firmware':'3.1.0'}):
+            self.assertIs(Session.prank_choice_from_status(dict(base,installed=True,verifiedPrankIbis=True,**update)),False)
     def test_exact_stock_model_pairs(self):
         for value,expected in [('0x0009\nX2D 100C','X2D 100C'),('0x000A\nCFV 100C','907X & CFV 100C')]:
             with patch.object(app,'shell',return_value=value):self.assertEqual(app.camera_model(),expected)

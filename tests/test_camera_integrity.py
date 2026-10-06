@@ -150,6 +150,8 @@ class IntegrityTests(unittest.TestCase):
                     '/system/bin/camera-service': 'fbcf828f73bca13f0c8b95e7dd0b95ac483ae36954ec06179098c8a1a65f9f82',
                     '/system/lib64/librcam.so': '72ebc8deebce4a29047c475e77ab4edbf2860abb1f572fea45260fe17ad0bda5',
                     '/system/bin/camera-system': app.DISPLAY_SYSTEM_SHA,
+                    '/system/bin/odindb-send': app.ODINDB_SHA,
+                    '/system/bin/toybox': app.TOYBOX_SHA,
                     '/system/etc/init/camera-service.rc': app.STOCK_SERVICE_RC}
         for failed in expected:
             def output(command):

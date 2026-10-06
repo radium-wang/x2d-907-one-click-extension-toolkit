@@ -41,6 +41,8 @@ static int run(const char *action) {
  if(!strcmp(action,"disable"))return system("/system/bin/sh /system/etc/x2d-speed-buff/worker disable");
  if(!strcmp(action,"afc_on"))return system("/system/bin/sh /system/etc/x2d-speed-buff/worker afc_on");
  if(!strcmp(action,"afc_off"))return system("/system/bin/sh /system/etc/x2d-speed-buff/worker afc_off");
+ if(!strcmp(action,"eye_on"))return system("/system/bin/sh /system/etc/x2d-speed-buff/worker eye_on");
+ if(!strcmp(action,"eye_off"))return system("/system/bin/sh /system/etc/x2d-speed-buff/worker eye_off");
  if(!strcmp(action,"master_on"))return system("/system/bin/sh /system/etc/x2d-speed-buff/worker master_on");
  if(!strcmp(action,"master_off"))return system("/system/bin/sh /system/etc/x2d-speed-buff/worker master_off");
  return -1;
@@ -57,6 +59,9 @@ __attribute__((constructor)) static void serve(void) {
  /* The saved AF-C flag controls availability only. Preserve the stock
   * focus mode selected by the user (AF-S / AF-C / MF) at startup. */
  system("if [ -e /blackbox/x2d-speed-buff.master ] && [ -e /blackbox/x2d-speed-buff.enabled ]; then n=0; while [ $n -lt 30 ]; do /system/bin/sh /system/etc/x2d-speed-buff/worker enable && break; n=$((n+1)); sleep 1; done; fi");
+ /* Only an explicitly saved Eye choice is reapplied; never enable it merely
+  * because the feature was installed, and never select a camera focus mode. */
+ system("if [ -e /blackbox/x2d-speed-buff.master ] && [ -e /blackbox/x2d-play-eye.preference ]; then n=0; while [ $n -lt 30 ]; do /system/bin/sh /system/etc/x2d-speed-buff/worker eye_resume && break; n=$((n+1)); sleep 1; done; fi");
  for(;;){
   int c=accept(s,0,0);if(c<0)continue;
   struct timeval t={3,0};setsockopt(c,1,20,&t,sizeof(t));setsockopt(c,1,21,&t,sizeof(t));
@@ -72,6 +77,8 @@ __attribute__((constructor)) static void serve(void) {
    else if(!strncmp(req,"POST /disable HTTP/1.",21))action="disable";
    else if(!strncmp(req,"POST /afc_on HTTP/1.",20))action="afc_on";
    else if(!strncmp(req,"POST /afc_off HTTP/1.",21))action="afc_off";
+   else if(!strncmp(req,"POST /eye_on HTTP/1.",20))action="eye_on";
+   else if(!strncmp(req,"POST /eye_off HTTP/1.",21))action="eye_off";
    else if(!strncmp(req,"POST /master_on HTTP/1.",23))action="master_on";
    else if(!strncmp(req,"POST /master_off HTTP/1.",24))action="master_off";
   }

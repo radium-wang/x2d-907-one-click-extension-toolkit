@@ -8,7 +8,7 @@ from payload_support import requires_payloads
 import x2d_play_software as app
 
 D=Path(__file__).resolve().parents[1]/'src'
-HINT='对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。'
+HINT='对焦加速通过将镜头转速提高三倍实现，可安装，但不建议老镜头用户在相机内开启该功能。'
 
 
 class FocusGuidance(unittest.TestCase):
@@ -17,7 +17,7 @@ class FocusGuidance(unittest.TestCase):
         self.assertEqual(translate('对焦加速','zh-Hant'),'對焦加速')
         self.assertEqual(english_qml('text: "对焦加速"'),'text: "Focus Speed Boost"')
         self.assertEqual(traditional_qml('text: "对焦加速"'),'text: "對焦加速"')
-        self.assertIn('tripling',translate(HINT,'en'))
+        self.assertIn('triples',translate(HINT,'en'))
         self.assertIn('older lenses',translate(HINT,'en'))
         self.assertIn('老鏡頭',translate(HINT,'zh-Hant'))
         self.assertIn(translate(HINT,'en'),english_qml('text: "'+HINT+'"'))

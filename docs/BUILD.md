@@ -76,7 +76,14 @@ Desktop installations use `--interactive-confirmation` and a private stdin pipe:
 
 ## Optional QML model check
 
-`python3 -B tests/check_menu_qml.py` executes the source model and route with Qt service substitutes, without camera access. It needs PySide 6.4.1 and its `rcc` executable. On the tested macOS 27 host, Qt 6.4.1 ARM builds abort during CPU-feature initialization; use a separate Intel Python 3.11 / Intel PySide 6.4.1 environment under Rosetta for this exact-version test. This dependency is optional and is not part of the native Mac application.
+`tests/check_menu_qml.py` executes the source model and route with Qt service substitutes, without camera access. It needs PySide 6.4.1 and its `rcc` executable. On the tested macOS 27 host, Qt 6.4.1 ARM builds abort during CPU-feature initialization; use a separate Intel Python 3.11 / Intel PySide 6.4.1 environment under Rosetta for all QML checks and Windows layout previews. Set the interpreter path explicitly before running, for example:
+
+```sh
+export X2D_QT_PYTHON=/absolute/path/to/intel-python3.11
+arch -x86_64 "$X2D_QT_PYTHON" -B tests/check_menu_qml.py
+```
+
+Do not probe this Qt runtime by importing PySide with the host's ARM system Python. The native Mac application uses AppKit and its bundled Python 3.13; desktop Qt is an optional test dependency and is excluded from published packages.
 
 ## Desktop Settings
 
@@ -94,7 +101,7 @@ The installation ledger retains both stock startup configurations. Both writes r
 
 ## Focus acceleration guidance
 
-`tests/check_focus_guidance_qml.py --payload /absolute/path/to/generated/package` checks the packaged Simplified/Traditional Chinese and English switch descriptions with Qt 6.4.1 and stock-style fixtures. It checks stock typography/opacity, wrapping at 1024/768/620 widths, real switch clicks and master-off gating. It also checks the free-project notice's exact translated message/button, fitting layout, blocked background input, first-only menu entry and real button dismissal. `tests/check_menu_qml.py` checks Escape/Back dismissal of the notice before leaving the menu and the resident page across 100 entries. These are desktop fixtures, not camera screenshots. Preserve the 0.4.7 through 0.4.13 manifests and old per-file bytes for recognized upgrades/restoration; both builders include the catalog.
+`tests/check_focus_guidance_qml.py --payload /absolute/path/to/generated/package` checks the packaged Simplified/Traditional Chinese and English switch descriptions with Qt 6.4.1 and stock-style fixtures. It checks stock typography/opacity, wrapping at 1024/768/620 widths, real switch clicks and master-off gating. It also checks the free-project notice's exact translated message/button, fitting layout, blocked background input, first-only menu entry and real button dismissal. `tests/check_menu_qml.py` checks Escape/Back dismissal of the notice before leaving the menu and the resident page across 100 entries. These are desktop fixtures, not camera screenshots. Preserve the 0.4.7 through 0.4.14 manifests and old per-file bytes for recognized upgrades/restoration; both builders include the catalog.
 
 ## Focus popup and liveview icons
 
@@ -105,3 +112,10 @@ Both desktop builders must include the pinned 0.4.8, 0.4.9 and 0.4.11 manifests 
 ## First-use free-project notice (0.4.14)
 
 `tests/test_free_notice.py` executes the actual C marker code against temporary files: first-use persistence in a fresh process, restrictive permissions, repeated acknowledgement, short writes, sync failure, foreign files, symlinks, FIFO and an unavailable directory. `tests/check_free_notice_qml.py --payload /absolute/path/to/generated/package` uses the actual packaged page and feature controller, Qt 6.4.1 XHR, a loopback transport substitute and that C preference code. It checks all three languages, delayed initial reads, acknowledgement failure/retry, fresh-engine persistence and 100 menu entries without touching focus/speed actions. `tests/test_eye_debug.py` checks fixed read-only debug queries, parsed masks, unreadable replies and translated diagnostics. No camera is accessed.
+
+
+## Optional eye recognition (0.4.15)
+
+`tests/test_eye_feature.py` executes the real worker and C request dispatch using temporary stock property and process substitutes. It checks masked getters against saved INI flags, setter readback, preservation of unrelated debug options, silent setter refusal, interrupted journals, preference persistence, restoration and FD-lock contention. `tests/test_recovery_control.py` runs the generated recovery script against real NUL-separated argv fixtures and checks that legacy services/workers finish before any restore write.
+
+The firmware DebugMode/bit-1 audit is documented in `EYE-AUDIT.md`. No tracking runtime or stock INI edit is introduced; the original setters are used. The new feature is opt-in, while default mask 7 retains the original three selections. All 15 nonempty selections and three languages are recognized; old 0.4.14 packages remain limited to their original seven masks. Both desktop builders retain its exact manifest and byte catalog. Physical eye-box behavior and native Windows execution remain pending.

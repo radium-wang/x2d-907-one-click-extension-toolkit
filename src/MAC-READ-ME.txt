@@ -1,8 +1,10 @@
-x2d/907一键扩展功能-工具包 0.4.14 · macOS 通用实验版
+x2d/907一键扩展功能-工具包 0.4.15 · macOS 通用实验版
 
 选择安装与新版界面 / Selected features and desktop interface
-左侧查看日志，右侧分别选择 AF-C、对焦加速和后屏自动亮度，再点击“安装所选功能”。未选择的功能不会出现在相机功能页中；默认开关均关闭。
-Select AF-C, focus acceleration and rear brightness independently, then click Install selected features. Unselected feature rows stay hidden in the camera; switches default to off.
+左侧查看日志，右侧分别选择四项功能，再点击“安装所选功能”。默认选择 AF-C、对焦加速和后屏自动亮度，人眼识别为第四项可选功能；未选择的功能行不会出现在相机功能页中。安装人眼项不会启用或清除原厂设置，机内开关显示实际回读状态。
+Select the wanted features, then click Install selected features. AF-C, focus acceleration and rear brightness are selected by default; Eye Recognition is a fourth optional feature. Unselected rows stay hidden in the camera. Installing Eye Recognition leaves the original setting unchanged; its camera switch reports the actual state.
+像素位移和人脸追踪对焦显示为灰色“即将到来”，不能勾选，不安装相关功能。
+Pixel Shift and Face Tracking Autofocus are gray, disabled Coming soon entries and install no functionality.
 本版补上原厂 Qt 静态资源函数定位，针对 FOCUS_RESOURCE_API_MISSING 导致的菜单缺失；离线检查通过，实机重启及菜单加载仍待验证。
 This build addresses the resource-function lookup behind FOCUS_RESOURCE_API_MISSING. Offline checks passed; physical camera restart and menu loading remain pending.
 已遇到此错误的用户：保持连接，点击恢复原状完成原安装的撤回，再用新版检查并安装。未知修改需先用原修改工具恢复原厂。
@@ -11,12 +13,12 @@ If the old install reported that error, keep the connection and use Restore orig
 
 新版对焦界面
 对焦弹窗采用二代图标、底框尺寸及间距，字体和边框保留一代样式；实时取景右侧显示对应的 AF-S、AF-C 或 MF 图标。
-AF-C 功能关闭时显示 AF-S/MF 两项，开启时显示三项。安装及开启功能不会自动选择 AF-C。
+AF-C 功能关闭时显示 AF-S/MF 两项，开启时显示三项。安装及开机服务不会自动选择 AF-C。
 沿用 App 原有安装方式，不覆盖原厂 GUI 程序。本版新预载路径已通过离线检查，仍待实机验证。
 
 Updated focus interface
 The popup uses the reviewed focus icons and spacing with first-generation fonts and borders; liveview shows the corresponding AF-S, AF-C or MF icon.
-AF-C availability controls the two/three-mode list. Installation and enabling do not select AF-C.
+AF-C availability controls the two/three-mode list. Installation and startup do not automatically select AF-C.
 This version uses the existing App installation route and leaves the stock GUI executable intact. Offline checks passed; device validation of the new preload route is pending.
 
 语言选择
@@ -33,8 +35,8 @@ English quick start
 1. Extract the ZIP and open x2d-907一键扩展功能-工具包.app. No Python or Homebrew installation is required.
 2. Turn on one supported camera, connect it to your Mac and click Connected.
 3. Once checks pass, select the wanted features and click Install selected features, or Restore original. Keep the camera powered and connected until completion is confirmed. Tap Skip on the camera if prompted.
-4. Open Tweaks (English install) or 耍起功能 (Chinese install) at the end of the camera's main menu. Turn on its master switch, then AF-C, the focus speed buff, or auto rear screen brightness. Select Traditional Chinese in Settings before Install for Traditional Chinese camera text.
-5. Focus acceleration works by tripling lens motor speed. Not recommended for older lenses.
+4. Open Tweaks (English install) or 耍起功能 (Chinese install) at the end of the camera's main menu. Turn on its master switch, then the installed features you need. For optional Eye Recognition, also enable face detection in the original camera menu. Eye boxes do not establish tracking autofocus. Select Traditional Chinese in Settings before Install for Traditional Chinese camera text.
+5. Focus acceleration triples lens motor speed. It can be installed, but users of older lenses are advised not to enable this feature in the camera.
 macOS 13+ on Apple silicon / Intel; original X2D 100C / 907X & CFV 100C firmware 4.2.0 only.
 This local experimental app uses ad-hoc signing and is not Apple-notarized. The 907X menu update still awaits device verification.
 
@@ -47,7 +49,7 @@ X2D 已有实机安装、重启常驻与恢复验收。
 907X 用户已反馈连接及服务安装通过，但原版未出现菜单入口。本版按其 10 项原厂菜单修正入口追加，实际菜单仍待用户确认；仅在 907X 机身搭配自动对焦 XCD 镜头时测试。
 不适用于 X2D II、907X 50C 或其他固件。
 
-完整解压“x2d-907-extension-toolkit-macOS-Universal-0.4.14.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
+完整解压“x2d-907-extension-toolkit-macOS-Universal-0.4.15.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
 请使用新解压的应用，避免继续打开旧版副本。
 运行库已自带，不需要安装 Python 或 Homebrew。
 0.2.7 在日志中按操作阶段显示连接、按钮操作、相机“跳过”和完成后拔线提示。
@@ -61,10 +63,10 @@ X2D 已有实机安装、重启常驻与恢复验收。
 1. 相机开机并连接 USB，只连接一台相机。
 2. 点击“已连接”，检查通过后启用安装和恢复按钮。
 3. 选择所需功能后点击“安装所选功能”，等待自动备份、安装及重启校验完成。
-4. 相机主菜单末尾进入“耍起功能”；先开启总开关，再分别开启 AF-C、buff 或“在亮度菜单中加入自动亮度”。自动亮度开关和显示屏最高亮度位于“显示 → 亮度”；圆球设置上限，白线显示当前输出。
+4. 相机主菜单末尾进入“耍起功能”；先开启总开关，再开启所需的已安装功能。使用可选人眼识别还需在原厂菜单开启人脸检测；眼部框不等于跟随对焦。自动亮度开关和显示屏最高亮度位于“显示 → 亮度”；圆球设置上限，白线显示当前输出。
 5. 点击“一键恢复原状”，等待撤回功能并重启校验完成。
 
-对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。
+对焦加速通过将镜头转速提高三倍实现，可安装，但不建议老镜头用户在相机内开启该功能。
 等软件报告完成后再拔 USB 线；操作期间保持相机供电。
 
 连接失败或固件不匹配时，按钮保持禁用。
@@ -73,7 +75,7 @@ X2D 已有实机安装、重启常驻与恢复验收。
 未知版本仍需先使用对应版本恢复，程序拒绝强行覆盖。
 日志随所选 App 语言显示，保存于 ~/Library/Application Support/X2DPlay/latest.log。
 
-907X 实机验收：安装后检查主菜单末尾入口与三行开关，AF-C 关闭时两按钮、开启时三按钮。
+907X 实机验收：安装后检查主菜单末尾入口与已选择的功能开关，AF-C 关闭时两按钮、开启时三按钮。
 分别检查总开关、AF-C 和 buff，再重启检查开启状态保持。
 保持镜头安装，测试结束后使用一键恢复，并确认原厂菜单和对焦两按钮布局恢复。
 如果菜单未出现或功能异常，关闭功能、执行恢复，并记录软件的中文提示。
@@ -84,11 +86,11 @@ Project license: X2D/907 Noncommercial Distribution License 1.0 (source-availabl
 Professional photography is allowed. Software sales and paid installation/setup require separate written permission. See licenses/X2D-907-Toolkit.txt for the authoritative terms.
 
 907 防抖彩蛋（可选）
-点击“已连接”并成功识别 907X / CFV 100C 后，“添加防抖功能（907 彩蛋）”勾选框才会可用，默认不勾选。
+点击“已连接”并确认原厂 907X / CFV 100C 后，“添加防抖功能（907 彩蛋）”默认勾选；已有已识别安装时保留其记录中的选择，包括未勾选状态。安装前仍可取消。
 一键恢复原状也会撤回彩蛋入口。此项已通过离线菜单与路由检查，907 实机验证尚未完成。
 
 Optional 907 IBIS Easter egg
-The default-off checkbox becomes available only after Connected verifies a 907X / CFV 100C.
+After Connected verifies a stock 907X / CFV 100C, the checkbox defaults to checked. A recognized existing installation retains its recorded choice, including an unchecked choice. You can uncheck it before installation.
 Restore removes it as well. Device verification on the 907 is pending.
 
 软件更新 / App updates
@@ -109,11 +111,10 @@ Install selects the camera menu language from the app. Restoration before reinst
 0.4.12 安装前检查
 安装前会核验指定的原厂界面、对焦、显示文件及安装记录。检测到未知修改时停止操作，请先使用原修改工具恢复原厂 4.2.0，再重新检查；本应用不会覆盖或恢复未知修改。检测不代表整个固件或运行内存均为原厂。
 对焦加速可安装，但不建议老镜头用户在相机内开启该功能。
-本版相机载荷与 0.4.9 相同，选择安装功能尚未接入。
 
 0.4.12 pre-installation checks
 The installer checks the specified stock UI, focus and display files and installation records. Unknown modifications stop the operation. Restore stock 4.2.0 with the original modification tool, then check again. This toolkit will not overwrite or restore unknown modifications. The check does not establish that the entire firmware or live memory is stock.
-Focus acceleration can be installed, but older-lens users are advised not to enable it in the camera. Camera payloads are unchanged from 0.4.9; selectable installation is not included.
+Focus acceleration can be installed, but older-lens users are advised not to enable it in the camera.
 
 0.4.12 对焦界面修复 / Focus UI fix
 关闭耍起功能或 AF-C 时使用原厂对焦弹窗和图标；两个开关都开启后同步主页、取景和弹窗的 AF-S／AF-C／MF。三语言离线回归已覆盖，仍待实机验证。
@@ -121,6 +122,12 @@ Stock focus popup and icons remain when either switch is off. With both switches
 
 0.4.14 首次免费提示及人眼调试检查 / First-use notice and eye debug check
 首次进入耍起功能菜单时显示免费提示；确认后记录在相机上，菜单重进、相机重启和常规更新不再重复。提供简体中文、繁体中文及英文。
-点击“已连接”只读检查原厂人眼调试选项；眼部框不能证明人眼跟随对焦，本工具不会开启或清除该选项。
+0.4.14 点击“已连接”只读检查原厂人眼调试选项；该版未开启或清除该选项。眼部框不能证明人眼跟随对焦。
 Show the free-project notice on first menu use. Acknowledgement is stored on the camera and retained across menu entries, restart and routine upgrades. All three languages are included.
-Connected reads the stock eye-detection debug flags. Eye boxes do not establish eye-tracking autofocus; the toolkit does not enable or clear these flags.
+Version 0.4.14 Connected reads the stock eye-detection debug flags without enabling or clearing them. Eye boxes do not establish eye-tracking autofocus.
+
+0.4.15 可选人眼识别 / Optional Eye Recognition
+勾选安装后，在耍起功能中控制原厂 EyeDetection 调试选项；还需在原厂菜单开启人脸检测。本工具不加入人脸或人眼跟随对焦。0.4.8 未加入人眼调试写入的历史核查结论仍有效。新增开关已完成固件分析及离线检查，尚未实机测试。
+原 DebugMode 关闭时，开启只激活 Eye 位，关闭先确认 DebugMode 已关闭，再恢复保存的隐藏位；原 DebugMode 开启时只添加或移除 Eye 位，保留其他当前调试位。关闭总开关或恢复软件时还原本工具仍持有的原始 Eye 设置，包括原先已开启的 Eye 位，确认后释放记录。外部修改冲突时停止并保留记录，不覆盖用户设置；中断仅按已核验的事务记录恢复。
+Selecting Eye Recognition adds a Tweaks switch for the original EyeDetection debug option. Enable face detection in the stock menu as well. This adds neither face- nor eye-tracking autofocus. The historical finding that 0.4.8 made no eye-debug writes remains valid. Firmware analysis and offline checks cover the new switch; physical camera testing is pending.
+If DebugMode was off, ON activates only EyeDetection; OFF verifies DebugMode is off before restoring the saved hidden flags. If DebugMode was on, ON/OFF adds/removes EyeDetection while retaining other current flags. Turning off Tweaks or restoring the software returns settings still owned by the toolkit, including an originally enabled Eye bit, then releases the records. Conflicting external changes stop restoration without overwriting user settings; interrupted writes require verified recovery records.

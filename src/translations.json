@@ -206,7 +206,7 @@
   "恢复路径清单不符合本版本": "Restore path list does not match this version",
   "已安装文件清单不完整": "Installed file list is incomplete",
   "正在撤回 AF-C 和对焦加速": "Removing AF-C and focus speed changes",
-  "功能撤回未完成，请保持连接重试": "Feature removal incomplete. Keep the camera connected and retry",
+  "功能撤回未完成，请保持连接重试": "Feature restoration did not complete. Keep the camera connected and retry.",
   "功能撤回尚未核验，请松开快门后重试": "Feature removal not verified yet. Release the shutter button and retry",
   "中断后的启动配置不是本软件写入的内容": "Interrupted startup configuration was not written by this software",
   "恢复所需的已知载荷校验失败": "Known restore payload integrity check failed",
@@ -388,5 +388,18 @@
   "尚未选择功能": "No features selected",
   "检测到原厂人眼调试选项已开启；眼部框不代表跟随对焦。本工具不会开启或清除该选项。": "The stock eye-detection debug option is enabled. Eye boxes do not establish tracking autofocus. This toolkit does not enable or clear this option.",
   "当前原厂人眼调试选项未开启；眼部框来源仍需结合相机状态判断。": "The stock eye-detection debug option is currently off. The source of any eye boxes still needs camera-state verification.",
-  "原厂人眼调试状态暂无法读取，尚不能判断眼部框来源。": "The stock eye-detection debug state could not be read. The source of eye boxes is still unconfirmed."
+  "原厂人眼调试状态暂无法读取，尚不能判断眼部框来源。": "The stock eye-detection debug state could not be read. The source of eye boxes is still unconfirmed.",
+  "人眼识别": "Eye recognition",
+  "使用相机原有的人眼识别开关。": "Use the camera’s built-in eye recognition switch.",
+  "像素位移": "Pixel shift",
+  "人脸追踪对焦": "Face tracking autofocus",
+  "即将到来": "Coming soon",
+  "四项功能可分别选择。": "Four features can be selected individually.",
+  "安装包不包含所选功能": "The package does not include the selected feature.",
+  "检测到原厂人眼调试选项已开启；眼部框不代表跟随对焦。": "The stock eye-detection debug option is enabled. Eye boxes do not establish tracking autofocus.",
+  "正在撤回已安装的功能": "Reverting installed features",
+  "人眼识别设置未通过回读，请让相机回到空闲状态后重试。": "Eye detection could not be confirmed. Let the camera return to idle, then retry.",
+  "调试选项另有改动，请先将其他调试选项恢复到开启人眼识别时的状态，再关闭或恢复。": "Other debug options have changed. Restore them to their state when eye detection was enabled, then disable or restore.",
+  "人眼识别设置撤回尚未确认，请让相机回到空闲状态后重试恢复。": "Eye detection restoration is not confirmed. Let the camera return to idle, then retry restoration.",
+  "人眼识别设置撤回尚未确认，请保持连接并重试恢复。": "Eye detection restoration is not confirmed. Keep the camera connected and retry restoration."
 }

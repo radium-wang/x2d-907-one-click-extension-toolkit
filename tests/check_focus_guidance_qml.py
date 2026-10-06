@@ -29,14 +29,17 @@ Item {
  property alias loaded:features.loaded
  property alias calls:features.calls
  property alias featureMask:features.featureMask
+ property alias eyeReady:features.eyeReady
+ property alias eyeActive:features.eyeActive
  property alias noticeReady:features.freeNoticeReady
  property alias noticeSeen:features.freeNoticeSeen
  property alias noticeAcknowledged:features.freeNoticeAcknowledged
  onUiScaleChanged:{Constants.scaleFactor=uiScale;Constants.scaleFactorX=uiScale;Constants.scaleFactorY=uiScale}
- QtObject {id:features;property bool master:true;property int featureMask:7;readonly property bool afcInstalled:(featureMask&1)!==0;readonly property bool speedInstalled:(featureMask&2)!==0;readonly property bool brightnessInstalled:(featureMask&4)!==0;property bool loaded:false;property bool busy:false;property bool ready:true;property bool faulted:false;property bool afcEnabled:false;property string statusMessage:"offline";property int calls:0
+ QtObject {id:features;property bool master:true;property int featureMask:7;readonly property bool afcInstalled:(featureMask&1)!==0;readonly property bool speedInstalled:(featureMask&2)!==0;readonly property bool brightnessInstalled:(featureMask&4)!==0;readonly property bool eyeInstalled:(featureMask&8)!==0;property bool eyeEnabled:false;property bool eyeActive:false;property bool eyeReady:true;property string eyeIssue:"none";property bool loaded:false;property bool busy:false;property bool ready:true;property bool faulted:false;property bool afcEnabled:false;property string statusMessage:"offline";property int calls:0
  property bool freeNoticeReady:false;property bool freeNoticeSeen:false;property bool freeNoticeAcknowledged:false
  function acknowledgeFreeNotice(){freeNoticeAcknowledged=true;freeNoticeSeen=true;return true}
- function setEnabled(value){loaded=value;calls++;return true}}
+ function setEnabled(value){loaded=value;calls++;return true}
+ function setEye(value){eyeEnabled=value;eyeActive=value;calls++;return true}}
  X2dPlayPage {anchors.fill:parent;pageActive:true;featureController:features}
  StockMenu.SettingDescription {objectName:"StockDescriptionReference";text:"Reference";isEnabled:features.master;visible:false}
 }'''
@@ -93,9 +96,26 @@ Item {
  point=row.mapToItem(win.contentItem(),QPointF(310,15));before=root.property('calls')
  QTest.mouseClick(win,Qt.LeftButton,Qt.NoModifier,QPoint(round(point.x()),round(point.y())));settle();assert root.property('calls')==before
  win.grabWindow().save(str(out/'disabled.png'))
- for mask in range(1,8):
+ root.setProperty('master',True);root.setProperty('featureMask',8);settle()
+ eyeRow=root.findChild(QObject,'X2dPlayEyeSwitchRow');eyeSelector=root.findChild(QObject,'X2dEyeDetectionSelector')
+ eyeHint=root.findChild(QObject,'X2dEyeDetectionHint')
+ eyeCopy={'zh':'人眼识别','en':'Eye Recognition','zh-Hant':'人眼識別'}
+ assert eyeSelector.property('text')==eyeCopy[language]
+ assert not eyeHint.property('truncated')
+ point=eyeRow.mapToItem(win.contentItem(),QPointF(310,15));before=root.property('calls')
+ root.setProperty('eyeReady',False);settle()
+ QTest.mouseClick(win,Qt.LeftButton,Qt.NoModifier,QPoint(round(point.x()),round(point.y())));settle()
+ assert root.property('calls')==before and not root.property('eyeActive')
+ root.setProperty('eyeReady',True);settle()
+ for active in (True,False):
+  QTest.mouseClick(win,Qt.LeftButton,Qt.NoModifier,QPoint(round(point.x()),round(point.y())));settle()
+  assert root.property('eyeActive')==active and eyeSelector.property('value')==active
+ root.setProperty('eyeActive',True);settle()
+ assert eyeSelector.property('value'), 'Switch must display actual stock state independently of preference'
+ reports[-1]['eyeRealSwitchClickAndReadbackPassed']=True
+ for mask in range(1,16):
   root.setProperty('featureMask',mask);settle()
-  for bit,name in [(1,'X2dPlayAfcSwitchRow'),(2,'X2dPlaySpeedSwitchRow'),(4,'X2dPlayAutoBrightnessSwitchRow')]:
+  for bit,name in [(1,'X2dPlayAfcSwitchRow'),(2,'X2dPlaySpeedSwitchRow'),(4,'X2dPlayAutoBrightnessSwitchRow'),(8,'X2dPlayEyeSwitchRow')]:
    selectedRow=root.findChild(QObject,name);assert selectedRow is not None,name
    assert selectedRow.property('visible')==bool(mask&bit),(language,mask,name)
    assert (selectedRow.height()>0)==bool(mask&bit),(language,mask,name)

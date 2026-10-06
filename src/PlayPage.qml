@@ -60,6 +60,11 @@ FocusScope {
         if (!settingsActive || !masterEnabled || !backendAvailable || featureBusy) return false
         return featureController.setEnabled(!featureLoaded)
     }
+    function requestEyeToggle() {
+        if (!settingsActive || !masterEnabled || !backendAvailable || featureBusy ||
+                !featureController.eyeInstalled || !featureController.eyeReady) return false
+        return featureController.setEye(!featureController.eyeActive)
+    }
 
     AutoBrightnessController { id: brightness; masterEnabled: root.masterEnabled; pageActive: root.pageActive
         installed: root.featureController !== null && root.featureController.brightnessInstalled }
@@ -162,6 +167,55 @@ FocusScope {
 
 
             Item {
+                objectName: "X2dPlayEyeSwitchRow"
+                width: parent.width
+                visible: root.featureController !== null && root.featureController.eyeInstalled
+                readonly property real topOffset: 16 * 1.6 * Constants.scaleFactorY
+                readonly property real bottomOffset: 8 * 1.6 * Constants.scaleFactorY
+                height: visible ? eyeColumn.height + topOffset + bottomOffset : 0
+                Column {
+                    id: eyeColumn
+                    anchors.top: parent.top
+                    anchors.topMargin: parent.topOffset
+                    anchors.left: parent.left; anchors.right: parent.right
+                    anchors.leftMargin: Constants.settingsMenuSettingLeftMargin
+                    anchors.rightMargin: Constants.settingsMenuSettingRightMargin
+                    spacing: 8 * 1.6 * Constants.scaleFactorY
+                    StockMenu.MenuBoolSelector {
+                        objectName: "X2dEyeDetectionSelector"
+                        width: parent.width
+                        text: "人眼识别"
+                        value: root.masterEnabled && root.featureController !== null && root.featureController.eyeActive
+                        itemEnabled: root.settingsActive && root.masterEnabled && root.backendAvailable &&
+                                     root.featureController !== null && root.featureController.eyeReady &&
+                                     !root.featureBusy && !root.requestPending
+                        highlighted: eyeTouch.pressed
+                        showSwitch: true
+                        fontWeight: Font.Medium
+                    }
+                    StockMenu.SettingDescription {
+                        objectName: "X2dEyeDetectionHint"
+                        width: parent.width
+                        text: root.featureController !== null && root.featureController.eyeIssue === "changed" ?
+                            "调试选项另有改动，请先将其他调试选项恢复到开启人眼识别时的状态，再关闭或恢复。" :
+                            root.featureController !== null && root.featureController.eyeIssue === "incomplete" ?
+                            "人眼识别操作未完成，请关闭总开关或恢复软件。" :
+                            root.featureController !== null && root.featureController.eyeIssue === "unavailable" ?
+                            "人眼识别状态无法确认，请检查原厂调试设置。" :
+                            "需在原厂菜单开启人脸检测；眼部框不代表跟随对焦。"
+                        isEnabled: root.masterEnabled && root.backendAvailable
+                    }
+                }
+                MouseArea {
+                    id: eyeTouch
+                    anchors.fill: parent
+                    enabled: root.settingsActive && root.masterEnabled && root.backendAvailable &&
+                             root.featureController !== null && root.featureController.eyeReady
+                    onClicked: root.requestEyeToggle()
+                }
+            }
+
+            Item {
                 objectName: "X2dPlaySpeedSwitchRow"
                 width: parent.width
                 visible: root.featureController !== null && root.featureController.speedInstalled
@@ -190,7 +244,7 @@ FocusScope {
                     StockMenu.SettingDescription {
                         objectName: "X2dFocusSpeedHint"
                         width: parent.width
-                        text: "对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。"
+                        text: "对焦加速通过将镜头转速提高三倍实现，可安装，但不建议老镜头用户在相机内开启该功能。"
                         isEnabled: root.masterEnabled && root.backendAvailable
                     }
                 }

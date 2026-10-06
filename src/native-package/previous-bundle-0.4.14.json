@@ -7,8 +7,8 @@
     {
       "source": "libx2d_native_menu.so",
       "target": "/system/lib64/libx2d_native_menu.so",
-      "bytes": 199408,
-      "sha256": "b628006422ddcd6f21dabdb2dfa652681d8539d9e1b04b370b96453e4108cd96"
+      "bytes": 199360,
+      "sha256": "7d369ef05494148f286bcb4627509ebfc62abf5daa6a2a342d2a23a549e9e74c"
     },
     {
       "source": "X2dNativeMenuBootstrap.qml",
@@ -43,8 +43,8 @@
     {
       "source": "X2dPlayPage.qml",
       "target": "/system/etc/X2dPlayPage.qml",
-      "bytes": 20867,
-      "sha256": "729606eca68d417cf4d3c01bb9a4c7c035dafabda1bd6bf76862e768553a7483"
+      "bytes": 17406,
+      "sha256": "3d6a77303ed77be7ac62130300ffb0f9f22e27b7868b3ccc5dfe754c0a63ccd6"
     },
     {
       "source": "X2dAfcMenuController.qml",
@@ -55,8 +55,8 @@
     {
       "source": "X2dSpeedBuffController.qml",
       "target": "/system/etc/X2dSpeedBuffController.qml",
-      "bytes": 6028,
-      "sha256": "bcb61d53f073c154601c54226541f387ef13226fc939785255085bc03472743a"
+      "bytes": 5295,
+      "sha256": "7af7d94aae8f67d772605eee5024fff7a673a791ab1d72609d698a05dd75e793"
     },
     {
       "source": "X2dAutoBrightnessController.qml",
@@ -103,14 +103,14 @@
     {
       "source": "libx2d_speed_server.so",
       "target": "/system/lib64/libx2d_speed_server.so",
-      "sha256": "1f086cac887422cd086e94bab023611b44819492531bce9a1ed30e5516bc00d1",
-      "bytes": 8600
+      "sha256": "5015f440f85050df666fc57713a07439384b395bdced3ceae7de5aa392dc1db0",
+      "bytes": 8056
     },
     {
       "source": "speed-worker",
       "target": "/system/etc/x2d-speed-buff/worker",
-      "sha256": "8c1f99f518ae38c7f9749b6bab2960033fd943e47da18a71dbac8a21b73b171c",
-      "bytes": 19418
+      "sha256": "99edd715c0a3766d86a38f2bd5402219ee13031c6eb09b388a45fe680ba97870",
+      "bytes": 5449
     },
     {
       "source": "speed-backend",
@@ -148,8 +148,7 @@
   "features": [
     "afc",
     "speed-buff",
-    "auto-rear-brightness",
-    "eye-detection"
+    "auto-rear-brightness"
   ],
   "entryIndexesByModel": {
     "X2D 100C": 11,
@@ -160,8 +159,8 @@
     "907X & CFV 100C"
   ],
   "validation": {
-    "X2D 100C": "prior-menu-and-buff-device-tested; startup-focus-mode-fix-awaiting-device-test; new-focus-ui-preload-device-test-pending; eye-debug-switch-firmware-verified-device-test-pending",
-    "907X & CFV 100C": "USB-and-service-installation-user-reported; ten-item-menu-fix-awaiting-device-test; new-focus-ui-device-test-pending; eye-debug-switch-firmware-verified-device-test-pending"
+    "X2D 100C": "prior-menu-and-buff-device-tested; startup-focus-mode-fix-awaiting-device-test; new-focus-ui-preload-device-test-pending",
+    "907X & CFV 100C": "USB-and-service-installation-user-reported; ten-item-menu-fix-awaiting-device-test; new-focus-ui-device-test-pending"
   },
   "autoBrightness": {
     "systemSha256": "bf854a21881148565ff2cc00376426c37a2b82fed94c653abf024e23ed4ceda6",
@@ -193,8 +192,8 @@
       {
         "source": "X2dPlayPage.en.qml",
         "target": "/system/etc/X2dPlayPage.qml",
-        "bytes": 20965,
-        "sha256": "d45ffab942f21ebdee9bbb5c3bb0853bf56578631b3d7a06f6b491c3e18947f3"
+        "bytes": 17408,
+        "sha256": "ced40648d60fafeba05d02015ce043ad7b976a121a22a7388d64ce5509510ec4"
       },
       {
         "source": "X2dAfcMenuController.en.qml",
@@ -219,8 +218,8 @@
       {
         "source": "X2dPlayPage.zh-Hant.qml",
         "target": "/system/etc/X2dPlayPage.qml",
-        "bytes": 20867,
-        "sha256": "a17e94522993cbc705ea0ff9f560f91f5d0d524021897571dfff6a499a46ac1c"
+        "bytes": 17409,
+        "sha256": "558770bdf2f5930fe931bf40f48404e3f0c660af7b22beeb2bb54e2f79390f2e"
       },
       {
         "source": "X2dAfcMenuController.zh-Hant.qml",
@@ -231,8 +230,8 @@
       {
         "source": "X2dSpeedBuffController.zh-Hant.qml",
         "target": "/system/etc/X2dSpeedBuffController.qml",
-        "bytes": 6028,
-        "sha256": "c6f5cd5c78c4c1732df79dd599dbc94cab3e0857b574930b9368afef178b5ca5"
+        "bytes": 5295,
+        "sha256": "60ef16fe213e03c16a2134ff9c56e2d6e4e7711248f684b6c495ac92d667b458"
       },
       {
         "source": "X2dDisplayRearBrightness.zh-Hant.qml",

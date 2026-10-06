@@ -21,7 +21,9 @@ def text_style(key, language='zh'):
     if key in ('note','logstate'):return 11,False,COLORS['secondary']
     if key=='selectionsummary':return 14,False,COLORS['text']
     if key=='buffdescription':return 12,False,COLORS['orange']
-    if key in ('afc','buff','brightness'):return 14,True,COLORS['text']
+    if key in ('pixelshift','facetracking'):return 14,True,COLORS['disabled_text']
+    if key in ('pixelshiftdescription','facetrackingdescription'):return 12,False,COLORS['disabled_text']
+    if key in ('afc','buff','brightness','eye'):return 14,True,COLORS['text']
     if key=='subtitle':return 13,False,COLORS['secondary']
     if key in ('detail','note','updatesdescription','selectionsummary') or key.endswith('description'):return 12,False,COLORS['secondary']
     return 14,False,COLORS['text']
@@ -67,15 +69,18 @@ def decorations(width=WIDTH, offset=0, language='zh'):
     for key,radius,color,border in [('box',10,'background',True),('logbox',9,'background',True),('summarybox',8,'surface',False)]:
         x,y,w,h = layout[key]
         result.append(('round',(x,y-offset,w,h,radius),COLORS[color],COLORS['border'] if border else None))
-    for x,y,w in [(392,198,560),(392,288,560),(43,140,310),(43,546,310)]:
+    for x,y,w in [(392,198,560),(392,288,560),(392,359,560),(392,430,560),(392,501,560),(43,140,310),(43,546,310)]:
         result.append(('line',(x,y-offset,w),COLORS['border'],None))
-    for kind,key in [('focus','afcchoice'),('bolt','buffchoice'),('sun','brightnesschoice')]:
-        result.append(('icon',(448,layout[key][1]-offset,18,18,kind),COLORS['secondary'],None))
-    result.append(('dot',(layout['state'][0]-13,434-offset,8,8),COLORS['orange'],None))
+    for kind,key in [('focus','afcchoice'),('bolt','buffchoice'),('sun','brightnesschoice'),('eye','eyechoice'),('pixelshift','pixelshiftchoice'),('facetracking','facetrackingchoice')]:
+        color='disabled_text' if key in ('pixelshiftchoice','facetrackingchoice') else 'secondary'
+        result.append(('icon',(448,layout[key][1]-offset,18,18,kind),COLORS[color],None))
+    result.append(('dot',(layout['state'][0]-13,layout['state'][1]+5-offset,8,8),COLORS['orange'],None))
     return result
 
 
 def icon_lines(kind):
+    if kind in LOOK.get('iconTiles',{}):return []
+    if kind in LOOK.get('iconLines',{}):return LOOK['iconLines'][kind]
     if kind == 'focus':
         return [[(0,5),(0,1),(1,0),(5,0)],[(13,0),(17,0),(18,1),(18,5)],
                 [(18,13),(18,17),(17,18),(13,18)],[(5,18),(1,18),(0,17),(0,13)]]
@@ -139,6 +144,7 @@ class NativeStyle:
         self.ellipse=api(gdi,'Ellipse',W.BOOL,W.HDC,*([C.c_int]*4))
         self.move=api(gdi,'MoveToEx',W.BOOL,W.HDC,C.c_int,C.c_int,W.LPVOID)
         self.line=api(gdi,'LineTo',W.BOOL,W.HDC,C.c_int,C.c_int)
+        self.polygon=api(gdi,'Polygon',W.BOOL,W.HDC,C.POINTER(W.POINT),C.c_int)
         self.stock=api(gdi,'GetStockObject',W.HANDLE,C.c_int)
         self.SUBPROC=C.WINFUNCTYPE(C.c_ssize_t,W.HWND,W.UINT,C.c_size_t,C.c_ssize_t,C.c_size_t,C.c_size_t)
         self.subclass=api(common,'SetWindowSubclass',W.BOOL,W.HWND,self.SUBPROC,C.c_size_t,C.c_size_t)
@@ -194,6 +200,19 @@ class NativeStyle:
         self.move(hdc,self.scale(points[0][0]),self.scale(points[0][1]),None)
         for x,y in points[1:]:self.line(hdc,self.scale(x),self.scale(y))
 
+    def tiled_icon(self, hdc, kind, x, y):
+        # Exact SVG tile vertices and back-to-front order, shared with AppKit.
+        for tile in LOOK['iconTiles'][kind]:
+            points=(W.POINT*len(tile['points']))(*[W.POINT(self.scale(x-4+px/2),self.scale(y-4+py/2)) for px,py in tile['points']])
+            self.select(hdc,self.resource('brush',COLORS['background']))
+            self.select(hdc,self.resource('pen',COLORS['background']))
+            self.polygon(hdc,points,len(points))
+            alpha=tile['opacity']
+            color='#'+''.join(f'{round(255*(1-alpha)+int(COLORS["disabled_text"][i:i+2],16)*alpha):02x}' for i in (1,3,5))
+            self.select(hdc,self.stock(5))  # Transparent tile interior after masking lower outlines.
+            self.select(hdc,self.resource('pen',color))
+            self.polygon(hdc,points,len(points))
+
     def text(self, hdc, value, geometry, size, color, bold=False, center=False, wrap=False):
         rect=self.rect(geometry)
         self.select(hdc,self.font(size,bold))
@@ -217,6 +236,9 @@ class NativeStyle:
                     x,y,w,h=geometry;self.select(hdc,self.resource('brush',fill));self.select(hdc,self.stock(8));self.ellipse(hdc,self.scale(x),self.scale(y),self.scale(x+w),self.scale(y+h))
                 else:
                     x,y,w,h,name=geometry
+                    if name in LOOK.get('iconTiles',{}):
+                        self.tiled_icon(hdc,name,x,y)
+                        continue
                     for points in icon_lines(name):self.polyline(hdc,[(x+px,y+py) for px,py in points],fill)
                     if name=='sun':
                         self.select(hdc,self.stock(5))  # NULL_BRUSH
@@ -244,7 +266,7 @@ class NativeStyle:
             text=C.create_unicode_buffer(2048);self.gettext(window,text,len(text))
             if spec['kind']=='checkbox':
                 checked=self.send(window,0x00F0,0,0)==1
-                fill=COLORS['blue'] if checked and enabled else COLORS['surface']
+                fill=COLORS['disabled_checkbox'] if not enabled else COLORS['blue'] if checked else COLORS['surface']
                 self.shape(hdc,(0,(h-18)/2,18,18),4,fill,COLORS['border'] if enabled and not checked else None)
                 if checked:self.polyline(hdc,[(4,h/2),(7,h/2+3),(13,h/2-4)],'#ffffff' if enabled else COLORS['disabled_text'])
                 if not spec['key'].endswith('choice'):

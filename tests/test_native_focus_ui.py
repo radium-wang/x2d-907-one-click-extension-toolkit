@@ -151,14 +151,16 @@ class NativeFocusUITests(unittest.TestCase):
         return result.stdout.strip()
 
     def test_unselected_afc_keeps_stock_focus_caches_gate_and_resources(self):
-        for mask in (2,4,6):
+        for mask in (2,4,6,8,10,12,14):
             with self.subTest(mask=mask): self.assertEqual(self.run_probe('menu-only',mask=mask),'MENU_AND_AFC_SWITCHABLE_READY')
-        for mask in ('0','8','x','12'):
+        for mask in ('0','16','x','01','+8','-8','15x'):
             self.assertEqual(self.run_probe('invalid-mask',mask=mask),'FEATURE_MASK_INVALID')
         self.assertEqual(self.run_probe('partial-menu',failed_write=1,mask=2),'WRITE_FAILED_RESTORED')
 
     def test_success_keeps_all_stock_focus_caches_and_aot_tables_intact(self):
         self.assertEqual(self.run_probe('ok'),'MENU_AND_AFC_SWITCHABLE_READY')
+        for mask in (1,3,5,7,9,11,13,15):
+            self.assertEqual(self.run_probe('ok',mask=mask),'MENU_AND_AFC_SWITCHABLE_READY')
 
     def test_static_local_qt_symbols_use_verified_code_addresses(self):
         self.assertEqual(self.run_probe('local-api'),'MENU_AND_AFC_SWITCHABLE_READY')

@@ -37,6 +37,8 @@ Item {
   property bool freeNoticeReady:true;property bool freeNoticeSeen:true;property bool freeNoticeAcknowledged:true;
   readonly property bool brightnessInstalled:true
   readonly property bool afcInstalled:true;readonly property bool speedInstalled:true
+  readonly property bool eyeInstalled:false;property bool eyeEnabled:false;property bool eyeReady:true;
+  property bool eyeActive:false;property string eyeIssue:"none"
   property bool ready: false; property bool faulted: true; property bool afcEnabled: false; property string statusMessage: "offline" }
  PlayPage {id: page; anchors.fill:parent; pageActive:true; featureController: features}
 }'''

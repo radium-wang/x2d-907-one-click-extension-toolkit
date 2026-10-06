@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="52" height="52" viewBox="0 0 52 52" fill="none">
+  <rect x="0" y="0" width="52" height="52" fill="#000000"/>
+
+
+  <defs>
+    <!-- Subtle OEM-style internal shading. No filters or external assets. -->
+    <linearGradient id="g0" x1="26" y1="4" x2="26" y2="14" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.07"/>
+    </linearGradient>
+    <linearGradient id="g1" x1="26" y1="10" x2="26" y2="27" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.055"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="26" y1="18" x2="26" y2="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.040"/>
+    </linearGradient>
+    <linearGradient id="g3" x1="26" y1="25" x2="26" y2="42" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.085"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.028"/>
+    </linearGradient>
+    <linearGradient id="g4" x1="26" y1="33" x2="26" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.055"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.015"/>
+    </linearGradient>
+    <mask id="m_lowest_center" maskUnits="userSpaceOnUse" x="0" y="0" width="52" height="52">
+      <rect x="0" y="0" width="52" height="52" fill="#FFFFFF"/>
+      <path d="M12.5 33L22 37.75L12.5 42.5L3 37.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 33L49 37.75L39.5 42.5L30 37.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 31.25L36.25 36.375L26 41.5L15.75 36.375Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 25.5L22 30.25L12.5 35L3 30.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 25.5L49 30.25L39.5 35L30 30.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 23.75L36.25 28.875L26 34L15.75 28.875Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 18L22 22.75L12.5 27.5L3 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 18L49 22.75L39.5 27.5L30 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 16.25L36.25 21.375L26 26.5L15.75 21.375Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 10.5L22 15.25L12.5 20L3 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 10.5L49 15.25L39.5 20L30 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 4L35.5 8.75L26 13.5L16.5 8.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+    </mask>
+    <mask id="m_bottom_left" maskUnits="userSpaceOnUse" x="0" y="0" width="52" height="52">
+      <rect x="0" y="0" width="52" height="52" fill="#FFFFFF"/>
+      <path d="M39.5 33L49 37.75L39.5 42.5L30 37.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 31.25L36.25 36.375L26 41.5L15.75 36.375Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 25.5L22 30.25L12.5 35L3 30.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 25.5L49 30.25L39.5 35L30 30.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 23.75L36.25 28.875L26 34L15.75 28.875Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 18L22 22.75L12.5 27.5L3 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 18L49 22.75L39.5 27.5L30 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 16.25L36.25 21.375L26 26.5L15.75 21.375Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 10.5L22 15.25L12.5 20L3 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 10.5L49 15.25L39.5 20L30 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 4L35.5 8.75L26 13.5L16.5 8.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+    </mask>
+    <mask id="m_bottom_right" maskUnits="userSpaceOnUse" x="0" y="0" width="52" height="52">
+      <rect x="0" y="0" width="52" height="52" fill="#FFFFFF"/>
+      <path d="M26 31.25L36.25 36.375L26 41.5L15.75 36.375Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 25.5L22 30.25L12.5 35L3 30.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 25.5L49 30.25L39.5 35L30 30.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 23.75L36.25 28.875L26 34L15.75 28.875Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 18L22 22.75L12.5 27.5L3 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 18L49 22.75L39.5 27.5L30 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 16.25L36.25 21.375L26 26.5L15.75 21.375Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 10.5L22 15.25L12.5 20L3 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 10.5L49 15.25L39.5 20L30 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 4L35.5 8.75L26 13.5L16.5 8.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+    </mask>
+    <mask id="m_lower_center" maskUnits="userSpaceOnUse" x="0" y="0" width="52" height="52">
+      <rect x="0" y="0" width="52" height="52" fill="#FFFFFF"/>
+      <path d="M12.5 25.5L22 30.25L12.5 35L3 30.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 25.5L49 30.25L39.5 35L30 30.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 23.75L36.25 28.875L26 34L15.75 28.875Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 18L22 22.75L12.5 27.5L3 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 18L49 22.75L39.5 27.5L30 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 16.25L36.25 21.375L26 26.5L15.75 21.375Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 10.5L22 15.25L12.5 20L3 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 10.5L49 15.25L39.5 20L30 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 4L35.5 8.75L26 13.5L16.5 8.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+    </mask>
+    <mask id="m_third_left" maskUnits="userSpaceOnUse" x="0" y="0" width="52" height="52">
+      <rect x="0" y="0" width="52" height="52" fill="#FFFFFF"/>
+      <path d="M39.5 25.5L49 30.25L39.5 35L30 30.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 23.75L36.25 28.875L26 34L15.75 28.875Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 18L22 22.75L12.5 27.5L3 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 18L49 22.75L39.5 27.5L30 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 16.25L36.25 21.375L26 26.5L15.75 21.375Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 10.5L22 15.25L12.5 20L3 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 10.5L49 15.25L39.5 20L30 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 4L35.5 8.75L26 13.5L16.5 8.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+    </mask>
+    <mask id="m_third_right" maskUnits="userSpaceOnUse" x="0" y="0" width="52" height="52">
+      <rect x="0" y="0" width="52" height="52" fill="#FFFFFF"/>
+      <path d="M26 23.75L36.25 28.875L26 34L15.75 28.875Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 18L22 22.75L12.5 27.5L3 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 18L49 22.75L39.5 27.5L30 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 16.25L36.25 21.375L26 26.5L15.75 21.375Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 10.5L22 15.25L12.5 20L3 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 10.5L49 15.25L39.5 20L30 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 4L35.5 8.75L26 13.5L16.5 8.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+    </mask>
+    <mask id="m_mid_center" maskUnits="userSpaceOnUse" x="0" y="0" width="52" height="52">
+      <rect x="0" y="0" width="52" height="52" fill="#FFFFFF"/>
+      <path d="M12.5 18L22 22.75L12.5 27.5L3 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 18L49 22.75L39.5 27.5L30 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 16.25L36.25 21.375L26 26.5L15.75 21.375Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 10.5L22 15.25L12.5 20L3 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 10.5L49 15.25L39.5 20L30 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 4L35.5 8.75L26 13.5L16.5 8.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+    </mask>
+    <mask id="m_second_left" maskUnits="userSpaceOnUse" x="0" y="0" width="52" height="52">
+      <rect x="0" y="0" width="52" height="52" fill="#FFFFFF"/>
+      <path d="M39.5 18L49 22.75L39.5 27.5L30 22.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 16.25L36.25 21.375L26 26.5L15.75 21.375Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 10.5L22 15.25L12.5 20L3 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 10.5L49 15.25L39.5 20L30 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 4L35.5 8.75L26 13.5L16.5 8.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+    </mask>
+    <mask id="m_second_right" maskUnits="userSpaceOnUse" x="0" y="0" width="52" height="52">
+      <rect x="0" y="0" width="52" height="52" fill="#FFFFFF"/>
+      <path d="M26 16.25L36.25 21.375L26 26.5L15.75 21.375Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M12.5 10.5L22 15.25L12.5 20L3 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 10.5L49 15.25L39.5 20L30 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 4L35.5 8.75L26 13.5L16.5 8.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+    </mask>
+    <mask id="m_upper_center" maskUnits="userSpaceOnUse" x="0" y="0" width="52" height="52">
+      <rect x="0" y="0" width="52" height="52" fill="#FFFFFF"/>
+      <path d="M12.5 10.5L22 15.25L12.5 20L3 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M39.5 10.5L49 15.25L39.5 20L30 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 4L35.5 8.75L26 13.5L16.5 8.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+    </mask>
+    <mask id="m_upper_left" maskUnits="userSpaceOnUse" x="0" y="0" width="52" height="52">
+      <rect x="0" y="0" width="52" height="52" fill="#FFFFFF"/>
+      <path d="M39.5 10.5L49 15.25L39.5 20L30 15.25Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M26 4L35.5 8.75L26 13.5L16.5 8.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+    </mask>
+    <mask id="m_upper_right" maskUnits="userSpaceOnUse" x="0" y="0" width="52" height="52">
+      <rect x="0" y="0" width="52" height="52" fill="#FFFFFF"/>
+      <path d="M26 4L35.5 8.75L26 13.5L16.5 8.75Z" fill="#000000" stroke="#000000" stroke-width="1.9" stroke-linejoin="round"/>
+    </mask>
+  </defs>
+
+  <!-- Hasselblad-style outlined Pixel Shift icon.
+       Transparent background; upper tiles mask lower tiles to preserve occlusion. -->
+  <path d="M26 38.5L35.5 43.25L26 48L16.5 43.25Z" fill="url(#g4)" stroke="#FFFFFF" stroke-opacity="0.34" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" mask="url(#m_lowest_center)"/>
+  <path d="M12.5 33L22 37.75L12.5 42.5L3 37.75Z" fill="url(#g4)" stroke="#FFFFFF" stroke-opacity="0.34" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" mask="url(#m_bottom_left)"/>
+  <path d="M39.5 33L49 37.75L39.5 42.5L30 37.75Z" fill="url(#g4)" stroke="#FFFFFF" stroke-opacity="0.34" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" mask="url(#m_bottom_right)"/>
+  <path d="M26 31.25L36.25 36.375L26 41.5L15.75 36.375Z" fill="url(#g3)" stroke="#FFFFFF" stroke-opacity="0.52" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" mask="url(#m_lower_center)"/>
+  <path d="M12.5 25.5L22 30.25L12.5 35L3 30.25Z" fill="url(#g3)" stroke="#FFFFFF" stroke-opacity="0.52" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" mask="url(#m_third_left)"/>
+  <path d="M39.5 25.5L49 30.25L39.5 35L30 30.25Z" fill="url(#g3)" stroke="#FFFFFF" stroke-opacity="0.52" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" mask="url(#m_third_right)"/>
+  <path d="M26 23.75L36.25 28.875L26 34L15.75 28.875Z" fill="url(#g2)" stroke="#FFFFFF" stroke-opacity="0.70" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" mask="url(#m_mid_center)"/>
+  <path d="M12.5 18L22 22.75L12.5 27.5L3 22.75Z" fill="url(#g2)" stroke="#FFFFFF" stroke-opacity="0.70" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" mask="url(#m_second_left)"/>
+  <path d="M39.5 18L49 22.75L39.5 27.5L30 22.75Z" fill="url(#g2)" stroke="#FFFFFF" stroke-opacity="0.70" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" mask="url(#m_second_right)"/>
+  <path d="M26 16.25L36.25 21.375L26 26.5L15.75 21.375Z" fill="url(#g1)" stroke="#FFFFFF" stroke-opacity="0.88" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" mask="url(#m_upper_center)"/>
+  <path d="M12.5 10.5L22 15.25L12.5 20L3 15.25Z" fill="url(#g1)" stroke="#FFFFFF" stroke-opacity="0.94" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" mask="url(#m_upper_left)"/>
+  <path d="M39.5 10.5L49 15.25L39.5 20L30 15.25Z" fill="url(#g1)" stroke="#FFFFFF" stroke-opacity="0.94" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" mask="url(#m_upper_right)"/>
+  <path d="M26 4L35.5 8.75L26 13.5L16.5 8.75Z" fill="url(#g0)" stroke="#FFFFFF" stroke-opacity="1.00" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

@@ -18,14 +18,17 @@ class EyeDebugTests(unittest.TestCase):
     def test_current_eye_bit_and_master_are_both_required(self):
         for enabled in ('true', 'false', '0', '1'):
             for mask in (0, 1, 2, 3, 127):
-                raw = 'DEBUG_MODE\nsystem.debug_mode = ' + enabled + '\nDEBUG_OPTIONS\nsystem.debug_options = E_DebugOption_Multiple(' + str(mask) + ')\n'
+                names=[name for bit,name in ((1,'EyeDetection'),(2,'FaceDetection'),(4,'Recalibrate'),(8,'Touch'),(16,'TouchPointerHandlers'),(32,'Dcf'),(64,'Browse')) if mask & bit]
+                keys=['E_DebugOption_'+name for name in names] or ['E_DebugOption_None']
+                label=keys[0] if len(keys)==1 else '['+' | '.join(keys)+']'
+                raw = 'DEBUG_MODE\nsystem.debug_mode = ' + enabled + '\nDEBUG_OPTIONS\nsystem.debug_options = '+label+'(' + str(mask) + ')\n'
                 state = self.reply(raw)
                 self.assertTrue(state['ready'])
                 self.assertEqual(state['debugOptions'], mask)
                 self.assertEqual(state['eyeDebug'], enabled in ('true', '1') and bool(mask & 1))
 
     def test_numeric_mask_formats_are_supported(self):
-        for token in ('3', '0x3', 'E_DebugOption_EyeDetection | E_DebugOption_FaceDetection(3)'):
+        for token in ('3', '0x3', '[E_DebugOption_EyeDetection | E_DebugOption_FaceDetection](3)'):
             state = self.reply('DEBUG_MODE\nsystem.debug_mode = true\nDEBUG_OPTIONS\nsystem.debug_options = ' + token + '\n')
             self.assertEqual(state, dict(ready=True, debugMode=True, debugOptions=3, eyeDebug=True))
 
@@ -33,6 +36,10 @@ class EyeDebugTests(unittest.TestCase):
         replies = ('', 'DEBUG_MODE\nfalse\nDEBUG_OPTIONS\n0',
                    'DEBUG_MODE\nsystem.debug_mode = true\nDEBUG_OPTIONS\nerror',
                    'DEBUG_MODE\nsystem.debug_mode = true\nDEBUG_OPTIONS\nsystem.debug_options = 128',
+                   'DEBUG_MODE\nsystem.debug_mode = true\nDEBUG_OPTIONS\nsystem.debug_options = E_DebugOption_EyeDetection(2)',
+                   'DEBUG_MODE\nsystem.debug_mode = true\nDEBUG_OPTIONS\nsystem.debug_options = E_DebugOption_Max(2147483647)',
+                   'DEBUG_MODE\nsystem.debug_mode = true\nDEBUG_OPTIONS\nsystem.debug_options = [E_DebugOption_EyeDetection | E_DebugOption_EyeDetection](2)',
+                   'DEBUG_MODE\nsystem.debug_mode = true\nDEBUG_OPTIONS\nsystem.debug_options = E_DebugOption_Multiple(3)',
                    'DEBUG_MODE\nsystem.debug_mode = true\nsystem.debug_mode = false\nDEBUG_OPTIONS\nsystem.debug_options = 0')
         for raw in replies:
             self.assertEqual(self.reply(raw), dict(ready=False))

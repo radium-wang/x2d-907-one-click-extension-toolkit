@@ -45,7 +45,9 @@ class Transport(BaseHTTPRequestHandler):
             time.sleep(fixture['delay'])
             self.reply(dict(freeNoticeReady=True, freeNoticeSeen=bool(probe.probe(fixture['path'], 'read'))))
         elif self.path == '/status':
-            self.reply(dict(ready=True, active=False, master=True, afc=True, featureMask=7, message='fixture'))
+            state = dict(ready=True, active=False, master=True, afc=True, featureMask=7, eyeReady=True, eyeKnown=True, eyeActive=False, eyeEnabled=False, eyeIssue='none', message='fixture')
+            state.update(fixture.get('eyeState', {}))
+            self.reply(state)
         else:
             self.reply({}, 404)
     def do_POST(self):
@@ -118,7 +120,7 @@ try:
             source = args.payload / ('X2d' + name + (suffix if name != 'AutoBrightnessController' else '') + '.qml')
             if not source.exists(): source = args.payload / ('X2d' + name + '.qml')
             shutil.copy2(source, out / ('X2d' + name + '.qml'))
-        fixture.update(path=FreeNoticeTests.root / ('seen-' + language), failures=1, acks=0, reads=0, writes=[], delay=.12)
+        fixture.update(path=FreeNoticeTests.root / ('seen-' + language), failures=1, acks=0, reads=0, writes=[], delay=.12, eyeState={})
         view = create(out)
         root, win = view[2:4]
         page = root.findChild(QObject, 'PlayPageRoot')
@@ -161,8 +163,19 @@ try:
             page.setProperty('pageActive', True)
             assert not notice.isVisible()
         assert fixture['acks'] == 2 and not fixture['writes']
+        fixture['eyeState'] = dict(featureMask=8, eyeKnown=True, eyeReady=True, eyeActive=True)
+        features.request('status')
+        wait(lambda: features.property('eyeInstalled') and features.property('eyeActive'))
+        fixture['eyeState'] = dict(featureMask=8, eyeKnown=False, eyeReady=False, eyeActive=False, eyeIssue='unavailable')
+        features.request('status')
+        wait(lambda: features.property('eyeIssue') == 'unavailable')
+        assert features.property('eyeActive'), 'Unknown state must not claim an enabled Eye option was disabled'
+        fixture['eyeState'] = dict(featureMask=8, eyeKnown=True, eyeReady=True, eyeActive=False)
+        features.request('status')
+        wait(lambda: features.property('eyeReady') and not features.property('eyeActive'))
         reports.append(dict(language=language, firstOnly=True, failedAckRetried=True,
-                            freshEngineReadPersisted=True, reentries=100, featureStatePreserved=True))
+                            freshEngineReadPersisted=True, reentries=100, featureStatePreserved=True,
+                            eyeUnknownNeverClaimsDisabled=True, eyeActualReadbackPassed=True))
         dispose(view)
 finally:
     server.shutdown()
