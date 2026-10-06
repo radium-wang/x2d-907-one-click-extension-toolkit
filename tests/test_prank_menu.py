@@ -22,7 +22,7 @@ class PrankTests(unittest.TestCase):
     def test_checkbox_choice_upgrade_retained(self):
         current=app.prepare();current['prankIbis']=False
         real_install=app.install
-        with patch.object(app,'verify_target'),patch.object(app,'camera_model',return_value='907X & CFV 100C'),patch.object(app,'shell',return_value='YES'),patch.object(app,'read_bytes',side_effect=[b'INSTALLED',json.dumps(current).encode()]),patch.object(app,'event'),patch.object(app,'confirm_reinstall',return_value=True),patch.object(app,'restore') as restore,patch.object(app,'install') as install:
+        with patch.object(app,'verify_target'),patch.object(app,'verify_installed_integrity'),patch.object(app,'camera_model',return_value='907X & CFV 100C'),patch.object(app,'shell',return_value='YES'),patch.object(app,'read_bytes',side_effect=[b'INSTALLED',json.dumps(current).encode()]),patch.object(app,'event'),patch.object(app,'confirm_reinstall',return_value=True),patch.object(app,'restore') as restore,patch.object(app,'install') as install:
             real_install(prank_ibis=True)
             restore.assert_called_once_with(True,report_result=False);install.assert_called_once_with(True,True,'zh')
 

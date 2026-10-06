@@ -27,16 +27,16 @@ Camera menu text follows the app language at install time: English installs **Tw
 
 ## Download / 下载软件
 
-**Latest version: 0.4.9 / 最新版本：0.4.9**
+**Latest version: 0.4.10 / 最新版本：0.4.10**
 
-- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.9/x2d-907-extension-toolkit-Windows-x64-0.4.9.zip)
-- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.9/x2d-907-extension-toolkit-macOS-Universal-0.4.9.zip)
+- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.10/x2d-907-extension-toolkit-Windows-x64-0.4.10.zip)
+- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.10/x2d-907-extension-toolkit-macOS-Universal-0.4.10.zip)
 
-Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.9) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.9/SHA256SUMS)
+Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.10) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.10/SHA256SUMS)
 
-Version 0.4.9 brings the reviewed focus popup and liveview AF-S / AF-C / MF icons to the App's existing preload route, with first-generation fonts and borders and all three menu languages. Offline checks pass; the new preload route still needs device verification. See [release notes](CHANGELOG.md).
+Version 0.4.10 strengthens stock-file and installed-payload checks before installation, and reports unknown modifications with guidance to restore using the original modification tool. The orange focus-acceleration description now sits inside its feature row on Mac and Windows. Camera payloads are unchanged from 0.4.9; selectable installation is not included. See [release notes](CHANGELOG.md).
 
-0.4.9 已将新版对焦弹窗和实时取景 AF-S / AF-C / MF 图标接入 App 原有预载流程，保留一代字体、边框及三种菜单语言。离线检查通过，新的预载路径仍待实机验证，详见[更新说明](CHANGELOG.md)。
+0.4.10 加强安装前的原厂文件及已安装文件校验；未知修改会停止操作，并提示先用原修改工具恢复。Mac／Windows 的橙色对焦加速说明移入对应功能行。相机载荷与 0.4.9 相同，选择安装功能尚未接入，详见[更新说明](CHANGELOG.md)。
 
 ## Features
 

@@ -1,11 +1,11 @@
 # Changelog
 
-## Unreleased
+## [0.4.10](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.10) — 2026-10-06
 
 - Strengthen the shared Mac/Windows preflight: verify stock focus/display binaries and the camera-service startup configuration, check both stock startup configurations and orphan extension targets before a first install, and verify a recognized installation's backup/configuration hashes, file ledger and actual payload hashes before accepting its service or menu receipt. Unknown modifications stop before ADB setup, upload or reboot.
 - Report a modified camera GUI as a non-stock configuration with instructions to restore using the original modification tool, rather than a generic USB communication error. The toolkit does not overwrite or restore unknown modifications.
 - Move the orange focus-acceleration guidance into its feature row on Mac and Windows: the feature can be installed, but older-lens users are advised not to enable it in the camera. Center the existing feature icons vertically and retain all three desktop languages.
-- Offline validation: 167 tests pass and 28 payload-dependent tests skip; Mac ARM64 source compilation passes. Camera installation/restoration and native Windows rendering have not been verified for these changes. Published packages are unchanged.
+- Publish Mac universal and Windows x64 packages. All 195 tests pass with local exact payloads; clean source passes 167 and skips 28. Three native Mac language previews, nine Windows shared-layout previews, 76 Mac Mach-O audits, 38 Windows PE audits, payload/recovery-byte audits and update ZIP extraction checks pass. Camera installation/restoration and native Windows execution remain unverified. Camera payloads are unchanged from 0.4.9; selectable installation is not included.
 
 ## Documentation update — 2026-10-06
 
@@ -138,12 +138,12 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 
 # 中文更新日志
 
-## 未发布
+## [0.4.10](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.10) — 2026-10-06
 
 - 加强 Mac／Windows 共用的安装前检查：核验原厂对焦、显示程序与 camera-service 启动配置；首次安装前检查两份原厂启动配置及残留扩展文件；已有安装在接受服务与菜单回执前，核验已识别版本的备份、启动配置、文件记录和实际文件哈希。未知修改会在启用 ADB、上传或重启前停止操作。
 - 修改过的相机 GUI 改为明确提示非原厂状态，并提示先用原修改工具恢复，不再笼统显示 USB 通信错误。本应用不会覆盖或恢复未知修改。
 - Mac 与 Windows 的橙色对焦加速说明移入对应功能行，明确“可安装，但不建议老镜头用户在相机内开启该功能”；原有图标按行垂直居中，保留三种桌面语言。
-- 离线验证：167 项通过、28 项因缺少载荷跳过；Mac ARM64 源码编译通过。这些改动的实机安装／恢复及 Windows 原生显示尚未验证，已发布安装包不变。
+- 发布 Mac 通用与 Windows x64 安装包。带精确本地载荷的 195 项测试全部通过；纯源码 167 项通过、28 项跳过。三种语言的 Mac 原生预览、九份 Windows 共用布局预览、76 个 Mac Mach-O、38 个 Windows PE、载荷／恢复字节及更新 ZIP 解压检查通过。实机安装／恢复和 Windows 原生运行仍待验证。相机载荷与 0.4.9 相同，选择安装功能尚未接入。
 
 ## 未发布 — 0.4.9 候选
 

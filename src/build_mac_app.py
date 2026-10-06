@@ -4,7 +4,7 @@ import argparse, json, os, plistlib, shutil, subprocess, re
 from pathlib import Path
 D = Path(__file__).resolve().parent
 PAYLOAD = Path(os.environ.get('X2D_PAYLOAD_DIR', str(D/'native-package')))
-VERSION = '0.4.9'
+VERSION = '0.4.10'
 ARCHES = {'arm64', 'x86_64'}
 MINIMUM = (13, 0)
 
@@ -124,7 +124,7 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None, outpu
         'CFBundleName':'x2d/907一键扩展功能-工具包','CFBundleDisplayName':'x2d/907一键扩展功能-工具包',
         'CFBundleIdentifier':'local.x2d.play','CFBundleExecutable':'X2DPlay',
         'CFBundlePackageType':'APPL','CFBundleShortVersionString':VERSION,
-        'CFBundleVersion':'23','LSMinimumSystemVersion':'.'.join(map(str,minimum)),
+        'CFBundleVersion':'24','LSMinimumSystemVersion':'.'.join(map(str,minimum)),
         'NSHighResolutionCapable':True,'NSHumanReadableCopyright':'Local experimental X2D / 907X 100C 4.2.0 tool'}))
     licenses=r/'licenses'; licenses.mkdir()
     shutil.copy2(D.parent/'LICENSE',licenses/'X2D-907-Toolkit.txt')

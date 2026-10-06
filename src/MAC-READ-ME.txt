@@ -1,4 +1,4 @@
-x2d/907一键扩展功能-工具包 0.4.9 · macOS 通用实验版
+x2d/907一键扩展功能-工具包 0.4.10 · macOS 通用实验版
 
 新版对焦界面
 对焦弹窗采用二代图标、底框尺寸及间距，字体和边框保留一代样式；实时取景右侧显示对应的 AF-S、AF-C 或 MF 图标。
@@ -38,7 +38,7 @@ X2D 已有实机安装、重启常驻与恢复验收。
 907X 用户已反馈连接及服务安装通过，但原版未出现菜单入口。本版按其 10 项原厂菜单修正入口追加，实际菜单仍待用户确认；仅在 907X 机身搭配自动对焦 XCD 镜头时测试。
 不适用于 X2D II、907X 50C 或其他固件。
 
-完整解压“x2d-907-extension-toolkit-macOS-Universal-0.4.9.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
+完整解压“x2d-907-extension-toolkit-macOS-Universal-0.4.10.zip”，打开其中的“x2d-907一键扩展功能-工具包.app”。
 请使用新解压的应用，避免继续打开旧版副本。
 运行库已自带，不需要安装 Python 或 Homebrew。
 0.2.7 在日志中按操作阶段显示连接、按钮操作、相机“跳过”和完成后拔线提示。
@@ -96,3 +96,12 @@ Version 0.4.1 refreshes menu receipts after service restarts. If files are insta
 Startup update checks default to on. Disable them in Settings; the choice survives restart. Downloads and installation remain manual, and manual checks still work when automatic checks are off.
 安装时按 App 语言选择相机菜单。需要恢复并重新安装时，按目标语言弹窗确认；取消不修改相机，完成后需重新开启所需功能。
 Install selects the camera menu language from the app. Restoration before reinstallation requires confirmation in the target language. Cancel leaves the camera unchanged; re-enable the features you need after completion.
+
+0.4.10 安装前检查
+安装前会核验指定的原厂界面、对焦、显示文件及安装记录。检测到未知修改时停止操作，请先使用原修改工具恢复原厂 4.2.0，再重新检查；本应用不会覆盖或恢复未知修改。检测不代表整个固件或运行内存均为原厂。
+对焦加速可安装，但不建议老镜头用户在相机内开启该功能。
+本版相机载荷与 0.4.9 相同，选择安装功能尚未接入。
+
+0.4.10 pre-installation checks
+The installer checks the specified stock UI, focus and display files and installation records. Unknown modifications stop the operation. Restore stock 4.2.0 with the original modification tool, then check again. This toolkit will not overwrite or restore unknown modifications. The check does not establish that the entire firmware or live memory is stock.
+Focus acceleration can be installed, but older-lens users are advised not to enable it in the camera. Camera payloads are unchanged from 0.4.9; selectable installation is not included.
