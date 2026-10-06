@@ -32,6 +32,8 @@ Camera menu text follows the app language at install time: English installs **Tw
 - [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.15/x2d-907-extension-toolkit-Windows-x64-0.4.15.zip)
 - [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.15/x2d-907-extension-toolkit-macOS-Universal-0.4.15.zip)
 
+Only the latest installer packages containing the free-project notice are retained for download; historical release notes remain available. 仅保留带免费项目提示的最新安装包供下载，历史更新说明继续保留。
+
 Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.15) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.15/SHA256SUMS)
 
 Version 0.4.15 adds optional Eye Recognition using the stock debug switch, plus disabled Coming soon cards for Pixel Shift and Face Tracking Autofocus on Mac and Windows. Enable stock face detection for eye boxes; this does not add tracking autofocus. The first-use free-project notice remains in all three languages. See [firmware audit](docs/EYE-AUDIT.md) and [release notes](CHANGELOG.md). The new Eye switch has not been tested on a physical camera.

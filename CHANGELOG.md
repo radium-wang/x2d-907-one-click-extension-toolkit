@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Remove obsolete installer/checksum release assets, retaining only the latest packages with the free-project notice. Preserve historical release entries, tags and changelogs.
+
 ## [0.4.15](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.15) — 2026-10-06
 
 - Add optional stock EyeDetection to the desktop feature selection and camera Tweaks menu, with three-language controls. Verify DebugMode/bit 1 against firmware 4.2.0; read back each write, retain other debug options and recover the original state on master disable or restoration. Eye boxes require stock face detection and do not establish tracking autofocus. Physical camera behavior remains pending.
@@ -172,6 +176,10 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 ---
 
 # 中文更新日志
+
+## 未发布
+
+- 下架旧版本安装包及校验附件，仅保留带免费项目提示的最新版本下载；保留历史发布页、标签和更新日志。
 
 ## [0.4.15](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.15) — 2026-10-06
 
