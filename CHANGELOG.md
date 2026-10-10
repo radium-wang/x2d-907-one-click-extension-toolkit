@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased — Public stable repository clarification (2026-10-10)
+
+- Keep 0.4.12 as the latest stable public release. Describe 0.5.0 only as a private beta; its latest development and updates remain in a separate private repository. Update the Chinese download links to 0.4.12. Documentation only; no application or camera changes.
+- 保持 0.4.12 为公开库最新稳定版；0.5.0 仅描述为内测版，最新开发与更新留在独立私库。修正中文下载链接为 0.4.12。本次只修改说明，不改变软件或相机功能。
+
 ## [0.4.12](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.12) — 2026-10-06
 
 - Keep the original focus popup, model objects, liveview indicator and control-screen badge while the master or AF-C switch is off. Stop replacing stock focus compiled caches/AOT tables at GUI startup. Load the private three-mode popup and reversible icon bindings only when both switches are on; update AF-S/AF-C/MF and disabled icons together, and restore the original dynamic bindings when disabled.

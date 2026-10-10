@@ -1,5 +1,9 @@
 # X2D/907 One-Click Extension Toolkit
 
+**Stable release: 0.4.12.** This public repository provides the stable version. Version 0.5.0 is a private beta; its latest development and updates are maintained in a separate private repository, not published here.
+
+**稳定版：0.4.12。** 本公开库提供稳定版本。0.5.0 为内测版，最新开发内容与更新在独立私库维护，不在本库发布。
+
 ## 一键工具包 · 下载 / One-click toolkit
 
 **[下载 Windows / macOS 最新版 →](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/latest)**
@@ -27,7 +31,7 @@ Camera menu text follows the app language at install time: English installs **Tw
 
 ## Download / 下载软件
 
-**Latest version: 0.4.12 / 最新版本：0.4.12**
+**Latest stable version: 0.4.12 / 最新稳定版：0.4.12**
 
 - [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/x2d-907-extension-toolkit-Windows-x64-0.4.12.zip)
 - [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/x2d-907-extension-toolkit-macOS-Universal-0.4.12.zip)
@@ -103,7 +107,7 @@ If this toolkit helps you, you can support its development via [PayPal](https://
 
 相机菜单文案随安装时的 App 语言：简体、繁体中文安装为“耍起功能”（功能名称与提示使用所选字形），英文安装为 Tweaks。
 
-**下载安装包：**[Windows 10/11（64 位）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.9/x2d-907-extension-toolkit-Windows-x64-0.4.9.zip) · [macOS 13 及以上（Apple 芯片 / Intel）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.9/x2d-907-extension-toolkit-macOS-Universal-0.4.9.zip)。下载后请完整解压，再启动软件。
+**下载安装包：**[Windows 10/11（64 位）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/x2d-907-extension-toolkit-Windows-x64-0.4.12.zip) · [macOS 13 及以上（Apple 芯片 / Intel）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/x2d-907-extension-toolkit-macOS-Universal-0.4.12.zip)。下载后请完整解压，再启动软件。
 
 ### 当前功能
 
