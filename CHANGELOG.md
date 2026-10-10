@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased — source-only proposal
+
+- Add a locally cross-compiled X2D 100C 4.2.0 AArch64 monochrome runtime candidate with named JPEG/HEIF stock forwarding, guarded private-frame adapters, Wayland lease/pool hooks, exact firmware-hash checks and exported-symbol checks. The generated manifest explicitly rejects camera installation. No target bootstrap or production vendor-memory contract is supplied.
+- Prevent a saved monochrome selection from silently falling back to a color JPEG/HEIF if a route loses readiness. Host tests cover requested-versus-effective state.
+- Correct the HEIF format-1003 mock to the generic stock frame plane offsets; retain required attestation for packed bit order, neutral chroma, cache sync and encoder completion. The Wayland stock LUT layout remains unverified.
+
+- Add an offline-tested CFV 100C format-103 JPEG monochrome pixel unit that writes to a separate output buffer. It is not wired into the camera service, live view, HEIF, installer, or Restore; no camera functionality is claimed.
+- Add a JPEG encoder boundary that selects the original frame when off and a separately prepared frame when on. A begin/end ticket retains private memory until the adapter reports encoder completion; a required cache-sync callback runs before selection. Failed preparation never invokes the encoder. Host tests cover both paths and Android ARM64 cross-compilation succeeds.
+- Add a guarded CFV 4.2.0 VMem frame adapter modeled on the stock `frame_buffer_cp` deep-copy path. It verifies a distinct mapped allocation and plane bounds, retains the clone through encoding, and blocks reuse if freeing it fails. Vendor flags, cache direction, full descriptor size and actual completion signal still require target validation.
+- Add a source-only persistent N&B preference with an independent installed-feature marker and atomic writes, modeled on the existing Shuaqi brightness setting. Separate-process host tests confirm the on/off choice survives a simulated service restart and that Restore removes both records. Actual camera power-off persistence is still untested; no installer or service is wired to these functions.
+- Add guarded source-only JPEG and HEIF encoder bridges and a separate live-view frame transformer. The JPEG bridge retains a private frame through a synchronous success and quarantines it on ambiguous failure. The HEIF bridge requires a verified 10-bit layout callback before activation; the live-view bridge requires a separately owned display object. These vendor adapters and hooks are not supplied.
+- Add a source-only monochrome menu controller, loopback control endpoint and reversible startup transaction. The switch stays unavailable until live view, JPEG and HEIF all attest readiness; a saved enabled state can still be turned off after a route failure. Installation is only a transaction model and is not integrated into the desktop installer. No camera-ready monochrome package is produced.
 ## Unreleased — Public stable repository clarification (2026-10-10)
 
 - Keep 0.4.12 as the latest stable public release. Describe 0.5.0 only as a private beta; its latest development and updates remain in a separate private repository. Update the Chinese download links to 0.4.12. Documentation only; no application or camera changes.
@@ -80,6 +92,7 @@
 - Publish Windows x64 and Mac universal packages at 0.4.4. The Mac interface and camera payload are unchanged from 0.4.3; an existing 0.4.3 camera extension does not need reinstallation.
 - 153 offline tests passed with local inputs; source-only: 127 passed, 26 skipped. Six bilingual layout previews and package audits passed. Native Windows rendering, accessibility and monitor scaling still require Windows validation; see [validation details](docs/VALIDATION.md).
 
+
 ## [0.4.3](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.3) — 2026-10-04
 
 - Replace the project license for subsequent versions with X2D/907 Noncommercial Distribution License 1.0: allow professional photography and free sharing/modification, prohibit software sales and paid installation without separate permission, and retain prior MIT and third-party permissions. Include the project license and third-party notices in newly built desktop packages; published archives remain unchanged.
@@ -157,6 +170,18 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 
 # 中文更新日志
 
+## 未发布 — 仅源码提案
+
+- 新增面向 X2D 100C 4.2.0 的 AArch64 黑白运行时源码候选：JPEG/HEIF 原厂函数转发、受校验的私有帧适配、Wayland 缓冲区租约与池、固件哈希及导出符号检查。生成清单明确禁止相机安装；尚无目标设备启动绑定和经过验证的厂商内存参数。
+- 用户已经选择黑白而某条图像通路失效时，JPEG/HEIF 拒绝拍摄，避免悄悄生成彩色文件；离线测试覆盖选择状态与实际就绪状态的区别。
+- HEIF 格式 1003 的模拟测试改用原厂通用帧结构的平面偏移；位打包、中性彩度、缓存同步和编码完成仍须验证。Wayland 原厂 LUT 格式尚未确定。
+
+- 新增经过离线测试的 CFV 100C JPEG 格式 103 黑白像素模块，写入独立目标缓冲区。尚未接入相机服务、实时取景、HEIF、安装或恢复流程，不宣称相机功能已实现。
+- 新增 JPEG 编码边界：关闭时使用原始帧，开启时使用单独准备的帧；开始/结束凭证保留私有内存，直到适配层确认编码完成，选择私有帧前必须调用缓存同步。准备失败不会调用编码器。离线测试覆盖两条路径，Android ARM64 交叉编译通过。
+- 新增依据原厂 `frame_buffer_cp` 深拷贝路径设计的 CFV 4.2.0 VMem 帧适配层：校验独立映射、图像平面边界及释放状态。分配标志、缓存方向、完整描述符大小和实际编码完成信号仍须在目标设备上核实。
+- 新增仅源码的黑白模式持久化设置：独立记录功能安装状态与用户开关，并以临时文件、同步和重命名保存。独立进程的离线测试确认模拟重启后仍保留选择，恢复原厂状态时删除两项记录。尚未在相机断电后验证，也未接入安装程序或相机服务。
+- 新增仅源码的 JPEG/HEIF 编码桥接与实时取景独立帧处理。JPEG 在成功返回前保留私有帧，结果不明时隔离；HEIF 必须先验证 10 位像素布局；取景必须先验证独立显示对象的生命周期。尚未提供厂商接口适配或实际拦截。
+- 新增黑白菜单控制器、本机回环接口与可逆启动事务模型。实时取景、JPEG、HEIF 三路均未确认前不可开启；任一路失效后仍可关闭。事务尚未接入桌面安装器，不生成可在相机上使用的黑白安装包。
 ## [0.4.12](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.12) — 2026-10-06
 
 - 当“耍起功能”或 AF-C 开关关闭时，保留原厂对焦弹窗、列表对象、实时取景指示和主页图标。启动时不再替换原厂对焦缓存；仅在两个开关都开启时加载三模式弹窗并同步 AF-S／AF-C／MF 及灰色图标，关闭后恢复原厂动态绑定。
@@ -224,6 +249,7 @@ English first; [中文更新日志](#中文更新日志) follows below. Versions
 - 按每个显示器的 DPI 缩放字体和布局，小屏幕可滚动并自动显示键盘导航选中的控件。
 - 发布 0.4.4 Windows x64 与 Mac 通用安装包。Mac 界面及相机载荷与 0.4.3 相同，已安装 0.4.3 相机扩展无需重新安装。
 - 完整离线测试 153 项通过；纯源码为 127 项通过、26 项跳过。六份中英文布局预览和安装包校验通过；Windows 原生显示、可访问性和显示器缩放仍待 Windows 验证，详见 [验证说明](docs/VALIDATION.md)。
+
 
 ## [0.4.3](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.3) — 2026-10-04
 
