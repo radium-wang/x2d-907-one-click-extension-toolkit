@@ -170,7 +170,8 @@ class SoftwareTests(unittest.TestCase):
 
     def test_internal_restore_never_reports_completion_to_desktop(self):
         with patch.object(app,'camera_model',return_value='X2D 100C'),patch.object(app,'verify_target'),patch.object(app,'verify_stock_installation'),patch.object(app,'prepare',return_value={'autoBrightness':True}),patch.object(app,'shell',side_effect=['NO',app.STOCK_RC+' file',app.DISPLAY_STOCK_RC+' file']), \
-             patch.object(app,'event') as events:
+             patch.object(app,'MonoUsbAdapter') as mono,patch.object(app,'event') as events:
+            mono.return_value.restore.return_value='ALREADY_STOCK'
             app.restore(report_result=False)
         self.assertFalse(any(call.args[0]=='result' for call in events.call_args_list))
 

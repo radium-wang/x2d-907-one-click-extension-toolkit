@@ -28,6 +28,9 @@ def build(inputs, pyusb, llvm, output=None):
     (runtime / 'python313._pth').write_text('python313.zip\n.\n..\n', encoding='ascii')
     for name in ('app_updates.py', 'app_settings.py', 'reinstall_confirmation.py', 'windows_app.py', 'windows_ui.py', 'desktop-ui.json', 'windows_processes.py', 'x2d_play_software.py', 'windows_factory_usb.py', 'windows_connection.py', 'localization.py', 'translations.json', 'translations_zh_hant.json'):
         shutil.copy2(D / name, root / name)
+    mono = root / 'mono'; mono.mkdir()
+    for name in ('mono_usb_adapter.py','mono_transaction.py'):
+        shutil.copy2(D / 'mono' / name, mono / name)
     transport = D / 'transport'
     for name in ('collect_x2d_af_usb.py',):
         shutil.copy2(transport / name, root / name)
@@ -64,6 +67,11 @@ def build(inputs, pyusb, llvm, output=None):
     for source in {f['source'] for f in manifest['files']} | localized | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-0.4.7.json','previous-bundle-0.4.8.json','previous-bundle-0.4.9.json','previous-bundle-0.4.11.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
         shutil.copy2(PAYLOAD / source, native / source)
     shutil.copytree(PAYLOAD/'previous-payloads',native / 'previous-payloads')
+    optional=('mono-module.json','libcfv_mono.so')
+    present=[(PAYLOAD/name).is_file() for name in optional]
+    if any(present):
+        if not all(present): raise RuntimeError('Incomplete optional monochrome probe package')
+        for name in optional: shutil.copy2(PAYLOAD/name,native/name)
     # Generate import libraries with lld-link. Stub DLLs are build artifacts only.
     linker = shutil.which('lld-link') or str(llvm / 'lld-link')
     for dll, exports in {'kernel32':['GetModuleFileNameW','CreateProcessW','CloseHandle','ExitProcess'],

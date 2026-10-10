@@ -104,6 +104,7 @@ names={'Bootstrap':'X2dNativeMenuBootstrap','PlayMenuModel':'X2dNativeMenuModel'
        'PlayMenuRoute':'X2dNativeMenuRoute','ResidentPlayHost':'X2dNativeMenuHost',
        'PrankIbisPage':'X2dPrankIbisPage','PlayPage':'X2dPlayPage','AfcMenuController':'X2dAfcMenuController',
        'SpeedBuffController':'X2dSpeedBuffController','AutoBrightnessController':'X2dAutoBrightnessController',
+       'MonoController':'X2dMonoController',
        'DisplaySettings':'X2dDisplaySettings','DisplayRearBrightness':'X2dDisplayRearBrightness',
        'BrightnessSlider':'X2dBrightnessSlider'}
 generated=brightness_menu(dict(resources(b)),O)
