@@ -1,6 +1,8 @@
 import QtQuick
 import com.hasselblad.constants
 import "qrc:/app/qml/mainmenu" as StockMenu
+import "qrc:/app/qml/components" as StockComponents
+import "qrc:/app/qml/components/controls" as StockControls
 
 // 与原厂设置页共用页眉、列表行和开关组件。开关状态来自控制器回读，
 // 功能开关以服务和完整函数回读为准。
@@ -21,7 +23,28 @@ FocusScope {
                                             featureController.statusMessage
     signal backRequested()
 
-    function requestBack() { backRequested() }
+    property bool speedMenuOpen: false
+    function requestBack() {
+        if (speedMenuOpen) { speedMenuOpen = false; return }
+        backRequested()
+    }
+    function speedLabel(level) { return level === "low" ? "低" : level === "high" ? "高" : "中" }
+    function requestSpeedMenu() {
+        if (!pageActive || !masterEnabled || !featureLoaded || !backendAvailable || featureBusy || requestPending ||
+            featureController === null || !featureController.speedInstalled) return false
+        speedMenuOpen = true
+        return true
+    }
+    onPageActiveChanged: if (!pageActive) speedMenuOpen = false
+    onMasterEnabledChanged: if (!masterEnabled) speedMenuOpen = false
+    onFeatureLoadedChanged: if (!featureLoaded) speedMenuOpen = false
+    Connections {
+        target: root.featureController
+        function onSpeedSelectionConfirmed() { root.speedMenuOpen = false }
+        function onFeatureMaskChanged() {
+            if (!root.featureController.speedInstalled) root.speedMenuOpen = false
+        }
+    }
 
     function requestMasterToggle() {
         if (!pageActive || requestPending || featureBusy)
@@ -56,7 +79,7 @@ FocusScope {
         showSeparator: !settingsList.atYBeginning
         text: [{ context: "MENUS", text: "耍起功能",
                  color: Constants.settingsMenuHeaderSuffixFontColor }]
-        onClose: root.backRequested()
+        onClose: root.requestBack()
     }
 
     Flickable {
@@ -67,6 +90,7 @@ FocusScope {
         anchors.left: parent.left
         anchors.right: parent.right
         clip: true
+        enabled: !root.speedMenuOpen
         interactive: root.pageActive && contentHeight > height
         boundsBehavior: Flickable.StopAtBounds
         contentWidth: width
@@ -165,7 +189,7 @@ FocusScope {
                     StockMenu.SettingDescription {
                         objectName: "X2dFocusSpeedHint"
                         width: parent.width
-                        text: "对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。"
+                        text: "可选择低、中、高三档加速，切换后立即生效。"
                         isEnabled: root.masterEnabled && root.backendAvailable
                     }
                 }
@@ -177,6 +201,28 @@ FocusScope {
                 }
             }
 
+
+            Item {
+                objectName: "X2dPlaySpeedLevelRow"
+                width: parent.width
+                visible: root.featureController !== null && root.featureController.speedInstalled
+                height: visible ? Constants.menuListItemDefaultHeight : 0
+                StockComponents.TextValueRow {
+                    anchors.left: parent.left; anchors.right: parent.right
+                    anchors.leftMargin: Constants.settingsMenuSettingLeftMargin
+                    anchors.rightMargin: Constants.settingsMenuSettingRightMargin
+                    anchors.verticalCenter: parent.verticalCenter
+                    pixelSize: Constants.settingsMenuSettingSwitchFontSize
+                    text: "对焦速度"
+                    valueText: root.speedLabel(root.featureController !== null ? root.featureController.speedLevel : "medium")
+                    enabled: root.pageActive && root.masterEnabled && root.featureLoaded && root.backendAvailable && !root.featureBusy
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.pageActive && root.masterEnabled && root.featureLoaded && root.backendAvailable && !root.featureBusy
+                    onClicked: root.requestSpeedMenu()
+                }
+            }
 
             Item {
                 objectName: "X2dPlayAutoBrightnessSwitchRow"
@@ -241,13 +287,13 @@ FocusScope {
             var dx = mouse.x - startX
             var dy = mouse.y - startY
             if (dx >= Math.max(60, root.width * 0.12) && Math.abs(dy) < root.height * 0.15)
-                root.backRequested()
+                root.requestBack()
         }
     }
 
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Escape || event.key === Qt.Key_Back) {
-            root.backRequested()
+            root.requestBack()
             event.accepted = true
         } else if (event.key === Qt.Key_Up) {
             settingsList.contentY = Math.max(0, settingsList.contentY - 80)
@@ -260,4 +306,47 @@ FocusScope {
             event.accepted = false
         }
     }
+    Loader {
+        id: speedMenu
+        objectName: "X2dSpeedLevelLoader"
+        anchors.fill: parent
+        z: 100
+        active: root.speedMenuOpen
+        visible: active
+        sourceComponent: speedMenuComponent
+        onLoaded: item.forceActiveFocus()
+    }
+    Component {
+        id: speedMenuComponent
+        StockControls.PopupListSelector {
+            id: levelPage
+            objectName: "X2dSpeedLevelPage"
+            // The stock menu's vertical selector: centered highlight, scaled
+            // labels, touch flicking and camera key mappings are all native.
+            readonly property var levels: ["low", "medium", "high"]
+            model: [root.speedLabel("low"), root.speedLabel("medium"), root.speedLabel("high")]
+            currentlySelectedValue: root.speedLabel(root.featureController.speedLevel)
+            // Match the stock settings dropdown's text sizing, rather than
+            // the larger ISO/control-screen selector's default font size.
+            defaultPixelSize: (Constants.menuDropDownHeight - 2 * Constants.defaultBorderWidth) /
+                              Constants.numberOfItemsVisibleInList * 0.6
+            interactive: root.pageActive && root.masterEnabled && root.featureLoaded && root.backendAvailable && !root.featureBusy
+            popupAnchor {
+                leftMargin: 320 * Constants.scaleFactorX
+                topMargin: 131.2 * Constants.scaleFactorY
+                rightMargin: 40 * Constants.scaleFactorX
+                bottomMargin: 131.2 * Constants.scaleFactorY
+            }
+            // Wait for verified backend readback before dismissing the picker.
+            // Stock taps and outside confirmation both arrive here.
+            function setSelectedClose() { setSelected() }
+            onSelectedValueChanged: function(value) {
+                var index = model.indexOf(value)
+                if (index >= 0 && root.pageActive && root.masterEnabled && root.featureLoaded && root.backendAvailable && !root.featureBusy)
+                    root.featureController.setSpeedLevel(levels[index])
+            }
+            onClosePopup: root.speedMenuOpen = false
+        }
+    }
+
 }

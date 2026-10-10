@@ -4,7 +4,7 @@ import argparse, json, os, plistlib, shutil, subprocess, re
 from pathlib import Path
 D = Path(__file__).resolve().parent
 PAYLOAD = Path(os.environ.get('X2D_PAYLOAD_DIR', str(D/'native-package')))
-VERSION = '0.4.12'
+VERSION = '0.4.17'
 ARCHES = {'arm64', 'x86_64'}
 MINIMUM = (13, 0)
 
@@ -40,7 +40,9 @@ def resolve_dependency(dep, origin, framework):
         raise RuntimeError('Unsupported dependency: ' + dep)
     return Path(dep).resolve()
 
-def build(python, adb, libusb, pyusb, framework=None, libusb_license=None, output=None):
+def build(python, adb, libusb, pyusb, framework=None, libusb_license=None, output=None, ui_report=None):
+    from stable_build_validation import require_tested_payload
+    require_tested_payload(PAYLOAD, ui_report)
     out = output if output is not None else D/'outputs/mac-app'
     out.mkdir(parents=True, exist_ok=True)
     app = out/'x2d-907一键扩展功能-工具包.app'
@@ -72,9 +74,10 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None, outpu
     native=r/'native-package'; native.mkdir()
     manifest=json.loads((PAYLOAD/'speed-bundle.json').read_text())
     localized={f['source'] for entries in (manifest.get('uiLanguages') or {}).values() for f in entries}
-    for source in {f['source'] for f in manifest['files']} | localized | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-0.4.7.json','previous-bundle-0.4.8.json','previous-bundle-0.4.9.json','previous-bundle-0.4.11.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
+    for source in {f['source'] for f in manifest['files']} | localized | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-0.4.7.json','previous-bundle-0.4.8.json','previous-bundle-0.4.9.json','previous-bundle-0.4.11.json','previous-bundle-0.4.12.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
         shutil.copy2(PAYLOAD/source,native/source)
     shutil.copytree(PAYLOAD/'previous-payloads',native/'previous-payloads')
+    if ui_report: shutil.copy2(ui_report,native/'local-ui-validation.json')
     # Relocate every non-system Mach-O dependency. Never rely on Homebrew at runtime.
     queue=[exe]+list(stdlib.rglob('*.so'))+[r/'lib/libusb-1.0.dylib',r/'bin/adb']
     origins={exe:Path(info['exe']).resolve(), r/'lib/libusb-1.0.dylib':libusb.resolve(), r/'bin/adb':adb.resolve()}
@@ -125,7 +128,7 @@ def build(python, adb, libusb, pyusb, framework=None, libusb_license=None, outpu
         'CFBundleName':'x2d/907一键扩展功能-工具包','CFBundleDisplayName':'x2d/907一键扩展功能-工具包',
         'CFBundleIdentifier':'local.x2d.play','CFBundleExecutable':'X2DPlay',
         'CFBundlePackageType':'APPL','CFBundleShortVersionString':VERSION,
-        'CFBundleVersion':'26','LSMinimumSystemVersion':'.'.join(map(str,minimum)),
+        'X2DSoftwareBaseline':'v0.4.12','X2DLocalBuild':'stable-speed-test-1','CFBundleVersion':'27','LSMinimumSystemVersion':'.'.join(map(str,minimum)),
         'NSHighResolutionCapable':True,'NSHumanReadableCopyright':'Local experimental X2D / 907X 100C 4.2.0 tool'}))
     licenses=r/'licenses'; licenses.mkdir()
     shutil.copy2(D.parent/'LICENSE',licenses/'X2D-907-Toolkit.txt')
@@ -190,4 +193,5 @@ if __name__=='__main__':
     inputs.add_argument('--python-framework',type=Path,help='解包后的官方 Python.framework；无需安装或执行安装脚本')
     p.add_argument('--libusb-license',type=Path)
     p.add_argument('--output',type=Path,help='Separate output directory for unpublished test packages')
-    a=p.parse_args();build(a.python,a.adb,a.libusb,a.pyusb,a.python_framework,a.libusb_license,a.output)
+    p.add_argument('--ui-report',type=Path)
+    a=p.parse_args();build(a.python,a.adb,a.libusb,a.pyusb,a.python_framework,a.libusb_license,a.output,a.ui_report)

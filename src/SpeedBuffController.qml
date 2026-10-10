@@ -6,6 +6,8 @@ QtObject {
     property bool faulted: false
     property bool busy: false
     property bool inFlight: false
+    property string speedLevel: "medium"
+    signal speedSelectionConfirmed()
     property bool loaded: false
     property bool master: false
     property bool afcEnabled: false
@@ -40,6 +42,7 @@ QtObject {
                 prankIbis = state.prankIbis === true
                 featureMask = state.featureMask === undefined ? 7 : Number(state.featureMask)
                 if (state.ready === true) {
+                    if (state.speedLevel === "low" || state.speedLevel === "medium" || state.speedLevel === "high") speedLevel = state.speedLevel
                     loaded = state.active === true
                     master = state.master === true
                     afcEnabled = state.afc === true
@@ -48,6 +51,7 @@ QtObject {
                 faulted = !ready
                 statusMessage = state.message
                 syncAfcMenu()
+                if (ready && action.indexOf("speed_") === 0 && state.speedLevel === action.substring(6)) speedSelectionConfirmed()
             } catch (e) {
                 ready = false; faulted = true
                 statusMessage = "服务未就绪；请检查连接或使用恢复原状"
@@ -58,6 +62,19 @@ QtObject {
         return true
     }
     function setEnabled(value) { return !value || speedInstalled ? request(value ? "enable" : "disable") : false }
+    function setSpeedLevel(level) {
+        if (!speedInstalled || !loaded || !master || !ready || faulted || busy ||
+            (level !== "low" && level !== "medium" && level !== "high")) return false
+        // A confirmed user choice takes precedence over a quiet status read.
+        // Ignore that read's late callback; the worker still serializes actions
+        // and checks fresh process state before changing the speed function.
+        if (inFlight) {
+            var pollRequest = currentRequest
+            currentRequest = null; requestDeadline.stop(); inFlight = false
+            if (pollRequest !== null) pollRequest.abort()
+        }
+        return request("speed_" + level)
+    }
     function setAfc(value) { return !value || afcInstalled ? request(value ? "afc_on" : "afc_off") : false }
     function setMaster(value) { return request(value ? "master_on" : "master_off") }
     property Timer poll: Timer { interval: 2500; running: true; repeat: true; onTriggered: root.request("status") }

@@ -115,7 +115,7 @@ cat() { case " $FAIL_SOURCE " in *" ${1##*/} "*) head -c 10 "$1"; return 1;; *) 
         self.assertEqual((root/'system/etc/init/camera-system.rc').read_bytes(),DISPLAY)
         self.assertFalse((root/'system/lib64/libx2d_play_brightness.so').exists())
     def test_actual_display_callbacks_include_master_gate(self):
-        generated=D/'src/outputs/brightness-runtime/display-generated.h'
+        generated=Path(os.environ.get('X2D_BRIGHTNESS_HEADER',str(D/'src/outputs/brightness-runtime/display-generated.h')))
         if not generated.exists():self.skipTest('Generate exact display header with brightness/build.py')
         out=self.folder/'runtime'
         subprocess.run(['clang','-O2','-I'+str(generated.parent),str(D/'tests/brightness_runtime_host_test.c'),str(D/'src/brightness/brightness_policy.c'),'-o',str(out)],check=True)
@@ -129,6 +129,7 @@ cat() { case " $FAIL_SOURCE " in *" ${1##*/} "*) head -c 10 "$1"; return 1;; *) 
         (self.folder/'previous-bundle-0.4.8.json').write_bytes((D/'src/native-package/previous-bundle-0.4.8.json').read_bytes())
         (self.folder/'previous-bundle-0.4.9.json').write_bytes((D/'src/native-package/previous-bundle-0.4.9.json').read_bytes())
         (self.folder/'previous-bundle-0.4.11.json').write_bytes((D/'src/native-package/previous-bundle-0.4.11.json').read_bytes())
+        (self.folder/'previous-bundle-0.4.12.json').write_bytes((D/'src/native-package/speed-bundle.json').read_bytes())
         old=json.loads(data)
         current=copy.deepcopy(self.m);current['uiLanguages']=dict(en=current['files'])
         with patch.object(app,'O',self.folder),patch.object(app,'prepare',return_value=current):

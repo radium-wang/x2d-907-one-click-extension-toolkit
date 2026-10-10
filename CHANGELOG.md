@@ -1,6 +1,17 @@
 # Changelog
 
-## Unreleased — Public stable repository clarification (2026-10-10)
+## [0.4.17](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.17) — 2026-10-10
+
+- Provide three selectable Focus Speed levels, giving older-lens users a gentler acceleration option: Low 1.5/1.5/1.5, Medium (default) 2.5/2/1.5, High 3/3/2 for Type 0/1/2. These are motor-control multipliers, not measured overall autofocus gains or a lens-safety guarantee.
+- Use the original vertical scrolling selector with orange highlighting. Keep speed selection gray and unavailable when acceleration is off; remember the selected level across disabling and restart, and clear it on Restore.
+- Build from original v0.4.12 and retain its three feature choices, firmware gates, transaction checks, original preload/brightness/focus popup and exact recovery bytes. Publish Windows x64 and Mac universal packages. Stable 0.4.12 detects 0.4.17; private-beta 0.5.0 users do not receive this update.
+- Pass 215 full offline tests, 4,206 machine-code cases, 14 complete Restore scenarios, real stock Qt selector checks and native Mac three-language/eight-selection checks. Hardware/backend inputs are proxied; native Windows/CFV, camera touch/GPU and optical validation remain pending. See [validation details](docs/STABLE-SPEED-TEST.md).
+- 新增低、中、高三档对焦速度可选，提供对老镜头更友好的温和加速选择：低 1.5／1.5／1.5，中（默认）2.5／2／1.5，高 3／3／2，依次对应 Type 0／1／2。参数不代表实测整体对焦提升或镜头安全保证。
+- 采用原厂上下滑动选择器和橙色高亮；关闭对焦加速时速度选择保持灰色不可用，关闭／重启保留档位，恢复原状时清除档位。
+- 基于原始 0.4.12，保留原有三项功能、固件及事务校验、原厂加载／亮度／对焦弹窗和精确恢复材料。发布 Win／Mac 安装包，公开稳定版可检查到此更新，0.5.0 内测用户不会收到。
+- 本地 215 项完整回归、4,206 个机器码用例、14 种完整恢复、原厂 Qt 选择器及 Mac 三语言／八种选择检查通过。硬件／后台使用替身，Windows／CFV 实机、相机触控／GPU 与光学验证待测，详见[验证记录](docs/STABLE-SPEED-TEST.md)。
+
+## Documentation update — Public stable repository clarification (2026-10-10)
 
 - Keep 0.4.12 as the latest stable public release. Describe 0.5.0 only as a private beta; its latest development and updates remain in a separate private repository. Update the Chinese download links to 0.4.12. Documentation only; no application or camera changes.
 - 保持 0.4.12 为公开库最新稳定版；0.5.0 仅描述为内测版，最新开发与更新留在独立私库。修正中文下载链接为 0.4.12。本次只修改说明，不改变软件或相机功能。

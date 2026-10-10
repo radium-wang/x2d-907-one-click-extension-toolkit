@@ -294,7 +294,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         label("afc", "AF-C 连续自动对焦", 14, .semibold, "text")
         label("afcdescription", "在相机上开启连续自动对焦。")
         label("buff", "对焦加速", 14, .semibold, "text")
-        label("buffdescription", "对焦加速通过将镜头转速提高三倍实现，可安装，但不建议老镜头用户在相机内开启该功能。", 12, .regular, "orange")
+        label("buffdescription", "可选择低、中、高三档加速；可安装，但不建议老镜头用户在相机内开启该功能。", 12, .regular, "orange")
         label("brightness", "后屏自动亮度", 14, .semibold, "text")
         label("brightnessdescription", "根据环境光调节后屏亮度，可设置最高亮度。")
         label("dependency", "三项功能可分别选择。")

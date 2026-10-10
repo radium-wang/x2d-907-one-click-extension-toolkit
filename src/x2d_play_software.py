@@ -21,6 +21,8 @@ PREVIOUS_042_SHA = '34a32083a442cc667e56d311bcd9ea583a15e7f076c39f6cdc4c8e67c902
 PREVIOUS_047_SHA = 'cb510721aabea62d35220a9e60aed23569195fdd1defab2a5c5f57a897c557c4'
 PREVIOUS_048_SHA = '70048064578e9cda6aed02934157769991ff8e1b2a353bfd54ca6310c9ee4a70'
 PREVIOUS_049_SHA = '9d2eb54beb6f4f11bf869ddd3930846d8a806a66a3cb8bf73008ccd6ba72f34a'
+PREVIOUS_0412_SHA = '8592a30073cc64cc55228c1a089b3538ae39306c43e82ec12a333fdbb9d24f75'
+SPEED_LEVEL_FILES = ('/blackbox/x2d-speed-buff.level', '/blackbox/x2d-speed-buff.level.next')
 PREVIOUS_0411_SHA = '100141063dd50451d7e186f21f47b5b6a6eec436a6a67cddfbb7d478071948fa'
 FEATURES = ('afc', 'speed-buff', 'auto-rear-brightness')
 STOCK_RC = '1d6a8f9e41e269be38b3fb9ba53f4c47d18007f413c90893fdfa9d7542d1f688'
@@ -52,6 +54,8 @@ PUBLIC_PAYLOAD_TARGETS = frozenset({
     '/system/etc/x2d-speed-buff/transaction',
     '/system/etc/x2d-speed-buff/original',
     '/system/etc/x2d-speed-buff/candidate',
+    '/system/etc/x2d-speed-buff/candidate-low',
+    '/system/etc/x2d-speed-buff/candidate-medium',
 })
 ADB_NAME = 'adb.exe' if os.name == 'nt' else 'adb'
 ADB = str(D / 'bin' / ADB_NAME) if (D / 'bin' / ADB_NAME).exists() else ADB_NAME
@@ -488,6 +492,15 @@ def prepare():
             raise RuntimeError('自动亮度安装包校验失败')
         if not any(f['target'] == spec['library'] for f in manifest['files']):
             raise RuntimeError('自动亮度安装包校验失败')
+    if manifest.get('speedLevels') is not None:
+        spec=manifest['speedLevels']
+        if spec.get('format')!=1 or spec.get('default')!='medium' or spec.get('preBoostCeiling')!=21844:
+            raise RuntimeError('对焦速度档位安装包校验失败')
+        for level,values in {'low':[1.5,1.5,1.5],'medium':[2.5,2,1.5],'high':[3,3,2]}.items():
+            entry=spec.get('levels',{}).get(level,{})
+            target='/system/etc/x2d-speed-buff/candidate'+('' if level=='high' else '-'+level)
+            if entry.get('multipliers')!=values or not any(f['target']==target and f['source']==entry.get('source') and f['sha256']==entry.get('sha256') and f['bytes']==1068 for f in manifest['files']):
+                raise RuntimeError('对焦速度档位安装包校验失败')
     return manifest
 
 
@@ -520,6 +533,8 @@ def select_features(manifest, features):
     selected['featureMask'] = sum(1 << FEATURES.index(name) for name in features)
     selected['files'] = [entry for entry in manifest['files']
                          if 'auto-rear-brightness' in features or entry['target'] != '/system/lib64/libx2d_play_brightness.so']
+    if 'speed-buff' not in features:
+        selected.pop('speedLevels', None)
     if 'auto-rear-brightness' not in features:
         selected.pop('autoBrightness', None)
     return selected
@@ -540,6 +555,9 @@ def recognized_bundle(manifest):
     current = prepare()
     if manifest.get('format') != 3 or manifest.get('guiSha256') != STOCK_GUI:
         raise RuntimeError('安装或恢复清单版本不匹配')
+    raw = (O / 'previous-bundle-0.4.12.json').read_bytes()
+    if sha(raw) != PREVIOUS_0412_SHA: raise RuntimeError('0.4.12 基线清单校验失败')
+    baseline = json.loads(raw)
     if 'featureMask' in manifest:
         features = manifest.get('selectedFeatures')
         if (type(manifest['featureMask']) is not int or not 1 <= manifest['featureMask'] <= 7
@@ -547,11 +565,12 @@ def recognized_bundle(manifest):
                 or any(not isinstance(feature, str) for feature in features)
                 or len(features) != len(set(features)) or set(features) - set(FEATURES)):
             return False
-        for language in ('zh', 'en', 'zh-Hant'):
-            expected = select_features(apply_ui_language(current, language), features)
-            if (manifest.get('files') == expected['files'] and manifest.get('featureMask') == expected['featureMask']
-                    and features == expected['selectedFeatures'] and manifest.get('autoBrightness') == expected.get('autoBrightness')):
-                return True
+        for package in (current, baseline):
+            for language in ('zh', 'en', 'zh-Hant'):
+                expected = select_features(apply_ui_language(package, language), features)
+                if (manifest.get('files') == expected['files'] and manifest.get('featureMask') == expected['featureMask']
+                        and features == expected['selectedFeatures'] and manifest.get('autoBrightness') == expected.get('autoBrightness') and manifest.get('speedLevels') == expected.get('speedLevels')):
+                    return True
         previous = (O / 'previous-bundle-0.4.11.json').read_bytes()
         if sha(previous) != PREVIOUS_0411_SHA:
             raise RuntimeError('已知 0.4.11 清单校验失败，请重新解压安装包')
@@ -562,8 +581,9 @@ def recognized_bundle(manifest):
                     and features == expected['selectedFeatures'] and manifest.get('autoBrightness') == expected.get('autoBrightness')):
                 return True
         return False
-    if same_release_files(manifest.get('files'), current):
-        return manifest.get('autoBrightness') == current.get('autoBrightness')
+    for package in (current, baseline):
+        if same_release_files(manifest.get('files'), package):
+            return manifest.get('autoBrightness') == package.get('autoBrightness') and manifest.get('speedLevels') == package.get('speedLevels')
     if manifest.get('autoBrightness'):
         for name, expected in (('previous-bundle-0.4.11.json', PREVIOUS_0411_SHA),
                                ('previous-bundle-0.4.9.json', PREVIOUS_049_SHA),
@@ -691,11 +711,13 @@ def reboot_and_verify(installed, report_result=True, prank_ibis=False, auto_brig
 
 
 def backend(action):
-    if action not in ('status', 'enable', 'disable', 'master_on', 'master_off', 'afc_on', 'afc_off'):
+    if action not in ('status', 'enable', 'disable', 'master_on', 'master_off', 'afc_on', 'afc_off', 'speed_low', 'speed_medium', 'speed_high'):
         raise RuntimeError('Unknown fixed action')
     if action == 'status':
         raw = shell('busybox wget -T 10 -qO- http://127.0.0.1:18763/status | base64')
         return json.loads(base64.b64decode(raw))
+    if action.startswith('speed_') and not verify_installed_integrity().get('speedLevels'):
+        raise RuntimeError('未安装对焦速度选择，拒绝修改')
     output = shell('sh /system/etc/x2d-speed-buff/worker ' + action + ' && echo ACTION_FINISHED')
     if output != 'ACTION_FINISHED': raise RuntimeError('功能设置未完成')
     return json.loads(read_bytes('/tmp/x2d-speed-buff/ui.json'))
@@ -940,6 +962,8 @@ hashok {RC} {STOCK_RC}
 '''
     for target in ledger: s += 'rm -f ' + target + '\n'
     s += f'rmdir /system/etc/x2d-speed-buff 2>/dev/null || true\nsync\nmount -o remount,ro /system\n[ "$(state)" = "$original_mount" ]\nrm -f {ROOT}/installed {PRANK_FLAG} {BRIGHTNESS_PREF} {BRIGHTNESS_FEATURE} {BRIGHTNESS_PREF}.next {BRIGHTNESS_FEATURE}.next\necho PLAY_SOFTWARE_RESTORED\n'
+    cleanup = ''.join(f'[ ! -L {path} ]\nrm -f {path}\n[ ! -e {path} ]\n' for path in SPEED_LEVEL_FILES)
+    s = s.replace(f'rm -f {ROOT}/installed ', cleanup + f'sync\nrm -f {ROOT}/installed ', 1)
     validate_script(s)
     upload('restore', s.encode())
     event('progress', message='正在恢复原厂启动配置', percent=60)

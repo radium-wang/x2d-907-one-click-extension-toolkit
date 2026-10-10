@@ -1,0 +1,255 @@
+{
+  "format": 3,
+  "model": "X2D 100C",
+  "firmware": "4.2.0",
+  "guiSha256": "16391452abdc69de9e0807e065c0f4ab3f1ccb5fc288f6fc4e6f5cb3bdca12e0",
+  "files": [
+    {
+      "source": "libx2d_native_menu.so",
+      "target": "/system/lib64/libx2d_native_menu.so",
+      "bytes": 199360,
+      "sha256": "7d369ef05494148f286bcb4627509ebfc62abf5daa6a2a342d2a23a549e9e74c"
+    },
+    {
+      "source": "X2dNativeMenuBootstrap.qml",
+      "target": "/system/etc/X2dNativeMenuBootstrap.qml",
+      "bytes": 9745,
+      "sha256": "5b9a4d8c112d017ddfb9f8f9353d8007d426e47d60da27905e14162dc8c2711b"
+    },
+    {
+      "source": "X2dNativeMenuModel.qml",
+      "target": "/system/etc/X2dNativeMenuModel.qml",
+      "bytes": 5436,
+      "sha256": "afd1213efe60abd0cd123113553c76c4d86de00cb38ff6f87884713904a3f866"
+    },
+    {
+      "source": "X2dNativeMenuRoute.qml",
+      "target": "/system/etc/X2dNativeMenuRoute.qml",
+      "bytes": 2177,
+      "sha256": "d8d9015e02000fed518d62f504c26c3fbb402816444108fdb938ebc0cd409f04"
+    },
+    {
+      "source": "X2dNativeMenuHost.qml",
+      "target": "/system/etc/X2dNativeMenuHost.qml",
+      "bytes": 1542,
+      "sha256": "7e75e91cc66ef906d83a8ff60aecc393c0f57cca46b8fdc682cd7f97b5fc29c9"
+    },
+    {
+      "source": "X2dPrankIbisPage.qml",
+      "target": "/system/etc/X2dPrankIbisPage.qml",
+      "bytes": 1250,
+      "sha256": "fdea5bc01e6117f38e3f5f4d0f6a02494c6493ca43b84619562a113cd0a27a43"
+    },
+    {
+      "source": "X2dPlayPage.qml",
+      "target": "/system/etc/X2dPlayPage.qml",
+      "bytes": 12139,
+      "sha256": "e7819245dabd776d24016515ee168b818ecc54af6a122735482de6ab66d4f2e9"
+    },
+    {
+      "source": "X2dAfcMenuController.qml",
+      "target": "/system/etc/X2dAfcMenuController.qml",
+      "bytes": 11486,
+      "sha256": "bf6fa8fc088fd5d500b4741b89ebe52459c33033fa71f57f30824ef57551f11f"
+    },
+    {
+      "source": "X2dSpeedBuffController.qml",
+      "target": "/system/etc/X2dSpeedBuffController.qml",
+      "bytes": 3481,
+      "sha256": "5058dcc66b2dc5570d2a222008149098d4679c4a94ca15770a523c1dbcd4d9f0"
+    },
+    {
+      "source": "X2dAutoBrightnessController.qml",
+      "target": "/system/etc/X2dAutoBrightnessController.qml",
+      "bytes": 2730,
+      "sha256": "27f42ff45f3bf4d61b532cd2e96354b48c5068b918c9f7e4fbcc1e844aa6c4fa"
+    },
+    {
+      "source": "X2dDisplaySettings.qml",
+      "target": "/system/etc/X2dDisplaySettings.qml",
+      "bytes": 23392,
+      "sha256": "4b8a91a5df6ea7c71748f668bdb0ea447ee77874d0f435d5f171bb3cc013275e"
+    },
+    {
+      "source": "X2dDisplayRearBrightness.qml",
+      "target": "/system/etc/X2dDisplayRearBrightness.qml",
+      "bytes": 7609,
+      "sha256": "58d7c06fd43fc534eae6685a52628ccbc359d7bfc031b8461394bf9bdc0d307b"
+    },
+    {
+      "source": "X2dBrightnessSlider.qml",
+      "target": "/system/etc/X2dBrightnessSlider.qml",
+      "bytes": 5436,
+      "sha256": "f51ae1d3bd72f9295a7e60a2ae51142190b51b487e7b9ebd0ac086b16dd5ffad"
+    },
+    {
+      "source": "X2dFocusModePopup.qml",
+      "target": "/system/etc/X2dFocusModePopup.qml",
+      "bytes": 17177,
+      "sha256": "04e0ef5b9d0a2ec99456861179e800bb2225f576773ef9ebfc7357c9f29bcc59"
+    },
+    {
+      "source": "ic_main_menu_play.svg",
+      "target": "/system/etc/X2dPlayIcon.svg",
+      "bytes": 789,
+      "sha256": "5842614688303878e152a9e51ed0eff400d5ec563714d030de6ccb34378785ec"
+    },
+    {
+      "source": "libx2d_play_brightness.so",
+      "target": "/system/lib64/libx2d_play_brightness.so",
+      "sha256": "1c8b90139c8e84868f62b08c389f4a9769696484598b95f697681199334fb7eb",
+      "bytes": 20768
+    },
+    {
+      "source": "libx2d_speed_server.so",
+      "target": "/system/lib64/libx2d_speed_server.so",
+      "sha256": "1f665f32618b515b53c59633895cf2100e4ba9f5bd41a9ef5d760571208d88db",
+      "bytes": 7216
+    },
+    {
+      "source": "speed-worker",
+      "target": "/system/etc/x2d-speed-buff/worker",
+      "sha256": "99edd715c0a3766d86a38f2bd5402219ee13031c6eb09b388a45fe680ba97870",
+      "bytes": 5449
+    },
+    {
+      "source": "speed-backend",
+      "target": "/system/etc/x2d-speed-buff/backend",
+      "sha256": "c77f1beef2a8d5e0e0b3dfdecda236670dd210e9eb629008fd3d77eb1614e3e0",
+      "bytes": 2191
+    },
+    {
+      "source": "speed-transaction",
+      "target": "/system/etc/x2d-speed-buff/transaction",
+      "sha256": "e4d93486254237e1e78987071325a2b7f4532b1d84e7aa8bc7a138ee39e86f29",
+      "bytes": 2909
+    },
+    {
+      "source": "speed-original",
+      "target": "/system/etc/x2d-speed-buff/original",
+      "sha256": "c8b5407c615b60c05078bc7ba9ada8cf53c905bac17faa59561f948feac0d430",
+      "bytes": 1068
+    },
+    {
+      "source": "speed-candidate",
+      "target": "/system/etc/x2d-speed-buff/candidate",
+      "sha256": "4eb555dc16ad54bdcfecd244b63bfea7ee691ce67b8274a1244644392ba15e13",
+      "bytes": 1068
+    }
+  ],
+  "entryIndex": 11,
+  "multipliers": [
+    3,
+    3,
+    2
+  ],
+  "lensRestriction": false,
+  "serviceExecutable": "/system/bin/camera-gui",
+  "features": [
+    "afc",
+    "speed-buff",
+    "auto-rear-brightness"
+  ],
+  "entryIndexesByModel": {
+    "X2D 100C": 11,
+    "907X & CFV 100C": 10
+  },
+  "compatibleModels": [
+    "X2D 100C",
+    "907X & CFV 100C"
+  ],
+  "validation": {
+    "X2D 100C": "prior-menu-and-buff-device-tested; startup-focus-mode-fix-awaiting-device-test; new-focus-ui-preload-device-test-pending",
+    "907X & CFV 100C": "USB-and-service-installation-user-reported; ten-item-menu-fix-awaiting-device-test; new-focus-ui-device-test-pending"
+  },
+  "autoBrightness": {
+    "systemSha256": "bf854a21881148565ff2cc00376426c37a2b82fed94c653abf024e23ed4ceda6",
+    "stockConfigSha256": "d43b8b26282f9e1da5825b96699658d444a58a83cda94b622e7da8aa1c35202b",
+    "library": "/system/lib64/libx2d_play_brightness.so",
+    "default": "off",
+    "masterControlled": true
+  },
+  "uiLanguages": {
+    "en": [
+      {
+        "source": "X2dNativeMenuBootstrap.en.qml",
+        "target": "/system/etc/X2dNativeMenuBootstrap.qml",
+        "bytes": 9739,
+        "sha256": "b4f7e1df86748c5833df17f53b7638e24731e28fee023b03586811ec777a55c1"
+      },
+      {
+        "source": "X2dNativeMenuModel.en.qml",
+        "target": "/system/etc/X2dNativeMenuModel.qml",
+        "bytes": 5428,
+        "sha256": "a6c52aa69990ff6cf11bbbb256fb52fee775a565d8c92c8474de4a302419116a"
+      },
+      {
+        "source": "X2dPrankIbisPage.en.qml",
+        "target": "/system/etc/X2dPrankIbisPage.qml",
+        "bytes": 1215,
+        "sha256": "125127f5e88d00e5e8a96965b8b3e8a29bf2078289c06959fec560a36f6e34ae"
+      },
+      {
+        "source": "X2dPlayPage.en.qml",
+        "target": "/system/etc/X2dPlayPage.qml",
+        "bytes": 12131,
+        "sha256": "9279a7ae60137dd02936177507890260ed1613f0b00f5c29eddb9816432da67e"
+      },
+      {
+        "source": "X2dAfcMenuController.en.qml",
+        "target": "/system/etc/X2dAfcMenuController.qml",
+        "bytes": 11468,
+        "sha256": "8a80f0307605a6e987eff3ed9ddec1845df395628f317d9861cc37b709e952f2"
+      },
+      {
+        "source": "X2dDisplayRearBrightness.en.qml",
+        "target": "/system/etc/X2dDisplayRearBrightness.qml",
+        "bytes": 7616,
+        "sha256": "c07fb391de1629d6d2e2175d9817c55ec017d3532b009e8abe03ca490a23488f"
+      }
+    ],
+    "zh-Hant": [
+      {
+        "source": "X2dPrankIbisPage.zh-Hant.qml",
+        "target": "/system/etc/X2dPrankIbisPage.qml",
+        "bytes": 1253,
+        "sha256": "13c660e14bcc3497e13bfad48a399be4daad154c806124434a79c12b72ce37dc"
+      },
+      {
+        "source": "X2dPlayPage.zh-Hant.qml",
+        "target": "/system/etc/X2dPlayPage.qml",
+        "bytes": 12142,
+        "sha256": "d05663410044ce68710b0931f31512a3399cd7a6c8af944bebdb637090d58b80"
+      },
+      {
+        "source": "X2dAfcMenuController.zh-Hant.qml",
+        "target": "/system/etc/X2dAfcMenuController.qml",
+        "bytes": 11486,
+        "sha256": "d7ed21f8cb943de649fe17be34c781bb9cc55129424e09a59ef444eef470c608"
+      },
+      {
+        "source": "X2dSpeedBuffController.zh-Hant.qml",
+        "target": "/system/etc/X2dSpeedBuffController.qml",
+        "bytes": 3481,
+        "sha256": "218e82daa4a2825bebfdd6f6aa6345b88632e9facc0e2ec3b2966e03b8ed3d7d"
+      },
+      {
+        "source": "X2dDisplayRearBrightness.zh-Hant.qml",
+        "target": "/system/etc/X2dDisplayRearBrightness.qml",
+        "bytes": 7609,
+        "sha256": "97fdeecd72b5d32369782e9203600029007b5ae35267b6b9bfbd2f8a465d2706"
+      }
+    ]
+  },
+  "focusUi": {
+    "privateIcons": 18,
+    "popupModelCountAdaptive": true,
+    "originalTypographyAndBorders": true,
+    "stockFocusCachesAndAotPreserved": true,
+    "stockModelObjectsPreserved": true,
+    "masterAndAfcRequired": true,
+    "reversibleIconBindings": true,
+    "diskGuiChanged": false,
+    "deviceValidated": false
+  }
+}

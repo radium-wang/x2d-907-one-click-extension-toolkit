@@ -10,7 +10,7 @@ from windows_ui import NativeStyle, Viewport, ScrollInfo, WIDTH, HEIGHT, COLORS,
 from windows_processes import UpdateCheck, stop_process
 
 D = Path(__file__).resolve().parent
-VERSION = '0.4.12'
+VERSION = '0.4.17'
 
 
 class Session:
@@ -615,7 +615,7 @@ def main():
     item('afc','STATIC','AF-C 连续自动对焦',textfont=strong)
     item('afcdescription','STATIC','在相机上开启连续自动对焦。',textfont=small)
     item('buff','STATIC','对焦加速',textfont=strong)
-    item('buffdescription','STATIC','对焦加速通过将镜头转速提高三倍实现，可安装，但不建议老镜头用户在相机内开启该功能。',textfont=small)
+    item('buffdescription','STATIC','可选择低、中、高三档加速；可安装，但不建议老镜头用户在相机内开启该功能。',textfont=small)
     item('brightness','STATIC','后屏自动亮度',textfont=strong)
     item('brightnessdescription','STATIC','根据环境光调节后屏亮度，可设置最高亮度。',textfont=small)
     item('dependency','STATIC','三项功能可分别选择。')

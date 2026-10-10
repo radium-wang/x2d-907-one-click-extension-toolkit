@@ -4,11 +4,15 @@ from localization import TRADITIONAL
 # Visible menu labels only. Status sentences that contain the same words are left alone
 # because replacement matches the full quoted string, including the closing quote.
 LABELS = (
+    ('对焦速度', 'Focus Speed'),
+    ('低', 'Low'),
+    ('中', 'Medium'),
+    ('高', 'High'),
+    ('可选择低、中、高三档加速，切换后立即生效。', 'Choose Low, Medium or High; changes take effect immediately.'),
+
     ('耍起功能', 'Tweaks'),
     ('开启 AF-C', 'Enable AF-C'),
     ('对焦加速', 'Focus Speed Boost'),
-    ('对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。',
-     'Focus acceleration works by tripling lens motor speed. Not recommended for older lenses.'),
     ('在亮度菜单中加入自动亮度', 'Add Auto Brightness to Menu'),
     ('请前往显示 → 亮度设置自动亮度', 'Configure auto brightness in Display → Brightness'),
     ('自动亮度', 'Auto Brightness'),

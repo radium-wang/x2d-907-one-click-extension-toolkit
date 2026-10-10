@@ -48,13 +48,14 @@ class SoftwareTests(unittest.TestCase):
             with self.assertRaises(RuntimeError): app.backend('master_off')
             read.assert_not_called()
 
-    def restore_case(self,phase='INSTALLED',ledger=None,rc=None,active=False,previous=False,partial=None):
+    def restore_case(self,phase='INSTALLED',ledger=None,rc=None,active=False,previous=False,partial=None,features=None):
         m=json.loads((app.O/(previous if isinstance(previous,str) else 'previous-bundle.json')).read_bytes()) if previous else app.prepare()
+        if features is not None: m=app.select_features(m,features)
         targets=[f['target'] for f in m['files']]
         ledger=targets if ledger is None else ledger
         uploads={}
         with patch.object(app,'STOCK_RC',app.sha(RAW)):
-            modified=app.init_config(RAW)
+            modified=app.init_config(RAW,m.get('featureMask'))
             m.update(initBefore=app.sha(RAW),initAfter=app.sha(modified))
             data={app.ROOT+'/manifest':json.dumps(m).encode(),app.ROOT+'/stockrc':RAW,
                   app.ROOT+'/installed':phase.encode(),app.ROOT+'/created':' '.join(ledger).encode(),

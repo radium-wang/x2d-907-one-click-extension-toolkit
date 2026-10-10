@@ -11,6 +11,12 @@ extern int snprintf(char*,size_t,const char*,...);
 struct addr {unsigned short family,port;unsigned int ip;char pad[8];};
 struct timeval {long sec,usec;};
 static const char *fallback="{\"ready\":false,\"active\":false,\"master\":false,\"message\":\"加速服务拒绝操作，请恢复原状\"}";
+static const char *speed_action(const char *request) {
+ if(!strncmp(request,"POST /speed_low HTTP/1.",23))return "speed_low";
+ if(!strncmp(request,"POST /speed_medium HTTP/1.",26))return "speed_medium";
+ if(!strncmp(request,"POST /speed_high HTTP/1.",24))return "speed_high";
+ return 0;
+}
 static int menu_ack(const char *action) {
  const char *value = !strcmp(action,"menu_ready_11") ? "MENU_ENTRY_READY_11" :
                      !strcmp(action,"menu_ready_12") ? "MENU_ENTRY_READY_12" : 0;
@@ -19,6 +25,10 @@ static int menu_ack(const char *action) {
  int ok=write(f,value,19)==19;close(f);return ok?0:-1;
 }
 static int run(const char *action) {
+ if(!strcmp(action,"speed_low"))return system("/system/bin/sh /system/etc/x2d-speed-buff/worker speed_low");
+ if(!strcmp(action,"speed_medium"))return system("/system/bin/sh /system/etc/x2d-speed-buff/worker speed_medium");
+ if(!strcmp(action,"speed_high"))return system("/system/bin/sh /system/etc/x2d-speed-buff/worker speed_high");
+
  if(!strcmp(action,"status"))return system("/system/bin/sh /system/etc/x2d-speed-buff/worker status");
  if(!strcmp(action,"enable"))return system("/system/bin/sh /system/etc/x2d-speed-buff/worker enable");
  if(!strcmp(action,"disable"))return system("/system/bin/sh /system/etc/x2d-speed-buff/worker disable");
@@ -51,6 +61,7 @@ __attribute__((constructor)) static void serve(void) {
    else if(!strncmp(req,"POST /menu_unavailable HTTP/1.",30))action="menu_unavailable";
    else if(!strncmp(req,"POST /enable HTTP/1.",20))action="enable";
    else if(!strncmp(req,"POST /disable HTTP/1.",21))action="disable";
+   else if((action=speed_action(req))){}
    else if(!strncmp(req,"POST /afc_on HTTP/1.",20))action="afc_on";
    else if(!strncmp(req,"POST /afc_off HTTP/1.",21))action="afc_off";
    else if(!strncmp(req,"POST /master_on HTTP/1.",23))action="master_on";

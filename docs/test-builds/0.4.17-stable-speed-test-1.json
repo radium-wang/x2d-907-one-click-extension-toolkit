@@ -1,0 +1,71 @@
+{
+  "status": "PASS",
+  "version": "0.4.17",
+  "localBuild": "stable-speed-test-1",
+  "published": false,
+  "sourceBaseline": {
+    "tag": "v0.4.12",
+    "commit": "e3b283c995822b3bbb8736b67906f69c2ed14ade"
+  },
+  "payloadManifestSha256": "1dbe54d6af2326be59fecfc596fcd3b65757c0b9f6c3da10ab25ab5308fd28a0",
+  "features": [
+    "afc",
+    "speed-buff",
+    "auto-rear-brightness"
+  ],
+  "levels": {
+    "low": [
+      1.5,
+      1.5,
+      1.5
+    ],
+    "medium": [
+      2.5,
+      2,
+      1.5
+    ],
+    "high": [
+      3,
+      3,
+      2
+    ]
+  },
+  "default": "medium",
+  "offlineTests": 215,
+  "offlineSkips": 0,
+  "machineCodeCases": 4206,
+  "restoreCases": 14,
+  "selectionMasks": 7,
+  "nativeMacMasks": 8,
+  "languages": [
+    "zh",
+    "zh-Hant",
+    "en"
+  ],
+  "macMachOFiles": 76,
+  "windowsPeFiles": 38,
+  "packagedBackendCasesPerPlatform": 42,
+  "stable0412Detects0417": true,
+  "beta050Ignores0417": true,
+  "deviceAccessed": false,
+  "artifacts": [
+    {
+      "platform": "macOS",
+      "filename": "x2d-907-extension-toolkit-macOS-Universal-0.4.17.zip",
+      "bytes": 28197638,
+      "sha256": "0bf186683bc53b81cae99ed1d4816edc8870e635f654ff24eaed88638cfbd93c"
+    },
+    {
+      "platform": "Windows",
+      "filename": "x2d-907-extension-toolkit-Windows-x64-0.4.17.zip",
+      "bytes": 17014579,
+      "sha256": "58013fb54fde2096e362b42a31626e5402634a8799c40790e35134f2640079c9"
+    }
+  ],
+  "limits": [
+    "Camera touchscreen/GPU/optical testing pending",
+    "Windows native device and CFV testing pending",
+    "Qt hardware/backend/constants proxied",
+    "Windows delivery copy redacts one unsigned DLL compile-path constant and updates integrity records; executable sections and camera payloads unchanged"
+  ]
+}

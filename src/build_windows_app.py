@@ -12,7 +12,9 @@ def run(*args):
 
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 
-def build(inputs, pyusb, llvm, output=None):
+def build(inputs, pyusb, llvm, output=None, ui_report=None):
+    from stable_build_validation import require_tested_payload
+    require_tested_payload(PAYLOAD, ui_report)
     out = output if output is not None else D / 'outputs/windows-app'
     out.mkdir(parents=True, exist_ok=True)
     builddir = out / 'launcher-build'; builddir.mkdir(exist_ok=True)
@@ -61,9 +63,10 @@ def build(inputs, pyusb, llvm, output=None):
     native = root / 'native-package'; native.mkdir()
     manifest = json.loads((PAYLOAD/'speed-bundle.json').read_text())
     localized={f['source'] for entries in (manifest.get('uiLanguages') or {}).values() for f in entries}
-    for source in {f['source'] for f in manifest['files']} | localized | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-0.4.7.json','previous-bundle-0.4.8.json','previous-bundle-0.4.9.json','previous-bundle-0.4.11.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
+    for source in {f['source'] for f in manifest['files']} | localized | {'speed-bundle.json','speed-bundle.tar.gz','previous-bundle.json','previous-speed-server.so','previous-bundle-0.3.0.json','previous-bundle-0.3.2.json','previous-bundle-0.3.3.json','previous-bundle-0.4.2.json','previous-bundle-0.4.7.json','previous-bundle-0.4.8.json','previous-bundle-0.4.9.json','previous-bundle-0.4.11.json','previous-bundle-0.4.12.json','previous-bundle-auto-brightness.json','previous-bundle-brightness-display.json'}:
         shutil.copy2(PAYLOAD / source, native / source)
     shutil.copytree(PAYLOAD/'previous-payloads',native / 'previous-payloads')
+    if ui_report: shutil.copy2(ui_report,native/'local-ui-validation.json')
     # Generate import libraries with lld-link. Stub DLLs are build artifacts only.
     linker = shutil.which('lld-link') or str(llvm / 'lld-link')
     for dll, exports in {'kernel32':['GetModuleFileNameW','CreateProcessW','CloseHandle','ExitProcess'],
@@ -100,7 +103,7 @@ def build(inputs, pyusb, llvm, output=None):
         missing = [n for n in imports if n not in system and n not in packaged and not n.startswith(('api-ms-win-', 'ext-ms-win-'))]
         if missing: raise RuntimeError('Missing imports for '+path.name+': '+str(missing))
         audits.append(dict(file=path.relative_to(root).as_posix(), architecture=architecture, sha256=sha(path), imports=imports))
-    (root / '版本与校验.json').write_text(json.dumps(dict(version=VERSION,architecture='x86_64',
+    (root / '版本与校验.json').write_text(json.dumps(dict(version=VERSION,softwareBaseline='v0.4.12',localBuild='stable-speed-test-1',architecture='x86_64',
         models=manifest['compatibleModels'],firmware='4.2.0',python='3.13.15',libusb='1.0.30',
         adb=adbversion,driverPreparation='camera Interface 3 only; libwdi 1.5.1 modified native WinUSB; Windows test pending',verification='cross-build and offline checks; Windows device test pending',
         binaries=audits),ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
@@ -118,5 +121,6 @@ if __name__ == '__main__':
     parser.add_argument('--pyusb', type=Path, required=True)
     parser.add_argument('--llvm', type=Path, required=True)
     parser.add_argument('--output', type=Path, help='Separate output directory for unpublished UI test packages')
+    parser.add_argument('--ui-report',type=Path)
     args = parser.parse_args()
-    build(args.inputs.resolve(), args.pyusb.resolve(), args.llvm.resolve(), args.output.resolve() if args.output else None)
+    build(args.inputs.resolve(), args.pyusb.resolve(), args.llvm.resolve(), args.output.resolve() if args.output else None,args.ui_report)

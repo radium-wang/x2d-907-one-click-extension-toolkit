@@ -101,3 +101,19 @@ The installation ledger retains both stock startup configurations. Both writes r
 The Qt command and pinned stock-source inputs are described under Camera payload inputs above. It loads the original stock popup while disabled and the packaged private popup while enabled, using the stock Loader lifecycle. `tests/test_native_focus_ui.py` exercises the real native transaction with substituted memory/Qt APIs, including both partial-write rollback positions and preservation of every stock focus cache/AOT field. `tests/test_public_payload_scope.py` checks that policy, raw partition and GUI write targets are rejected without camera access.
 
 Both desktop builders must include the pinned 0.4.8, 0.4.9 and 0.4.11 manifests and their exact language bytes in `previous-payloads`. The 0.4.11 selection records are recognized for all seven feature masks and all three languages. Direct GUI installation and policy experiments are not public App build inputs or device validation of this preload route.
+
+## Stable three-speed release (0.4.17)
+
+For this release, use `src/build_stable_speed.py`, which applies the speed-only changes to the **exact original v0.4.12** payload manifest (SHA-256 `8592a30073cc64cc55228c1a089b3538ae39306c43e82ec12a333fdbb9d24f75`). It verifies every baseline file before building and preserves the original preload, focus popup, brightness runtime and recovery bytes. The older `build_speed_bundle.py` alone does not produce this three-speed release.
+
+```sh
+python3 -B src/build_stable_speed.py \
+  --baseline /absolute/path/to/original-0.4.12-payload \
+  --stock /absolute/path/to/stock-4.2.0-system-root/lib64/libaaa.so \
+  --compiler /absolute/path/to/aarch64-capable-clang \
+  --output /absolute/path/to/new-stable-speed-payload
+```
+
+`tests/check_speed_machine.py` checks the three instruction profiles using Unicorn and pinned stock hardware-getter substitutes. `tests/check_stable_speed_ui.py` checks the generated three-language/seven-mask page using actual stock Qt 6.4.1 widgets, scroll gestures, orange highlighting, OFF gating, readback failure and request ordering. Run `PYTHONPATH=src:tests python3 -B tests/check_speed_machine.py /absolute/path/to/new-stable-speed-payload /absolute/path/to/stock-4.2.0-system-root/lib64/libaaa.so`; Unicorn is an additional local test dependency. The UI command's `--help` lists its private-input paths. Both desktop builders now require its matching validation report via `--ui-report` and the matching machine-code validation in the payload directory; a source-only test pass cannot replace those checks.
+
+The internal `stable-speed-test-1` build label remains in the published packages to identify the locally tested build. Publication changes only the ZIP instructions; all application and camera-payload members match the tested packages. See [the release record](releases/0.4.17.json) and [validation boundaries](STABLE-SPEED-TEST.md).

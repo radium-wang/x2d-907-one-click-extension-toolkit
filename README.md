@@ -1,8 +1,8 @@
 # X2D/907 One-Click Extension Toolkit
 
-**Stable release: 0.4.12.** This public repository provides the stable version. Version 0.5.0 is a private beta; its latest development and updates are maintained in a separate private repository, not published here.
+**Stable release: 0.4.17.** Adds Low / Medium / High focus speed selection to the original 0.4.12 stable baseline, offering gentler acceleration choices for older lenses. Version 0.5.0 remains a private beta with separate development and updates; it will not receive this stable update.
 
-**稳定版：0.4.12。** 本公开库提供稳定版本。0.5.0 为内测版，最新开发内容与更新在独立私库维护，不在本库发布。
+**稳定版：0.4.17。** 基于原始 0.4.12 新增低／中／高三档对焦速度可选，提供对老镜头更友好的温和加速选择。0.5.0 内测版继续使用独立更新库，不会收到此次稳定版更新。[验证记录](docs/STABLE-SPEED-TEST.md)。
 
 ## 一键工具包 · 下载 / One-click toolkit
 
@@ -31,21 +31,21 @@ Camera menu text follows the app language at install time: English installs **Tw
 
 ## Download / 下载软件
 
-**Latest stable version: 0.4.12 / 最新稳定版：0.4.12**
+**Latest stable version: 0.4.17 / 最新稳定版：0.4.17**
 
-- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/x2d-907-extension-toolkit-Windows-x64-0.4.12.zip)
-- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/x2d-907-extension-toolkit-macOS-Universal-0.4.12.zip)
+- [**Download for Windows 10/11 (64-bit) / 下载 Windows 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.17/x2d-907-extension-toolkit-Windows-x64-0.4.17.zip)
+- [**Download for macOS 13+ (Apple silicon and Intel) / 下载 Mac 版 (.zip)**](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.17/x2d-907-extension-toolkit-macOS-Universal-0.4.17.zip)
 
-Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.12) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/SHA256SUMS)
+Extract the entire ZIP before opening the app. 下载后请完整解压，再启动软件。 [Release notes / 更新说明](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/tag/v0.4.17) · [SHA-256 checksums / 校验文件](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.17/SHA256SUMS)
 
-Version 0.4.12 fixes focus UI state: when either Tweaks or AF-C is off, the stock popup and icons remain. With both enabled, control-screen, liveview and popup icons follow AF-S/AF-C/MF together. It retains the Mac/Windows design and all 0.4.11 feature-selection recovery records. Offline and Qt regressions pass; physical camera validation remains pending. See [release notes](CHANGELOG.md).
+Version 0.4.17 adds a native vertical Low / Medium / High selector below Focus Speed Boost, with orange highlighting and a gray disabled row when boost is off. Low uses 1.5/1.5/1.5, Medium (default) 2.5/2/1.5, and High 3/3/2 for Type 0/1/2. The saved level survives disabling and reboot; Restore removes it. After updating the desktop app, use **Connected → Install** to update the camera menu. See [release notes](CHANGELOG.md).
 
-0.4.12 修复对焦界面状态：关闭耍起功能或 AF-C 时保留原厂弹窗与图标；两者都开启后，主页、取景和弹窗的 AF-S／AF-C／MF 同步显示。沿用 Mac／Windows 新界面，保留 0.4.11 所有功能组合的恢复记录。离线及 Qt 回归通过，仍待实机验证，详见[更新说明](CHANGELOG.md)。
+0.4.17 在对焦加速开关下加入原厂上下滑动的低／中／高选择，橙色高亮；加速关闭时灰色不可用。低为 1.5／1.5／1.5，中（默认）2.5／2／1.5，高为 3／3／2，依次对应 Type 0／1／2。关闭及重启保留档位，恢复原状清除档位。电脑端升级后，点击 **已连接 → 一键安装** 更新相机菜单，详见[更新说明](CHANGELOG.md)。
 
 ## Features
 
 - **AF-C continuous autofocus:** adds a camera-side availability switch. The stock AF-S / MF layout returns when disabled.
-- **Focus speed buff:** faster focus scans, with stock speed restored when disabled.
+- **Focus speed buff:** Low / Medium / High acceleration, with stock speed restored when disabled.
 - **Auto Brightness (0.4.3):** enable “Add Auto Brightness to Menu” in Tweaks, then control Auto in Display → Brightness. The rear slider sets the maximum; the knob stays there while its white fill tracks current output. The master switch controls availability; default off.
 - **Install / Restore original:** checks the camera and package, saves the original startup configuration, then restarts and verifies the result.
 - **Settings and updates:** in Settings, startup checks default to on and can be disabled; the choice is remembered. Manual checking remains available when automatic checks are off. A separate Download and Install Update action fetches the latest stable GitHub Release for your platform, verifies its SHA-256 digest, then installs and relaunches the app. Camera operations and app updates cannot run together. The previous app is retained beside the installation. Updates change the desktop app; updating an installed camera extension still requires **Connected → Install**.
@@ -54,7 +54,7 @@ Version 0.4.12 fixes focus UI state: when either Tweaks or AF-C is off, the stoc
 - **Windows interface (0.4.4):** Mac-aligned feature cards, rounded buttons and Settings, with bilingual typography, per-monitor DPI scaling and scrolling on short displays. The camera payload is unchanged from 0.4.3, so existing 0.4.3 camera installations do not need reinstallation.
 - **907 IBIS entry (Easter egg):** available after a verified 907 connection; its menu label follows the installed language.
 
-**Focus acceleration works by tripling lens motor speed. Not recommended for older lenses.** The same guidance appears below the camera switch in 0.4.8; use Connected → Install after the desktop update to apply the new camera text.
+Focus acceleration changes lens motor-control parameters according to the selected level. Low offers gentler acceleration; the multipliers do not establish overall autofocus gains or lens safety. The original older-lens caution remains in the desktop app.
 
 ## Getting started
 
@@ -107,12 +107,12 @@ If this toolkit helps you, you can support its development via [PayPal](https://
 
 相机菜单文案随安装时的 App 语言：简体、繁体中文安装为“耍起功能”（功能名称与提示使用所选字形），英文安装为 Tweaks。
 
-**下载安装包：**[Windows 10/11（64 位）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/x2d-907-extension-toolkit-Windows-x64-0.4.12.zip) · [macOS 13 及以上（Apple 芯片 / Intel）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.12/x2d-907-extension-toolkit-macOS-Universal-0.4.12.zip)。下载后请完整解压，再启动软件。
+**下载安装包：**[Windows 10/11（64 位）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.17/x2d-907-extension-toolkit-Windows-x64-0.4.17.zip) · [macOS 13 及以上（Apple 芯片 / Intel）](https://github.com/radium-wang/x2d-907-one-click-extension-toolkit/releases/download/v0.4.17/x2d-907-extension-toolkit-macOS-Universal-0.4.17.zip)。下载后请完整解压，再启动软件。
 
 ### 当前功能
 
 - **AF-C 连续自动对焦**：在相机上控制连续对焦入口；关闭后恢复原厂 AF-S / 手动对焦布局。
-- **对焦加速**：加快对焦扫描，关闭后恢复原厂速度。
+- **对焦加速**：低／中／高三档可选，关闭后恢复原厂速度。
 - **后屏自动亮度（0.4.3）**：在耍起功能中开启“在亮度菜单中加入自动亮度”，之后在显示 → 亮度中控制自动模式。滑块圆球设置最高亮度，白线跟随当前输出；受总开关控制、默认关闭。
 - **一键安装 / 一键恢复原状**：检查连接与文件，保存原厂启动配置，并在重启后校验结果。
 - **设置与更新**：在设置页选择语言、关闭或开启启动自动检查更新（默认开启并保存选择）；关闭后仍能手动检查。下载安装需另行点击，从 GitHub Release 获取对应系统的稳定版，校验 SHA-256 后安装并重新打开；保留上一版 App，更新与相机操作互斥。更新只替换电脑端软件；相机上的扩展需再点击 **已连接 → 一键安装** 更新。
@@ -121,7 +121,7 @@ If this toolkit helps you, you can support its development via [PayPal](https://
 - **Windows 界面（0.4.4）**：功能卡片、圆角按钮和设置页对齐 Mac，适配中英文字体、显示器 DPI 缩放及小屏幕滚动。相机载荷与 0.4.3 相同，已有 0.4.3 相机安装无需重装。
 - **907 防抖入口（彩蛋）**：识别到 907 后可选择添加；入口名称随安装语言变化。
 
-**对焦加速通过将镜头转速提高三倍实现，不建议老镜头用户开启。** 0.4.8 相机开关下方也有这段说明；电脑端升级后点击“已连接 → 一键安装”更新相机文案。
+对焦加速按所选档位调整镜头电机控制参数，低档提供更温和的加速选择；倍率不代表整体对焦时间同比缩短或已验证镜头安全。App 仍保留原有老镜头使用提醒。
 
 ### 使用方法
 
