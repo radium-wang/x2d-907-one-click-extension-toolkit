@@ -4,7 +4,7 @@
 > 项目现由 [Gothenburg-R-D-Team](https://github.com/Gothenburg-R-D-Team/x2d-907-one-click-extension-toolkit) 维护。这个 fork 留在我的个人账号下；最新代码、文档和发布信息请以组织仓库为准。  
 > This fork remains under my personal account. For current code, documentation and releases, visit the organization repository above.
 
-## 项目见解 / Project perspective
+## 项目简介 / Project overview
 
 这个项目探索为第一代 X2D 100C 与 907X & CFV 100C 提供可选择的相机扩展功能。对直接修改相机状态的工具，功能与可靠的恢复路径同样重要：核验机型和固件、保留可验证的备份、区分离线测试与实机验证，并如实说明已知限制。个人 fork 不再重复版本和安装说明，避免旧内容与项目当前状态不一致。
 
